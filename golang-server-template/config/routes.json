@@ -1,0 +1,31 @@
+[
+  {
+    "id": "UsersRoute",
+    "pattern": "/users",
+    "handlers": {
+      "DELETE": "DeleteUser",
+      "GET": "GetUser",
+      "POST": "PostUser",
+      "PUT": "PutUser"
+    }
+  },
+  {
+    "id": "UserSessionsRoute",
+    "pattern": "/users/login",
+    "handlers": {
+      "DELETE": "DeleteUserSession",
+      "GET": "GetUserSession",
+      "POST": "PostUserSession",
+      "PUT": "PutUserSession"
+    }
+  },
+  {
+    "id": "TransactionsRoute",
+    "pattern": "/transactions",
+    "handlers": {
+      "GET": "GetTransaction",
+      "POST": "PostTransaction",
+      "DELETE": "DeleteTransaction"
+    }
+  }
+]

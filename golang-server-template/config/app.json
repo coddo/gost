@@ -1,0 +1,5 @@
+{
+	"applicationName": "go-server-template",
+	"apiInstance": "/gst/",
+	"httpServerAddress": "0.0.0.0:8080"
+}
