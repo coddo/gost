@@ -24,6 +24,7 @@ func PerformApiCall(handlerName string, rw http.ResponseWriter, req *http.Reques
 	// Create the variables containing request data
 	vars := createApiVars(req, rw, route)
 	if vars == nil {
+		GiveApiStatus(http.StatusInternalServerError, rw, req, route.Pattern)
 		return
 	}
 
