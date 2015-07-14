@@ -1,9 +1,10 @@
 # What's this?
 
-This is the skeleton of a Web API written in go. In order to use it, you have to clone it rename it as you want (also rename all the imports from 'go-server-template' to your app's name) and then start coding over this template.
+This is the skeleton of a Web API written in go. In order to use it, you have to clone it, rename it as you want (also rename all the imports from 'go-server-template' to your app's name) and then start coding over this template.
 
 This template contains basic endpoints for Users (+ login system) and Transactions (payments made between users). Both the endpoints are fully working ones, however the user is free to modify/delete them as they will. 
-!NOTE that deleting the Users model completely from the app will make this template to malfunction.
+
+###!NOTE that deleting the Users model completely from the app will make this template to malfunction.
 
 # Configuration steps for the API
 
@@ -32,4 +33,4 @@ In order for the tests to run, you need to set the following environment variabl
 
 > **GST_TESTAPP_HTTP** = serverName_testapp_http_server (i.e. :7500 for localhost:7500/; use 0.0.0.0:7500 for access from outside the local domain)
 
-If you don't want to use the terminal for creating the databases, you can always use an usefull app with GUI, such as **Robomongo**
+If you don't want to use the terminal for creating the databases, you can always use an useful app with GUI, such as **Robomongo**
