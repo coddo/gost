@@ -13,7 +13,7 @@ import (
 	"testing"
 )
 
-func PerformApiTestCall(endpointName, method string, expectedStatusCode int, urlParams url.Values, object models.Serializable, t *testing.T) *httptest.ResponseRecorder {
+func PerformApiTestCall(endpointName, method string, expectedStatusCode int, urlParams url.Values, object models.Expander, t *testing.T) *httptest.ResponseRecorder {
 	Url, err := generateApiUrl(endpointName, urlParams)
 	if err != nil {
 		t.Error(err.Error())
@@ -23,7 +23,7 @@ func PerformApiTestCall(endpointName, method string, expectedStatusCode int, url
 	// Do nothing if no object is specified
 	var jsonData []byte
 	if object != nil {
-		jsonData, err = object.SerializeJson()
+		jsonData, err = models.SerializeJson(object)
 
 		if err != nil {
 			t.Fatal(err.Error())

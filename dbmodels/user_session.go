@@ -13,7 +13,12 @@ type UserSession struct {
 	ExpireDate time.Time     `bson:"expireDate,omitempty" json:"expireDate"`
 }
 
-func (userSession *UserSession) Equal(otherSession UserSession) bool {
+func (userSession *UserSession) Equal(obj Object) bool {
+	otherSession, ok := obj.(*UserSession)
+	if !ok {
+		return false
+	}
+
 	switch {
 	case userSession.Id != otherSession.Id:
 		return false

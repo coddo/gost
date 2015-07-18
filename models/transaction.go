@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"go-server-template/dbmodels"
 	"go-server-template/service/userservice"
 	"gopkg.in/mgo.v2/bson"
@@ -20,27 +19,7 @@ type Transaction struct {
 	Date     time.Time `json:"date"`
 }
 
-func (transaction *Transaction) SerializeJson() ([]byte, error) {
-	data, err := json.MarshalIndent(*transaction, JsonPrefix, JsonIndent)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
-}
-
-func (transaction *Transaction) DeserializeJson(obj []byte) error {
-	err := json.Unmarshal(obj, transaction)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (transaction *Transaction) PopConstraints() {
+func (transaction *Transaction) PopConstrains() {
 	dbPayer, err := userservice.GetUser(transaction.Payer.Id)
 	if err != nil {
 		transaction.Payer.Expand(dbPayer)
@@ -61,7 +40,7 @@ func (transaction *Transaction) Expand(dbTransaction *dbmodels.Transaction) {
 	transaction.Currency = dbTransaction.Currency
 	transaction.Date = dbTransaction.Date
 
-	transaction.PopConstraints()
+	transaction.PopConstrains()
 }
 
 func (transaction *Transaction) Collapse() *dbmodels.Transaction {

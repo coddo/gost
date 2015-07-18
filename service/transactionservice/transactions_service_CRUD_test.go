@@ -77,7 +77,7 @@ func verifyTransactionCorresponds(t *testing.T, transaction *dbmodels.Transactio
 		t.Error("Could not fetch the transaction document from the database!")
 	}
 
-	if !dbtransaction.Equal(*transaction) {
+	if !dbtransaction.Equal(transaction) {
 		t.Error("The transaction document doesn't correspond with the document extracted from the database!")
 	}
 }

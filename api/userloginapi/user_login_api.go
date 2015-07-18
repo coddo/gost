@@ -55,7 +55,7 @@ func (userSessionsApi *UserSessionsApi) GetUserSession(vars *api.ApiVar) api.Api
 func (userSessionsApi *UserSessionsApi) PostUserSession(vars *api.ApiVar) api.ApiResponse {
 	userSession := &models.UserSession{}
 
-	err := userSession.DeserializeJson(vars.RequestBody)
+	err := models.DeserializeJson(vars.RequestBody, userSession)
 	if err != nil {
 		return api.BadRequest(api.EntityFormatError)
 	}

@@ -22,7 +22,12 @@ type Transaction struct {
 	Date     time.Time `bson:"date,omitempty" json:"date"`
 }
 
-func (transaction *Transaction) Equal(otherTransaction Transaction) bool {
+func (transaction *Transaction) Equal(obj Object) bool {
+	otherTransaction, ok := obj.(*Transaction)
+	if !ok {
+		return false
+	}
+
 	switch {
 	case transaction.Id != otherTransaction.Id:
 		return false

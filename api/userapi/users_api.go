@@ -41,7 +41,7 @@ func (usersApi *UsersApi) GetUser(vars *api.ApiVar) api.ApiResponse {
 func (usersApi *UsersApi) PostUser(vars *api.ApiVar) api.ApiResponse {
 	user := &models.User{}
 
-	err := user.DeserializeJson(vars.RequestBody)
+	err := models.DeserializeJson(vars.RequestBody, user)
 	if err != nil {
 		return api.BadRequest(api.EntityFormatError)
 	}
@@ -66,7 +66,7 @@ func (usersApi *UsersApi) PostUser(vars *api.ApiVar) api.ApiResponse {
 
 func (usersApi *UsersApi) PutUser(vars *api.ApiVar) api.ApiResponse {
 	user := &models.User{}
-	err := user.DeserializeJson(vars.RequestBody)
+	err := models.DeserializeJson(vars.RequestBody, user)
 
 	if err != nil {
 		return api.BadRequest(api.EntityFormatError)
@@ -130,7 +130,7 @@ func getAllUsers(vars *api.ApiVar, limit int) api.ApiResponse {
 		return api.InternalServerError(err)
 	}
 
-	usersMap := make(map[int]models.Serializable, len(dbUsers))
+	usersMap := make(map[int]models.Expander, len(dbUsers))
 	for i := 0; i < len(dbUsers); i++ {
 		user := &models.User{}
 
