@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"go-server-template/models"
 	"io/ioutil"
 )
@@ -25,7 +24,7 @@ func MultipleDataResponse(statusCode int, data map[int]models.Expander) ApiRespo
 		serializableData[i] = data[i]
 	}
 
-	jsonData, err := json.MarshalIndent(serializableData, models.JsonPrefix, models.JsonIndent)
+	jsonData, err := models.SerializeJson(serializableData)
 	if err != nil {
 		return InternalServerError(err)
 	}

@@ -6,18 +6,18 @@ import (
 
 // Constants used for JSON serializations
 const (
-	JsonPrefix = ""
-	JsonIndent = "  "
+	jsonPrefix = ""
+	jsonIndent = "  "
 )
 
 // Create the JSON representation of a model
-func SerializeJson(model Expander) ([]byte, error) {
-	return json.MarshalIndent(model, JsonPrefix, JsonIndent)
+func SerializeJson(target interface{}) ([]byte, error) {
+	return json.MarshalIndent(target, jsonPrefix, jsonIndent)
 }
 
 // Deserialize a JSON representation into a model
-func DeserializeJson(jsonData []byte, model Expander) error {
-	return json.Unmarshal(jsonData, model)
+func DeserializeJson(jsonData []byte, target interface{}) error {
+	return json.Unmarshal(jsonData, target)
 }
 
 // Interface for switching between dbmodels and models
