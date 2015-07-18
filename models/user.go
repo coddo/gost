@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"go-server-template/dbmodels"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -28,27 +27,7 @@ type User struct {
 	Picture     string `json:"picture"`
 }
 
-func (user *User) SerializeJson() ([]byte, error) {
-	data, err := json.MarshalIndent(*user, JsonPrefix, JsonIndent)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
-}
-
-func (user *User) DeserializeJson(obj []byte) error {
-	err := json.Unmarshal(obj, user)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (user *User) PopConstraints() {
+func (user *User) PopConstrains() {
 	// Nothing to do here for now
 }
 
@@ -70,7 +49,7 @@ func (user *User) Expand(dbUser *dbmodels.User) {
 	user.PostalCode = dbUser.PostalCode
 	user.Picture = dbUser.Picture
 
-	user.PopConstraints()
+	user.PopConstrains()
 }
 
 func (user *User) Collapse() *dbmodels.User {

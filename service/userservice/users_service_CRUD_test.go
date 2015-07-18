@@ -84,7 +84,7 @@ func verifyUserCorresponds(t *testing.T, user *dbmodels.User) {
 		t.Error("Could not fetch the user document from the database!")
 	}
 
-	if !dbuser.Equal(*user) {
+	if !dbuser.Equal(user) {
 		t.Error("The user document doesn't correspond with the document extracted from the database!")
 	}
 }

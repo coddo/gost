@@ -76,7 +76,7 @@ func testVerifyUserSessionCorresponds(t *testing.T, userSession *dbmodels.UserSe
 		t.Error("Could not fetch the user session document from the database!")
 	}
 
-	if !dbUserSession.Equal(*userSession) {
+	if !dbUserSession.Equal(userSession) {
 		t.Error("The user session document doesn't correspond with the document extracted from the database!")
 	}
 }

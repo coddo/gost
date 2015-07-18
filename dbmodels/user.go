@@ -32,7 +32,12 @@ type User struct {
 	Picture     string `bson:"picture,omitempty" json:"picture"`
 }
 
-func (user *User) Equal(otherUser User) bool {
+func (user *User) Equal(obj Object) bool {
+	otherUser, ok := obj.(*User)
+	if !ok {
+		return false
+	}
+
 	switch {
 	case user.Id != otherUser.Id:
 		return false

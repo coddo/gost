@@ -36,7 +36,7 @@ func (t *TransactionsApi) GetTransaction(vars *api.ApiVar) api.ApiResponse {
 func (t *TransactionsApi) PostTransaction(vars *api.ApiVar) api.ApiResponse {
 	transaction := &models.Transaction{}
 
-	err := transaction.DeserializeJson(vars.RequestBody)
+	err := models.DeserializeJson(vars.RequestBody, transaction)
 	if err != nil {
 		return api.BadRequest(api.EntityFormatError)
 	}

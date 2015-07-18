@@ -1,7 +1,6 @@
 package userapi
 
 import (
-	"encoding/json"
 	"go-server-template/api"
 	"go-server-template/dbmodels"
 	"go-server-template/models"
@@ -19,25 +18,7 @@ type dummyUser struct {
 	BadField string
 }
 
-func (user *dummyUser) SerializeJson() ([]byte, error) {
-	data, err := json.MarshalIndent(*user, "  ", "")
-
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
-}
-
-func (user *dummyUser) DeserializeJson(obj []byte) error {
-	err := json.Unmarshal(obj, user)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
+func (user *dummyUser) PopConstrains() {}
 
 func TestUsersApi(t *testing.T) {
 	tests.InitializeServerConfigurations(usersRoute, new(UsersApi))

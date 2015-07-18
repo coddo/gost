@@ -1,7 +1,6 @@
 package transactionapi
 
 import (
-	"encoding/json"
 	"go-server-template/api"
 	"go-server-template/dbmodels"
 	"go-server-template/models"
@@ -20,25 +19,7 @@ type dummyTransaction struct {
 	BadField string
 }
 
-func (transaction *dummyTransaction) SerializeJson() ([]byte, error) {
-	data, err := json.MarshalIndent(*transaction, "  ", "")
-
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
-}
-
-func (transaction *dummyTransaction) DeserializeJson(obj []byte) error {
-	err := json.Unmarshal(obj, transaction)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
+func (transaction *dummyTransaction) PopConstrains() {}
 
 func TestTransactionsApi(t *testing.T) {
 	tests.InitializeServerConfigurations(transactionsRoute, new(TransactionsApi))
