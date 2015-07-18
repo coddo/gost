@@ -23,6 +23,7 @@ sftp-config.json
 *.a
 *.so
 go-server-template/go-server-template
+go-server-template/.key
 
 # Folders
 _obj

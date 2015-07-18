@@ -4,6 +4,7 @@ import (
 	"go-server-template/api/userapi"
 	"go-server-template/config"
 	"go-server-template/httphandle"
+	"go-server-template/security"
 	"go-server-template/servers"
 	"runtime"
 )
@@ -17,9 +18,13 @@ type ApiContainer struct {
 func initApplicationConfiguration() {
 	var emptyConfigParam string = ""
 
+	// Initialize application configuration
 	config.InitApp(emptyConfigParam)
 	config.InitDatabase(emptyConfigParam)
 	config.InitRoutes(emptyConfigParam)
+
+	// Initialize security module
+	security.InitCrypto()
 
 	// Register the API endpoints
 	httphandle.SetApiInterface(new(ApiContainer))
