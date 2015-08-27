@@ -6,8 +6,8 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
-	"go-server-template/models"
 	"gopkg.in/mgo.v2/bson"
+	"gost/models"
 	"io"
 	"time"
 )
