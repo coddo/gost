@@ -130,7 +130,7 @@ func getAllUsers(vars *api.ApiVar, limit int) api.ApiResponse {
 		return api.InternalServerError(err)
 	}
 
-	usersMap := make(map[int]models.Expander, len(dbUsers))
+	usersMap := make(map[int]models.User, len(dbUsers))
 	for i := 0; i < len(dbUsers); i++ {
 		user := &models.User{}
 
