@@ -136,7 +136,7 @@ func getAllUsers(vars *api.ApiVar, limit int) api.ApiResponse {
 
 		user.Expand(&dbUsers[i])
 
-		usersMap[i] = user
+		usersMap[i] = *user
 	}
 
 	return api.MultipleDataResponse(http.StatusOK, usersMap)

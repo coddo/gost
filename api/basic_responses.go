@@ -17,7 +17,8 @@ func SingleDataResponse(statusCode int, data interface{}) ApiResponse {
 	}
 }
 
-func MultipleDataResponse(statusCode int, data map[int]interface{}) ApiResponse {
+func MultipleDataResponse(statusCode int, dataInterface interface{}) ApiResponse {
+	data, _ := dataInterface.(map[int]interface{})
 	serializableData := make([]interface{}, len(data))
 
 	for i := 0; i < len(data); i++ {
