@@ -1,8 +1,8 @@
 package servers
 
 import (
-	"go-server-template/config"
-	"go-server-template/httphandle"
+	"gost/config"
+	"gost/httphandle"
 	"log"
 	"net/http"
 	"time"

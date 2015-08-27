@@ -1,9 +1,9 @@
 package httphandle
 
 import (
-	"go-server-template/api"
-	"go-server-template/config"
-	"go-server-template/filter"
+	"gost/api"
+	"gost/config"
+	"gost/filter"
 	"io"
 	"io/ioutil"
 	"log"

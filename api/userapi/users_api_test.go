@@ -1,11 +1,11 @@
 package userapi
 
 import (
-	"go-server-template/api"
-	"go-server-template/dbmodels"
-	"go-server-template/models"
-	"go-server-template/tests"
 	"gopkg.in/mgo.v2/bson"
+	"gost/api"
+	"gost/dbmodels"
+	"gost/models"
+	"gost/tests"
 	"net/http"
 	"net/url"
 	"testing"
