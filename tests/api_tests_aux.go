@@ -2,9 +2,9 @@ package tests
 
 import (
 	"bytes"
-	"go-server-template/config"
-	"go-server-template/httphandle"
-	"go-server-template/models"
+	"gost/config"
+	"gost/httphandle"
+	"gost/models"
 	"net/http"
 	"net/http/httptest"
 	"net/url"

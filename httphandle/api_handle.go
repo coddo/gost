@@ -1,7 +1,7 @@
 package httphandle
 
 import (
-	"go-server-template/config"
+	"gost/config"
 	"net/http"
 	"net/url"
 )

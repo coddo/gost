@@ -1,7 +1,7 @@
 package httphandle
 
 import (
-	"go-server-template/filter"
+	"gost/filter"
 	"log"
 	"net/http"
 )

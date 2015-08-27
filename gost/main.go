@@ -1,10 +1,10 @@
 package main
 
 import (
-	"go-server-template/api/userapi"
-	"go-server-template/config"
-	"go-server-template/httphandle"
-	"go-server-template/servers"
+	"gost/api/userapi"
+	"gost/config"
+	"gost/httphandle"
+	"gost/servers"
 	"runtime"
 )
 

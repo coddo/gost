@@ -2,10 +2,10 @@ package userloginapi
 
 import (
 	"errors"
-	"go-server-template/api"
-	"go-server-template/filter/apifilter"
-	"go-server-template/models"
-	"go-server-template/service/userloginservice"
+	"gost/api"
+	"gost/filter/apifilter"
+	"gost/models"
+	"gost/service/userloginservice"
 	"net/http"
 	"time"
 )

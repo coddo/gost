@@ -1,5 +1,5 @@
 {
-	"applicationName": "go-server-template",
+	"applicationName": "gost",
 	"apiInstance": "/v1/",
 	"httpServerAddress": "0.0.0.0:8080",
 	"swaggerRedirectAddress": "127.0.0.1:8000"

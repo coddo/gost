@@ -1,7 +1,7 @@
 package api
 
 import (
-	"go-server-template/models"
+	"gost/models"
 	"io/ioutil"
 )
 

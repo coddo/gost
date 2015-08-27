@@ -1,8 +1,8 @@
 package models
 
 import (
-	"go-server-template/dbmodels"
 	"gopkg.in/mgo.v2/bson"
+	"gost/dbmodels"
 )
 
 // Struct representing an user account. This is a database dbmodels
