@@ -1,9 +1,9 @@
 package models
 
 import (
-	"go-server-template/dbmodels"
-	"go-server-template/service/userservice"
 	"gopkg.in/mgo.v2/bson"
+	"gost/dbmodels"
+	"gost/service/userservice"
 	"time"
 )
 

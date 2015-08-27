@@ -1,7 +1,7 @@
 package apifilter
 
 import (
-	"go-server-template/models"
+	"gost/models"
 )
 
 func CheckUserIntegrity(user *models.User) bool {

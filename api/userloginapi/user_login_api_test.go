@@ -1,11 +1,11 @@
 package userloginapi
 
 import (
-	"go-server-template/api"
-	"go-server-template/models"
-	"go-server-template/service/userloginservice"
-	"go-server-template/tests"
 	"gopkg.in/mgo.v2/bson"
+	"gost/api"
+	"gost/models"
+	"gost/service/userloginservice"
+	"gost/tests"
 	"net/http"
 	"net/url"
 	"testing"

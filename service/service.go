@@ -6,8 +6,8 @@ package service
 
 import (
 	"errors"
-	"go-server-template/config"
 	"gopkg.in/mgo.v2"
+	"gost/config"
 	"log"
 )
 

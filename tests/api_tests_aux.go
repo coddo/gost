@@ -2,9 +2,9 @@ package tests
 
 import (
 	"bytes"
-	"go-server-template/config"
-	"go-server-template/httphandle"
-	"go-server-template/models"
+	"gost/config"
+	"gost/httphandle"
+	"gost/models"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -13,7 +13,7 @@ import (
 	"testing"
 )
 
-func PerformApiTestCall(endpointName, method string, expectedStatusCode int, urlParams url.Values, object models.Expander, t *testing.T) *httptest.ResponseRecorder {
+func PerformApiTestCall(endpointName, method string, expectedStatusCode int, urlParams url.Values, object interface{}, t *testing.T) *httptest.ResponseRecorder {
 	Url, err := generateApiUrl(endpointName, urlParams)
 	if err != nil {
 		t.Error(err.Error())

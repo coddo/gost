@@ -1,7 +1,7 @@
 package service
 
 import (
-	"go-server-template/config"
+	"gost/config"
 	"testing"
 )
 

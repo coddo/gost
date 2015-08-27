@@ -1,12 +1,12 @@
 package transactionapi
 
 import (
-	"go-server-template/api"
-	"go-server-template/dbmodels"
-	"go-server-template/models"
-	"go-server-template/service/transactionservice"
-	"go-server-template/tests"
 	"gopkg.in/mgo.v2/bson"
+	"gost/api"
+	"gost/dbmodels"
+	"gost/models"
+	"gost/service/transactionservice"
+	"gost/tests"
 	"net/http"
 	"net/url"
 	"testing"

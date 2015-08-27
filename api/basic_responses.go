@@ -1,11 +1,11 @@
 package api
 
 import (
-	"go-server-template/models"
+	"gost/models"
 	"io/ioutil"
 )
 
-func SingleDataResponse(statusCode int, data models.Expander) ApiResponse {
+func SingleDataResponse(statusCode int, data interface{}) ApiResponse {
 	jsonData, err := models.SerializeJson(data)
 	if err != nil {
 		return InternalServerError(err)
@@ -17,8 +17,8 @@ func SingleDataResponse(statusCode int, data models.Expander) ApiResponse {
 	}
 }
 
-func MultipleDataResponse(statusCode int, data map[int]models.Expander) ApiResponse {
-	serializableData := make([]models.Expander, len(data))
+func MultipleDataResponse(statusCode int, data map[int]interface{}) ApiResponse {
+	serializableData := make([]interface{}, len(data))
 
 	for i := 0; i < len(data); i++ {
 		serializableData[i] = data[i]

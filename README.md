@@ -1,6 +1,6 @@
 # What's this?
 
-This is the skeleton of a Web API written in go. In order to use it, you have to clone it, rename it as you want (also rename all the imports from 'go-server-template' to your app's name) and then start coding over this template.
+This is the skeleton of a Web API written in go. In order to use it, you have to clone it, rename it as you want (also rename all the imports from 'gost' to your app's name) and then start coding over this template.
 
 This template contains basic endpoints for Users (+ login system) and Transactions (payments made between users). Both the endpoints are fully working ones, however the user is free to modify/delete them as they will. 
 

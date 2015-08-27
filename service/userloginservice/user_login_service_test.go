@@ -1,9 +1,9 @@
 package userloginservice
 
 import (
-	"go-server-template/config"
-	"go-server-template/dbmodels"
 	"gopkg.in/mgo.v2/bson"
+	"gost/config"
+	"gost/dbmodels"
 	"testing"
 	"time"
 )

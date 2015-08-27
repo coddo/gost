@@ -1,12 +1,12 @@
 package userapi
 
 import (
-	"go-server-template/api"
-	"go-server-template/dbmodels"
-	"go-server-template/filter/apifilter"
-	"go-server-template/models"
-	"go-server-template/service/userservice"
 	"gopkg.in/mgo.v2/bson"
+	"gost/api"
+	"gost/dbmodels"
+	"gost/filter/apifilter"
+	"gost/models"
+	"gost/service/userservice"
 	"net/http"
 	"strings"
 )
@@ -130,7 +130,7 @@ func getAllUsers(vars *api.ApiVar, limit int) api.ApiResponse {
 		return api.InternalServerError(err)
 	}
 
-	usersMap := make(map[int]models.Expander, len(dbUsers))
+	usersMap := make(map[int]models.User, len(dbUsers))
 	for i := 0; i < len(dbUsers); i++ {
 		user := &models.User{}
 

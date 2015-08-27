@@ -1,10 +1,10 @@
 package transactionapi
 
 import (
-	"go-server-template/api"
-	"go-server-template/filter/apifilter"
-	"go-server-template/models"
-	"go-server-template/service/transactionservice"
+	"gost/api"
+	"gost/filter/apifilter"
+	"gost/models"
+	"gost/service/transactionservice"
 	"net/http"
 )
 
