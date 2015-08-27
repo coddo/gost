@@ -19,8 +19,3 @@ func SerializeJson(target interface{}) ([]byte, error) {
 func DeserializeJson(jsonData []byte, target interface{}) error {
 	return json.Unmarshal(jsonData, target)
 }
-
-// Interface for switching between dbmodels and models
-type Expander interface {
-	PopConstrains()
-}
