@@ -15,7 +15,7 @@ var encryptionKey string
 // either by getting an existent one or by generating a new one
 func InitCrypto() {
 	if _, err := os.Stat(keyFileName); os.IsNotExist(err) {
-		encryptionKey = generateSecretKey()
+		encryptionKey = GenerateKey()
 	} else {
 		encryptionKey = fetchSecretKey()
 	}
@@ -35,7 +35,7 @@ func fetchSecretKey() string {
 
 // Generates a new secret key and also saves it
 // in a configuration file
-func generateSecretKey() string {
+func GenerateKey() string {
 	key := make([]byte, 64)
 
 	_, err := rand.Read(key)

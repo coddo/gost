@@ -17,12 +17,13 @@ type Sender struct {
 }
 
 type Device struct {
-	Type    string
-	OS      string
-	Country string
-	State   string
-	City    string
-	Time    time.Time
+	Type      string
+	OS        string
+	Country   string
+	State     string
+	City      string
+	Time      time.Time
+	IPAddress string
 }
 
 type Credentials struct {
