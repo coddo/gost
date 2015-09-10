@@ -1,5 +1,5 @@
 {
 	"applicationName": "gost",
-	"apiInstance": "/gst/",
+	"apiInstance": "/gost/",
 	"httpServerAddress": "0.0.0.0:8080"
 }

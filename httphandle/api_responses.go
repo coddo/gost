@@ -68,10 +68,13 @@ func GiveApiMessage(statusCode int, message string, rw http.ResponseWriter, req 
 }
 
 func GiveApiStatus(statusCode int, rw http.ResponseWriter, req *http.Request, pattern string) string {
-	code := http.StatusNoContent
-	msg := http.StatusText(code)
+	msg := http.StatusText(statusCode)
 
-	GiveApiMessage(code, msg, rw, req, pattern)
+	if len(msg) == 0 {
+		msg = StatusText(statusCode)
+	}
+
+	GiveApiMessage(statusCode, msg, rw, req, pattern)
 
 	return msg
 }

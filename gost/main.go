@@ -9,6 +9,8 @@ import (
 	"runtime"
 )
 
+var numberOfProcessors = runtime.NumCPU()
+
 // Add all the existing endpoints as part of this container
 type ApiContainer struct {
 	userapi.UsersApi
@@ -33,7 +35,8 @@ func initApplicationConfiguration() {
 // Application entry point - sets the behaviour for the app
 func main() {
 	initApplicationConfiguration()
-	runtime.GOMAXPROCS(2)
+
+	runtime.GOMAXPROCS(numberOfProcessors)
 
 	servers.StartHTTPServer()
 }

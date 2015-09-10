@@ -18,6 +18,13 @@ func SetApiInterface(interf interface{}) {
 }
 
 func PerformApiCall(handlerName string, rw http.ResponseWriter, req *http.Request, route *config.Route) {
+	// Defered function call for when the mgo driver panics
+	defer func() {
+		if r := recover(); r != nil {
+			GiveApiStatus(StatusTooManyRequests, rw, req, route.Pattern)
+		}
+	}()
+
 	// Prepare data vector for an api/endpoint call
 	inputs := make([]reflect.Value, 1)
 

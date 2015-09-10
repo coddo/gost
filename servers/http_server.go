@@ -18,6 +18,6 @@ func StartHTTPServer() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	log.Println("HTTP Server STARTED! Listening at:", config.HttpServerAddress)
+	log.Println("HTTP Server STARTED! Listening at:", config.HttpServerAddress+config.ApiInstance)
 	log.Fatal(server.ListenAndServe())
 }
