@@ -10,6 +10,10 @@ const (
 	jsonIndent = "  "
 )
 
+type Modeler interface {
+	PopConstrains()
+}
+
 // Create the JSON representation of a model
 func SerializeJson(target interface{}) ([]byte, error) {
 	return json.MarshalIndent(target, jsonPrefix, jsonIndent)

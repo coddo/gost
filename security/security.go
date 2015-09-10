@@ -33,7 +33,7 @@ type Credentials struct {
 
 // Encrypt data using AES encryption
 func encrypt(data []byte) ([]byte, error) {
-	block, err := aes.NewCipher(encryptionKey)
+	block, err := aes.NewCipher([]byte(encryptionKey))
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func encrypt(data []byte) ([]byte, error) {
 
 // Decrypt AES encrypted data
 func decrypt(encryptedData []byte) ([]byte, error) {
-	block, err := aes.NewCipher(encryptionKey)
+	block, err := aes.NewCipher([]byte(encryptionKey))
 
 	if err != nil {
 		return nil, err
@@ -70,7 +70,7 @@ func decrypt(encryptedData []byte) ([]byte, error) {
 	cfb := cipher.NewCFBDecrypter(block, iv)
 	cfb.XORKeyStream(encryptedData, encryptedData)
 
-	decodedBytes, err := base64.StdEncoding.DecodeString(string(data))
+	decodedBytes, err := base64.StdEncoding.DecodeString(string(encryptedData))
 	if err != nil {
 		return nil, err
 	}
