@@ -13,7 +13,3 @@ env:
   - GOST_TESTAPP_NAME="gost_test"
   - GOST_TESTAPP_INSTANCE="/gosttests/""
   - GOST_TESTAPP_HTTP="0.0.0.0:8080"
-
-before_script:
-  - sleep 15
-  - mongo $GOST_TESTAPP_DB_NAME --eval 'db.createUser( { user: "serverNameAdmin", pwd: "serverNamePass", roles: [ { role: "readWrite", db: "serverName_db" } ] } );'
