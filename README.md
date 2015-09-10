@@ -1,3 +1,5 @@
+[![wercker status](https://app.wercker.com/status/312eae746a4c0e7d1198a007e5355122/m "wercker status")](https://app.wercker.com/project/bykey/312eae746a4c0e7d1198a007e5355122)
+
 # What's this?
 
 This is the skeleton of a Web API written in go. In order to use it, you have to clone it, rename it as you want (also rename all the imports from 'gost' to your app's name) and then start coding over this template.
