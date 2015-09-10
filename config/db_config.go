@@ -7,6 +7,11 @@ import (
 	"os"
 )
 
+const (
+	ENV_DB_NAME = "GOST_TESTAPP_DB_NAME"
+	ENV_DB_CONN = "GOST_TESTAPP_DB_CONN"
+)
+
 // Database configuration file path
 var dbConfigFileName string = "config/db.json"
 
@@ -57,8 +62,8 @@ func InitDatabase(configFile string) {
 
 // Initialization of tests database
 func InitTestsDatabase() {
-	dbName := os.Getenv("GST_TESTAPP_DB_NAME")
-	dbConn := os.Getenv("GST_TESTAPP_DB_CONN")
+	dbName := os.Getenv(ENV_DB_NAME)
+	dbConn := os.Getenv(ENV_DB_CONN)
 
 	if len(dbName) == 0 || len(dbConn) == 0 {
 		log.Fatal("Environment variables for the test database are not set!")

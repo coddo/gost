@@ -23,14 +23,14 @@ In order for the tests to run, you need to set the following environment variabl
 
 > **MONGODB_URL** = connection_string_for_mongodb (i.e. 'mongodb://localhost:27017')
 
-> **GST_TESTAPP_DB_NAME** = serverName_test_app_db_name
+> **GOST_TESTAPP_DB_NAME** = serverName_test_app_db_name
 
-> **GST_TESTAPP_DB_CONN** = $MONGODB_URL/$GST_TESTAPP_DB_NAME
+> **GOST_TESTAPP_DB_CONN** = $MONGODB_URL/$GOST_TESTAPP_DB_NAME
 
-> **GST_TESTAPP_NAME** = serverName_test_app_name
+> **GOST_TESTAPP_NAME** = serverName_test_app_name
 
-> **GST_TESTAPP_INSTANCE** = /gsttests/ (access path, such as: **/api/v1/**some_link_path)
+> **GOST_TESTAPP_INSTANCE** = /gsttests/ (access path, such as: **/api/v1/**some_link_path)
 
-> **GST_TESTAPP_HTTP** = serverName_testapp_http_server (i.e. :7500 for localhost:7500/; use 0.0.0.0:7500 for access from outside the local domain)
+> **GOST_TESTAPP_HTTP** = serverName_testapp_http_server (i.e. :7500 for localhost:7500/; use 0.0.0.0:7500 for access from outside the local domain)
 
 If you don't want to use the terminal for creating the databases, you can always use an useful app with GUI, such as **Robomongo**
