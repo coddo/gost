@@ -130,16 +130,15 @@ func getAllUsers(vars *api.ApiVar, limit int) api.ApiResponse {
 		return api.InternalServerError(err)
 	}
 
-	usersMap := make(map[int]models.User, len(dbUsers))
+	users := make([]models.Modeler, len(dbUsers))
 	for i := 0; i < len(dbUsers); i++ {
 		user := &models.User{}
-
 		user.Expand(&dbUsers[i])
 
-		usersMap[i] = *user
+		users[i] = user
 	}
 
-	return api.MultipleDataResponse(http.StatusOK, usersMap)
+	return api.MultipleDataResponse(http.StatusOK, users)
 }
 
 func getUser(vars *api.ApiVar, userId bson.ObjectId) api.ApiResponse {

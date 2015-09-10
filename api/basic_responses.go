@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 )
 
-func SingleDataResponse(statusCode int, data interface{}) ApiResponse {
+func SingleDataResponse(statusCode int, data models.Modeler) ApiResponse {
 	jsonData, err := models.SerializeJson(data)
 	if err != nil {
 		return InternalServerError(err)
@@ -17,15 +17,8 @@ func SingleDataResponse(statusCode int, data interface{}) ApiResponse {
 	}
 }
 
-func MultipleDataResponse(statusCode int, dataInterface interface{}) ApiResponse {
-	data, _ := dataInterface.(map[int]interface{})
-	serializableData := make([]interface{}, len(data))
-
-	for i := 0; i < len(data); i++ {
-		serializableData[i] = data[i]
-	}
-
-	jsonData, err := models.SerializeJson(serializableData)
+func MultipleDataResponse(statusCode int, data []models.Modeler) ApiResponse {
+	jsonData, err := models.SerializeJson(data)
 	if err != nil {
 		return InternalServerError(err)
 	}
