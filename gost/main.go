@@ -7,6 +7,9 @@ import (
 	"gost/security"
 	"gost/servers"
 	"gost/service"
+	"log"
+	"os"
+	"os/signal"
 	"runtime"
 )
 
@@ -18,7 +21,7 @@ type ApiContainer struct {
 }
 
 // Function for performing automatic initializations at application startup
-func initApplicationConfiguration() {
+func init() {
 	var emptyConfigParam string = ""
 
 	// Initialize application configuration
@@ -38,9 +41,25 @@ func initApplicationConfiguration() {
 
 // Application entry point - sets the behaviour for the app
 func main() {
-	initApplicationConfiguration()
+	//
+	//initApplicationConfiguration()
+
+	go listenForInterruptSignal()
 
 	runtime.GOMAXPROCS(numberOfProcessors)
 
 	servers.StartHTTPServer()
+}
+
+func listenForInterruptSignal() {
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, os.Interrupt)
+
+	<-signalChan
+
+	log.Println("Server will now shut down gracefully...")
+
+	service.CloseDbService()
+
+	os.Exit(0)
 }
