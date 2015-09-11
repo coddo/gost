@@ -6,6 +6,7 @@ import (
 	"gost/httphandle"
 	"gost/security"
 	"gost/servers"
+	"gost/service"
 	"runtime"
 )
 
@@ -24,6 +25,9 @@ func initApplicationConfiguration() {
 	config.InitApp(emptyConfigParam)
 	config.InitDatabase(emptyConfigParam)
 	config.InitRoutes(emptyConfigParam)
+
+	// Initialize the MongoDb service
+	service.InitDbService()
 
 	// Initialize security module
 	security.InitCrypto()

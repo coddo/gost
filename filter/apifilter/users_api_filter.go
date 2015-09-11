@@ -10,8 +10,6 @@ func CheckUserIntegrity(user *models.User) bool {
 		return false
 	case len(user.Token) == 0:
 		return false
-	case len(user.Address) == 0:
-		return false
 	}
 
 	return true
