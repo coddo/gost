@@ -5,6 +5,7 @@ import (
 	"gost/config"
 	"gost/httphandle"
 	"gost/models"
+	"gost/service"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -49,6 +50,8 @@ func InitializeServerConfigurations(routeString string, apiInterface interface{}
 	config.InitTestsApp()
 	config.InitTestsDatabase()
 	config.InitTestsRoutes(routeString)
+
+	service.InitDbService()
 
 	httphandle.SetApiInterface(apiInterface)
 

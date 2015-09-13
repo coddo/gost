@@ -7,6 +7,7 @@ import (
 
 func TestServiceBase(t *testing.T) {
 	config.InitTestsDatabase()
+	InitDbService()
 
 	sess, col := Connect("testCollection")
 	if sess == nil || col == nil {

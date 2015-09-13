@@ -4,6 +4,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"gost/config"
 	"gost/dbmodels"
+	"gost/service"
 	"testing"
 	"time"
 )
@@ -29,6 +30,7 @@ func TestUserSessionCRUD(t *testing.T) {
 
 func setUpUserSessionsTest(t *testing.T) {
 	config.InitTestsDatabase()
+	service.InitDbService()
 
 	if recover() != nil {
 		t.Fatal("Test setup failed!")
