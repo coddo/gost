@@ -4,7 +4,6 @@ import (
 	"gost/api/userapi"
 	"gost/config"
 	"gost/httphandle"
-	"gost/security"
 	"gost/servers"
 	"gost/service"
 	"log"
@@ -32,18 +31,12 @@ func init() {
 	// Initialize the MongoDb service
 	service.InitDbService()
 
-	// Initialize security module
-	security.InitCrypto()
-
 	// Register the API endpoints
 	httphandle.SetApiInterface(new(ApiContainer))
 }
 
 // Application entry point - sets the behaviour for the app
 func main() {
-	//
-	//initApplicationConfiguration()
-
 	go listenForInterruptSignal()
 
 	runtime.GOMAXPROCS(numberOfProcessors)
@@ -57,7 +50,7 @@ func listenForInterruptSignal() {
 
 	<-signalChan
 
-	log.Println("Server will now shut down gracefully...")
+	log.Println("The server will now shut down gracefully...")
 
 	service.CloseDbService()
 
