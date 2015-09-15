@@ -2,7 +2,7 @@
 
 # What's this?
 
-This is the skeleton of a Web API written in go. In order to use it, you have to clone it, rename it as you want (also rename all the imports from 'gost' to your app's name) and then start coding over this template.
+This is the skeleton of a Web API written in [Golang](https://golang.org). In order to use it, you have to clone it, rename it as you want (also rename all the imports from 'gost' to your app's name) and then start coding over this template.
 
 This template contains basic endpoints for Users (+ login system) and Transactions (payments made between users). Both the endpoints are fully working ones, however the user is free to modify/delete them as they will. 
 
@@ -31,8 +31,8 @@ In order for the tests to run, you need to set the following environment variabl
 
 > **GOST_TESTAPP_NAME** = serverName_test_app_name
 
-> **GOST_TESTAPP_INSTANCE** = /gsttests/ (access path, such as: **/api/v1/**some_link_path)
+> **GOST_TESTAPP_INSTANCE** = /gost-test/ (access path, such as: **/some_domain/gost-test/**some_link_path)
 
 > **GOST_TESTAPP_HTTP** = serverName_testapp_http_server (i.e. :7500 for localhost:7500/; use 0.0.0.0:7500 for access from outside the local domain)
 
-If you don't want to use the terminal for creating the databases, you can always use an useful app with GUI, such as **Robomongo**
+If you don't want to use the terminal for creating the databases, you can always use [Robomongo](http://robomongo.org), a very easy to use GUI for mongodb.
