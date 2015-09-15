@@ -84,7 +84,7 @@ func testPostTransactionInGoodFormat(t *testing.T) bson.ObjectId {
 		Id:       bson.NewObjectId(),
 		Payer:    models.User{Id: bson.NewObjectId()},
 		Receiver: models.User{Id: bson.NewObjectId()},
-		Type:     dbmodels.CashTransactionType,
+		Type:     dbmodels.CASH_TRANSACTION_TYPE,
 		Ammount:  216.365,
 		Currency: "USD",
 	}

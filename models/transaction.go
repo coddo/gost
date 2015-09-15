@@ -13,6 +13,9 @@ type Transaction struct {
 	Payer    User `json:"payer"`
 	Receiver User `json:"receiver"`
 
+	PaymentPortal string `json:"paymentPortal"`
+	PaymentToken  string `json:"paymentToken"`
+
 	Type     int       `json:"type"`
 	Ammount  float32   `json:"ammount"`
 	Currency string    `json:"currency"`
@@ -35,6 +38,8 @@ func (transaction *Transaction) Expand(dbTransaction *dbmodels.Transaction) {
 	transaction.Id = dbTransaction.Id
 	transaction.Payer.Id = dbTransaction.PayerId
 	transaction.Receiver.Id = dbTransaction.ReceiverId
+	transaction.PaymentPortal = dbTransaction.PaymentPortal
+	transaction.PaymentToken = dbTransaction.PaymentToken
 	transaction.Type = dbTransaction.Type
 	transaction.Ammount = dbTransaction.Ammount
 	transaction.Currency = dbTransaction.Currency
@@ -45,13 +50,15 @@ func (transaction *Transaction) Expand(dbTransaction *dbmodels.Transaction) {
 
 func (transaction *Transaction) Collapse() *dbmodels.Transaction {
 	dbTransaction := dbmodels.Transaction{
-		Id:         transaction.Id,
-		PayerId:    transaction.Payer.Id,
-		ReceiverId: transaction.Receiver.Id,
-		Type:       transaction.Type,
-		Ammount:    transaction.Ammount,
-		Currency:   transaction.Currency,
-		Date:       transaction.Date,
+		Id:            transaction.Id,
+		PayerId:       transaction.Payer.Id,
+		ReceiverId:    transaction.Receiver.Id,
+		PaymentPortal: transaction.PaymentPortal,
+		PaymentToken:  transaction.PaymentToken,
+		Type:          transaction.Type,
+		Ammount:       transaction.Ammount,
+		Currency:      transaction.Currency,
+		Date:          transaction.Date,
 	}
 
 	return &dbTransaction

@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	CashTransactionType = 0
-	CardTransactionType = 1
+	CASH_TRANSACTION_TYPE = 0
+	CARD_TRANSACTION_TYPE = 1
 )
 
 type Transaction struct {
@@ -15,6 +15,9 @@ type Transaction struct {
 
 	PayerId    bson.ObjectId `bson:"payerId,omitempty" json:"payerId"`
 	ReceiverId bson.ObjectId `bson:"receiverId,omitempty" json:"receiverId"`
+
+	PaymentPortal string `bson:"paymentPortal,omitempty" json:"paymentPortal"`
+	PaymentToken  string `bson:"paymentToken,omitempty" json:"paymentToken"`
 
 	Type     int       `bson:"type,omitempty" json:"type"`
 	Ammount  float32   `bson:"ammount,omitempty" json:"ammount"`
