@@ -1,4 +1,11 @@
 {
-	"databaseName": "serverName_db",
-	"databaseConnectionString": "mongodb://localhost:27017/gst_db"
+	"databaseName": "gost_db",
+	"user": "",
+	"pass": "",
+	"driver": "mongodb",
+	"hosts": [ 
+		"localhost",
+		"localhost:5555",
+		"localhost:7987"
+	]
 }
