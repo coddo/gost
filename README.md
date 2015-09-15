@@ -15,10 +15,10 @@ This template contains basic endpoints for Users (+ login system) and Transactio
 2. Install [MongoDb](https://scotch.io/tutorials/an-introduction-to-mongodb#installation-and-running-mongodb)
 
 3. Create a database named __serverName_db__ and then create an user for the database using the following command in **mongodb shell**:
->###`db.createUser( { user: "serverNameAdmin", pwd: "serverNamePass", roles: [ { role: "readWrite", db: "serverName_db" } ] } )`
+>`db.createUser( { user: "serverNameAdmin", pwd: "serverNamePass", roles: [ { role: "readWrite", db: "serverName_db" } ] } )`
 
 4. Install all the necessary dependencies using the following command in the **cmd/console/terminal**:
->###`go get -v`
+>`go get -v`
 
 5. For testing purposes, create another database named __serverName_db_test__, but don't create a user for it like for the main database.
 In order for the tests to run, you need to set the following environment variables correctly:
