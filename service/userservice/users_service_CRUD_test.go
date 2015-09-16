@@ -44,7 +44,7 @@ func createUser(t *testing.T, user *dbmodels.User) {
 	*user = dbmodels.User{
 		Id:          bson.NewObjectId(),
 		Password:    "CoddoPass",
-		AccountType: dbmodels.AdministratorAccountType,
+		AccountType: dbmodels.ADMINISTRATOR_ACCOUNT_TYPE,
 		FirstName:   "Claudiu",
 		LastName:    "Codoban",
 		Email:       "test@tests.com",
@@ -70,7 +70,7 @@ func changeAndUpdateUser(t *testing.T, user *dbmodels.User) {
 	user.Password = "ChangedPassword"
 	user.City = "Timisoara"
 	user.PostalCode = 12512521
-	user.AccountType = dbmodels.ClientAccountType
+	user.AccountType = dbmodels.CLIENT_ACCOUNT_TYPE
 
 	err := UpdateUser(user)
 

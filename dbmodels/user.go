@@ -6,8 +6,8 @@ import (
 
 // Account type constants
 const (
-	ClientAccountType        = 0
-	AdministratorAccountType = 1
+	CLIENT_ACCOUNT_TYPE        = 0
+	ADMINISTRATOR_ACCOUNT_TYPE = 1
 )
 
 // Struct representing an user account. This is a database dbmodels
