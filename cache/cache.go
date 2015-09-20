@@ -1,11 +1,14 @@
 package cache
 
 import (
+	"bytes"
+	"net/url"
 	"time"
 )
 
 const (
-	CACHE_EXPIRE_TIME = 1 * time.Minute
+	CACHE_EXPIRE_TIME       = 1 * time.Minute
+	TESTS_CACHE_EXPIRE_TIME = 5 * time.Second
 )
 
 type Cacher interface {
@@ -34,7 +37,7 @@ func (cache *Cache) InvalidateIfExpired(limit time.Time) {
 	}
 }
 
-func QueryCache(query string) *Cache {
+func QueryCache(key string) Cache {
 	flag := make(chan int)
 	defer func() {
 		getChan <- flag
@@ -43,10 +46,10 @@ func QueryCache(query string) *Cache {
 	getChan <- flag
 	<-flag
 
-	return memoryCache[query]
+	return memoryCache[key]
 }
 
-var memoryCache = make(map[string]*Cache)
+var memoryCache = make(map[string]Cache)
 
 var (
 	getChan        = make(chan chan int)
@@ -66,12 +69,12 @@ func stopCachingSystem() {
 	close(exitChan)
 }
 
-func invalidate(query string) {
-	delete(memoryCache, query)
+func invalidate(key string) {
+	delete(memoryCache, key)
 }
 
 func storeOrUpdate(cache *Cache) {
-	memoryCache[cache.Query] = cache
+	memoryCache[cache.Query] = *cache
 }
 
 func startCachingLoop() {
@@ -81,8 +84,8 @@ loop:
 		case <-exitChan:
 			stopCachingSystem()
 			break loop
-		case query := <-invalidateChan:
-			invalidate(query)
+		case key := <-invalidateChan:
+			invalidate(key)
 		case cache := <-cacheChan:
 			storeOrUpdate(cache)
 		case flag := <-getChan:
@@ -92,9 +95,9 @@ loop:
 	}
 }
 
-func startExpiredInvalidator() {
+func startExpiredInvalidator(cacheExpireTime time.Duration) {
 	for !exited {
-		time.Sleep(time.Minute * 30)
+		time.Sleep(cacheExpireTime)
 
 		if !exited {
 			m := memoryCache
@@ -107,7 +110,19 @@ func startExpiredInvalidator() {
 	}
 }
 
-func StartCachingSystem() {
+func StartCachingSystem(cacheExpireTime time.Duration) {
 	go startCachingLoop()
-	go startExpiredInvalidator()
+	go startExpiredInvalidator(cacheExpireTime)
+}
+
+func MapKey(form url.Values, method string, endpoint string) string {
+	var buf bytes.Buffer
+
+	buf.WriteString(endpoint)
+	buf.WriteRune(':')
+	buf.WriteString(method)
+	buf.WriteRune('-')
+	buf.WriteString(form.Encode())
+
+	return buf.String()
 }
