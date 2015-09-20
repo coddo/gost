@@ -7,8 +7,7 @@ import (
 )
 
 const (
-	CACHE_EXPIRE_TIME       = 1 * time.Minute
-	TESTS_CACHE_EXPIRE_TIME = 5 * time.Second
+	CACHE_EXPIRE_TIME = 1 * time.Minute
 )
 
 type Cacher interface {
@@ -37,7 +36,7 @@ func (cache *Cache) InvalidateIfExpired(limit time.Time) {
 	}
 }
 
-func QueryCache(key string) Cache {
+func QueryCache(key string) *Cache {
 	flag := make(chan int)
 	defer func() {
 		getChan <- flag
@@ -49,7 +48,7 @@ func QueryCache(key string) Cache {
 	return memoryCache[key]
 }
 
-var memoryCache = make(map[string]Cache)
+var memoryCache = make(map[string]*Cache)
 
 var (
 	getChan        = make(chan chan int)
@@ -74,7 +73,7 @@ func invalidate(key string) {
 }
 
 func storeOrUpdate(cache *Cache) {
-	memoryCache[cache.Query] = *cache
+	memoryCache[cache.Query] = cache
 }
 
 func startCachingLoop() {
