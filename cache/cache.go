@@ -57,23 +57,34 @@ var (
 
 var exited bool = false
 
+func stopCachingSystem() {
+	exited = true
+
+	close(getChan)
+	close(cacheChan)
+	close(invalidateChan)
+	close(exitChan)
+}
+
+func invalidate(query string) {
+	delete(memoryCache, query)
+}
+
+func storeOrUpdate(cache *Cache) {
+	memoryCache[cache.Query] = cache
+}
+
 func startCachingLoop() {
 loop:
 	for {
 		select {
 		case <-exitChan:
-			exited = true
-
-			close(getChan)
-			close(cacheChan)
-			close(invalidateChan)
-			close(exitChan)
-
+			stopCachingSystem()
 			break loop
 		case query := <-invalidateChan:
-			delete(memoryCache, query)
+			invalidate(query)
 		case cache := <-cacheChan:
-			memoryCache[cache.Query] = cache
+			storeOrUpdate(cache)
 		case flag := <-getChan:
 			flag <- 1
 			<-getChan
