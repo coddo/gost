@@ -20,10 +20,10 @@ var dbConfigFileName string = "config/db.json"
 // The database connection details
 type DbConfig struct {
 	DatabaseName string   `json:"databaseName"`
-	User         string   `json:user`
-	Pass         string   `json:pass`
-	Driver       string   `json:driver`
-	Hosts        []string `json:hosts`
+	User         string   `json:"user"`
+	Pass         string   `json:"pass"`
+	Driver       string   `json:"driver"`
+	Hosts        []string `json:"hosts"`
 }
 
 // The database connection string variable

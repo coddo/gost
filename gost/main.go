@@ -2,6 +2,7 @@ package main
 
 import (
 	"gost/api/userapi"
+	"gost/cache"
 	"gost/config"
 	"gost/httphandle"
 	"gost/servers"
@@ -35,11 +36,15 @@ func init() {
 	httphandle.SetApiInterface(new(ApiContainer))
 }
 
-// Application entry point - sets the behaviour for the app
+// Application entry point - sets the behavior for the app
 func main() {
+	// Start listener for performing a graceful shutdown of the server
 	go listenForInterruptSignal()
 
 	runtime.GOMAXPROCS(numberOfProcessors)
+
+	// Start the caching system
+	cache.StartCachingSystem(cache.CACHE_EXPIRE_TIME)
 
 	// Start a http or and https server depending on the program arguments
 	if len(os.Args) <= 1 || os.Args[1] == "http" {
@@ -58,6 +63,7 @@ func listenForInterruptSignal() {
 	log.Println("The server will now shut down gracefully...")
 
 	service.CloseDbService()
+	cache.StopCachingSystem()
 
 	os.Exit(0)
 }

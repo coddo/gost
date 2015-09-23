@@ -108,7 +108,7 @@ func testPostUserInGoodFormat(t *testing.T) bson.ObjectId {
 	user := &models.User{
 		Id:          bson.NewObjectId(),
 		Password:    "CoddoPass",
-		AccountType: dbmodels.AdministratorAccountType,
+		AccountType: dbmodels.ADMINISTRATOR_ACCOUNT_TYPE,
 		FirstName:   "Claudiu",
 		LastName:    "Codoban",
 		Email:       "test@tests.com",
