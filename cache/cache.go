@@ -71,9 +71,7 @@ func stopCachingSystem() {
 }
 
 func invalidate(key string) {
-	if _, found := memoryCache[key]; found {
-		delete(memoryCache, key)
-	}
+	delete(memoryCache, key)
 }
 
 func storeOrUpdate(cache *Cache) {

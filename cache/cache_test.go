@@ -7,15 +7,6 @@ import (
 	"time"
 )
 
-const TESTS_CACHE_EXPIRE_TIME = 5 * time.Second
-
-const (
-	TESTS_QUERY1        = "test:x%2==0"
-	TESTS_QUERY2        = "test:(x+y)%z>1"
-	TESTS_QUERY3        = "test:z>550"
-	TESTS_QUERY_EXPIRED = "thisNeedsToExpire"
-)
-
 type CacheTest struct {
 	X int
 	Y int
@@ -23,23 +14,32 @@ type CacheTest struct {
 }
 
 func TestCache(t *testing.T) {
+	const cacheExpireTime = 1 * time.Second
+
+	var queries = []string{
+		"test:x%2==0",
+		"test:(x+y)%z>1",
+		"test:z>550",
+		"thisNeedsToExpire",
+	}
+
 	var items []CacheTest
 	var cachedItems []*Cache
 	var expiringItem *Cache
 
 	config.InitTestsDatabase()
-	StartCachingSystem(TESTS_CACHE_EXPIRE_TIME)
+	StartCachingSystem(cacheExpireTime)
 	defer StopCachingSystem()
 
 	items = testInitItems(t)
 
-	testFetchInexistentCache(t, TESTS_QUERY1)
-	cachedItems, expiringItem = testAddingToCache(t, items)
+	testFetchInexistentCache(t, queries[0])
+	cachedItems, expiringItem = testAddingToCache(t, items, cacheExpireTime, queries)
 	testFetchingFromCache(t, cachedItems)
 	testRemovingFromCache(t, cachedItems)
-	testFetchInexistentCache(t, TESTS_QUERY2)
+	testFetchInexistentCache(t, queries[1])
 
-	time.Sleep(TESTS_CACHE_EXPIRE_TIME)
+	time.Sleep(2 * cacheExpireTime)
 	testExpiringItem(t, expiringItem)
 }
 
@@ -88,7 +88,7 @@ func testFetchingFromCache(t *testing.T, cachedItems []*Cache) {
 	}
 }
 
-func testAddingToCache(t *testing.T, items []CacheTest) ([]*Cache, *Cache) {
+func testAddingToCache(t *testing.T, items []CacheTest, cacheExpireTime time.Duration, queries []string) ([]*Cache, *Cache) {
 	var cachedItems []*Cache
 	var expiringCacheItem *Cache
 
@@ -96,7 +96,7 @@ func testAddingToCache(t *testing.T, items []CacheTest) ([]*Cache, *Cache) {
 	q2 := make([]CacheTest, 0)
 	q3 := make([]CacheTest, 0)
 
-	expireTime := time.Now().Add(TESTS_CACHE_EXPIRE_TIME)
+	expireTime := time.Now().Add(cacheExpireTime)
 
 	// First type
 	for i := 0; i < len(items); i++ {
@@ -106,7 +106,7 @@ func testAddingToCache(t *testing.T, items []CacheTest) ([]*Cache, *Cache) {
 	}
 	j1, _ := json.MarshalIndent(q1, "", "  ")
 	c1 := &Cache{
-		Query:      TESTS_QUERY1,
+		Query:      queries[0],
 		Data:       j1,
 		ExpireTime: expireTime,
 	}
@@ -121,7 +121,7 @@ func testAddingToCache(t *testing.T, items []CacheTest) ([]*Cache, *Cache) {
 	}
 	j2, _ := json.MarshalIndent(q2, "", "  ")
 	c2 := &Cache{
-		Query:      TESTS_QUERY2,
+		Query:      queries[1],
 		Data:       j2,
 		ExpireTime: expireTime,
 	}
@@ -136,7 +136,7 @@ func testAddingToCache(t *testing.T, items []CacheTest) ([]*Cache, *Cache) {
 	}
 	j3, _ := json.MarshalIndent(q3, "", "  ")
 	c3 := &Cache{
-		Query:      TESTS_QUERY3,
+		Query:      queries[2],
 		Data:       j3,
 		ExpireTime: expireTime,
 	}
@@ -145,7 +145,7 @@ func testAddingToCache(t *testing.T, items []CacheTest) ([]*Cache, *Cache) {
 
 	// Expiring type
 	expiringCacheItem = &Cache{
-		Query:      TESTS_QUERY_EXPIRED,
+		Query:      queries[3],
 		Data:       j1,
 		ExpireTime: expireTime,
 	}
