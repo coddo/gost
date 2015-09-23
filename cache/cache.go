@@ -36,7 +36,7 @@ func (cache *Cache) InvalidateIfExpired(limit time.Time) {
 	}
 }
 
-func QueryCache(key string) *Cache {
+func QueryByKey(key string) *Cache {
 	go func() {
 		getKeyChannel <- key
 	}()
@@ -47,6 +47,22 @@ func QueryCache(key string) *Cache {
 	getChan <- flag
 
 	return <-flag
+}
+
+func QueryByRequest(form url.Values, method string, endpoint string) *Cache {
+	return QueryByKey(mapKey(form, method, endpoint))
+}
+
+func mapKey(form url.Values, method string, endpoint string) string {
+	var buf bytes.Buffer
+
+	buf.WriteString(endpoint)
+	buf.WriteRune(':')
+	buf.WriteString(method)
+	buf.WriteRune('-')
+	buf.WriteString(form.Encode())
+
+	return buf.String()
 }
 
 var memoryCache = make(map[string]*Cache)
@@ -121,16 +137,4 @@ func StopCachingSystem() {
 	go func() {
 		exitChan <- 1
 	}()
-}
-
-func MapKey(form url.Values, method string, endpoint string) string {
-	var buf bytes.Buffer
-
-	buf.WriteString(endpoint)
-	buf.WriteRune(':')
-	buf.WriteString(method)
-	buf.WriteRune('-')
-	buf.WriteString(form.Encode())
-
-	return buf.String()
 }

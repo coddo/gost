@@ -47,7 +47,7 @@ func testExpiringItem(t *testing.T, expiringItem *Cache, cacheExpireTime time.Du
 
 	time.Sleep(2 * cacheExpireTime)
 
-	it := QueryCache(expiringItem.Query)
+	it := QueryByKey(expiringItem.Query)
 
 	if it != nil {
 		t.Fatal("The cache items did not properly expire")
@@ -58,13 +58,13 @@ func testFetchInexistentCache(t *testing.T, mockQuery string) {
 	log.Println("Testing the cache querying system with inexistent or invalid data")
 
 	// Will never be added
-	data := QueryCache("keySFAFSAGKAGHAJSKfhaskfhaskf")
+	data := QueryByKey("keySFAFSAGKAGHAJSKfhaskfhaskf")
 	if data != nil {
 		t.Fatal("Unexpected output from cache")
 	}
 
 	// Will be added later during the test
-	data = QueryCache(mockQuery)
+	data = QueryByKey(mockQuery)
 	if data != nil {
 		t.Fatal("Unexpected output from cache")
 	}
@@ -79,9 +79,9 @@ func testFetchingFromCache(t *testing.T, cachedItems []*Cache) {
 	i := 0
 
 	for i < 2 {
-		q1 = QueryCache(cachedItems[0].Query)
-		q2 = QueryCache(cachedItems[1].Query)
-		q3 = QueryCache(cachedItems[2].Query)
+		q1 = QueryByKey(cachedItems[0].Query)
+		q2 = QueryByKey(cachedItems[1].Query)
+		q3 = QueryByKey(cachedItems[2].Query)
 
 		if q1 == nil || q2 == nil || q3 == nil {
 			t.Fatal("Cache didn't properly return test items")
