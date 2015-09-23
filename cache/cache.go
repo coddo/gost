@@ -38,7 +38,7 @@ func (cache *Cache) InvalidateIfExpired(limit time.Time) {
 
 func QueryCache(key string) *Cache {
 	go func() {
-		getQueryChan <- key
+		getKeyChannel <- key
 	}()
 
 	flag := make(chan *Cache)
@@ -52,7 +52,7 @@ func QueryCache(key string) *Cache {
 var memoryCache = make(map[string]*Cache)
 
 var (
-	getQueryChan   = make(chan string)
+	getKeyChannel  = make(chan string)
 	getChan        = make(chan chan *Cache)
 	cacheChan      = make(chan *Cache)
 	invalidateChan = make(chan string)
@@ -64,6 +64,7 @@ var exited bool = false
 func stopCachingSystem() {
 	exited = true
 
+	close(getKeyChannel)
 	close(getChan)
 	close(cacheChan)
 	close(invalidateChan)
@@ -90,7 +91,7 @@ Loop:
 		case cache := <-cacheChan:
 			storeOrUpdate(cache)
 		case flag := <-getChan:
-			key := <-getQueryChan
+			key := <-getKeyChannel
 			flag <- memoryCache[key]
 		}
 	}
