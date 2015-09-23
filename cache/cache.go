@@ -37,21 +37,23 @@ func (cache *Cache) InvalidateIfExpired(limit time.Time) {
 }
 
 func QueryCache(key string) *Cache {
-	flag := make(chan int)
-	defer func() {
-		getChan <- flag
+	go func() {
+		getQueryChan <- key
 	}()
 
-	getChan <- flag
-	<-flag
+	flag := make(chan *Cache)
+	defer close(flag)
 
-	return memoryCache[key]
+	getChan <- flag
+
+	return <-flag
 }
 
 var memoryCache = make(map[string]*Cache)
 
 var (
-	getChan        = make(chan chan int)
+	getQueryChan   = make(chan string)
+	getChan        = make(chan chan *Cache)
 	cacheChan      = make(chan *Cache)
 	invalidateChan = make(chan string)
 	exitChan       = make(chan int)
@@ -69,7 +71,9 @@ func stopCachingSystem() {
 }
 
 func invalidate(key string) {
-	delete(memoryCache, key)
+	if _, found := memoryCache[key]; found {
+		delete(memoryCache, key)
+	}
 }
 
 func storeOrUpdate(cache *Cache) {
@@ -77,19 +81,19 @@ func storeOrUpdate(cache *Cache) {
 }
 
 func startCachingLoop() {
-loop:
+Loop:
 	for {
 		select {
 		case <-exitChan:
 			stopCachingSystem()
-			break loop
+			break Loop
 		case key := <-invalidateChan:
 			invalidate(key)
 		case cache := <-cacheChan:
 			storeOrUpdate(cache)
 		case flag := <-getChan:
-			flag <- 1
-			<-getChan
+			key := <-getQueryChan
+			flag <- memoryCache[key]
 		}
 	}
 }
@@ -112,6 +116,12 @@ func startExpiredInvalidator(cacheExpireTime time.Duration) {
 func StartCachingSystem(cacheExpireTime time.Duration) {
 	go startCachingLoop()
 	go startExpiredInvalidator(cacheExpireTime)
+}
+
+func StopCachingSystem() {
+	go func() {
+		exitChan <- 1
+	}()
 }
 
 func MapKey(form url.Values, method string, endpoint string) string {
