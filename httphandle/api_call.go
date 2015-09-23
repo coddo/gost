@@ -25,15 +25,18 @@ func PerformApiCall(handlerName string, rw http.ResponseWriter, req *http.Reques
 	// Create the variables containing request data
 	vars := createApiVars(req, rw, route)
 	if vars == nil {
-		GiveApiStatus(http.StatusInternalServerError, rw, req, route.Pattern)
 		return
 	}
 
 	// Try giving the response directly from the cache if available
 	if cache.Status == cache.STATUS_ON {
 		if cachedData := cache.QueryByRequest(vars.RequestForm, route.Pattern); cachedData != nil {
-			GiveApiResponse(cachedData.StatusCode, cachedData.Data, rw, req, route.Pattern, cachedData.ContentType, cachedData.File)
-			return
+			if req.Method == api.GET {
+				GiveApiResponse(cachedData.StatusCode, cachedData.Data, rw, req, route.Pattern, cachedData.ContentType, cachedData.File)
+				return
+			} else { // Invalidate the cache if a modification, deletion or addition was made to this endpoint
+				cachedData.Invalidate()
+			}
 		}
 	}
 
@@ -81,8 +84,8 @@ func respond(vars *api.ApiVar, resp *api.ApiResponse, rw http.ResponseWriter, re
 
 		GiveApiResponse(resp.StatusCode, resp.Message, rw, req, endpoint, resp.ContentType, resp.File)
 
-		// Try caching the data
-		if cache.Status == cache.STATUS_ON {
+		// Try caching the data only if a GET request was made
+		if req.Method == api.GET && cache.Status == cache.STATUS_ON {
 			cacheResponse(vars, resp, endpoint)
 		}
 	}

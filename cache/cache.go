@@ -22,6 +22,7 @@ type Cacher interface {
 	Cache()
 	Invalidate()
 	InvalidateIfExpired(limit time.Time)
+	ResetExpireTime()
 }
 
 type Cache struct {
@@ -34,7 +35,7 @@ type Cache struct {
 }
 
 func (cache *Cache) Cache() {
-	cache.ExpireTime = time.Now().Add(selectedCacheExpireTime)
+	cache.ResetExpireTime()
 	cacheChan <- cache
 }
 
@@ -46,6 +47,10 @@ func (cache *Cache) InvalidateIfExpired(limit time.Time) {
 	if cache.ExpireTime.Before(limit) {
 		cache.Invalidate()
 	}
+}
+
+func (cache *Cache) ResetExpireTime() {
+	cache.ExpireTime = time.Now().Add(selectedCacheExpireTime)
 }
 
 func QueryByKey(key string) *Cache {
@@ -118,7 +123,13 @@ Loop:
 			storeOrUpdate(cache)
 		case flag := <-getChan:
 			key := <-getKeyChannel
-			flag <- memoryCache[key]
+
+			item := memoryCache[key]
+			if item != nil {
+				item.ResetExpireTime()
+			}
+
+			flag <- item
 		}
 	}
 }
