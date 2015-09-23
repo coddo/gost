@@ -35,7 +35,7 @@ func TestCache(t *testing.T) {
 	items = testInitItems(t)
 
 	testFetchInexistentCache(t, queries[0])
-	cachedItems, expiringItem = testAddingToCache(t, items, cacheExpireTime, queries)
+	cachedItems, expiringItem = testAddingToCache(t, items, queries)
 	testFetchingFromCache(t, cachedItems)
 	testRemovingFromCache(t, cachedItems)
 	testFetchInexistentCache(t, queries[1])
@@ -95,7 +95,7 @@ func testFetchingFromCache(t *testing.T, cachedItems []*Cache) {
 	}
 }
 
-func testAddingToCache(t *testing.T, items []CacheTest, cacheExpireTime time.Duration, queries []string) ([]*Cache, *Cache) {
+func testAddingToCache(t *testing.T, items []CacheTest, queries []string) ([]*Cache, *Cache) {
 	log.Println("Testing the data caching system")
 
 	var cachedItems []*Cache
@@ -105,8 +105,6 @@ func testAddingToCache(t *testing.T, items []CacheTest, cacheExpireTime time.Dur
 	q2 := make([]CacheTest, 0)
 	q3 := make([]CacheTest, 0)
 
-	expireTime := time.Now().Add(cacheExpireTime)
-
 	// First type
 	for i := 0; i < len(items); i++ {
 		if items[i].X%2 == 0 {
@@ -115,9 +113,8 @@ func testAddingToCache(t *testing.T, items []CacheTest, cacheExpireTime time.Dur
 	}
 	j1, _ := json.MarshalIndent(q1, "", "  ")
 	c1 := &Cache{
-		Query:      queries[0],
-		Data:       j1,
-		ExpireTime: expireTime,
+		Query: queries[0],
+		Data:  j1,
 	}
 	c1.Cache()
 	cachedItems = append(cachedItems, c1)
@@ -130,9 +127,8 @@ func testAddingToCache(t *testing.T, items []CacheTest, cacheExpireTime time.Dur
 	}
 	j2, _ := json.MarshalIndent(q2, "", "  ")
 	c2 := &Cache{
-		Query:      queries[1],
-		Data:       j2,
-		ExpireTime: expireTime,
+		Query: queries[1],
+		Data:  j2,
 	}
 	c2.Cache()
 	cachedItems = append(cachedItems, c2)
@@ -145,18 +141,16 @@ func testAddingToCache(t *testing.T, items []CacheTest, cacheExpireTime time.Dur
 	}
 	j3, _ := json.MarshalIndent(q3, "", "  ")
 	c3 := &Cache{
-		Query:      queries[2],
-		Data:       j3,
-		ExpireTime: expireTime,
+		Query: queries[2],
+		Data:  j3,
 	}
 	c3.Cache()
 	cachedItems = append(cachedItems, c3)
 
 	// Expiring type
 	expiringCacheItem = &Cache{
-		Query:      queries[3],
-		Data:       j1,
-		ExpireTime: expireTime,
+		Query: queries[3],
+		Data:  j1,
 	}
 	expiringCacheItem.Cache()
 

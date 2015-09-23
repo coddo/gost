@@ -7,8 +7,16 @@ import (
 )
 
 const (
+	STATUS_ON  = true
+	STATUS_OFF = false
+)
+
+const (
 	CACHE_EXPIRE_TIME = 1 * time.Minute
 )
+
+var Status bool = STATUS_OFF
+var selectedCacheExpireTime time.Duration
 
 type Cacher interface {
 	Cache()
@@ -17,12 +25,16 @@ type Cacher interface {
 }
 
 type Cache struct {
-	Query      string
-	Data       []byte
-	ExpireTime time.Time
+	Query       string
+	Data        []byte
+	StatusCode  int
+	ContentType string
+	File        string
+	ExpireTime  time.Time
 }
 
 func (cache *Cache) Cache() {
+	cache.ExpireTime = time.Now().Add(selectedCacheExpireTime)
 	cacheChan <- cache
 }
 
@@ -49,17 +61,15 @@ func QueryByKey(key string) *Cache {
 	return <-flag
 }
 
-func QueryByRequest(form url.Values, method string, endpoint string) *Cache {
-	return QueryByKey(mapKey(form, method, endpoint))
+func QueryByRequest(form url.Values, endpoint string) *Cache {
+	return QueryByKey(MapKey(form, endpoint))
 }
 
-func mapKey(form url.Values, method string, endpoint string) string {
+func MapKey(form url.Values, endpoint string) string {
 	var buf bytes.Buffer
 
 	buf.WriteString(endpoint)
 	buf.WriteRune(':')
-	buf.WriteString(method)
-	buf.WriteRune('-')
 	buf.WriteString(form.Encode())
 
 	return buf.String()
@@ -129,8 +139,12 @@ func startExpiredInvalidator(cacheExpireTime time.Duration) {
 }
 
 func StartCachingSystem(cacheExpireTime time.Duration) {
+	selectedCacheExpireTime = cacheExpireTime
+
 	go startCachingLoop()
 	go startExpiredInvalidator(cacheExpireTime)
+
+	Status = STATUS_ON
 }
 
 func StopCachingSystem() {
