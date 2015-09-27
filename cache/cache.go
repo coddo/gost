@@ -99,7 +99,6 @@ func stopCachingSystem() {
 	close(getChan)
 	close(cacheChan)
 	close(invalidateChan)
-	close(exitChan)
 }
 
 func invalidate(key string) {
@@ -115,7 +114,6 @@ Loop:
 	for {
 		select {
 		case <-exitChan:
-			stopCachingSystem()
 			break Loop
 		case key := <-invalidateChan:
 			invalidate(key)
@@ -159,7 +157,10 @@ func StartCachingSystem(cacheExpireTime time.Duration) {
 }
 
 func StopCachingSystem() {
+	stopCachingSystem()
+
 	go func() {
 		exitChan <- 1
+		close(exitChan)
 	}()
 }
