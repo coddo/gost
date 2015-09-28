@@ -85,9 +85,11 @@ func respond(vars *api.ApiVar, resp *api.ApiResponse, rw http.ResponseWriter, re
 		GiveApiResponse(resp.StatusCode, resp.Message, rw, req, endpoint, resp.ContentType, resp.File)
 
 		// Try caching the data only if a GET request was made
-		if req.Method == api.GET && cache.Status == cache.STATUS_ON {
-			cacheResponse(vars, resp, endpoint)
-		}
+		go func(vars *api.ApiVar, resp *api.ApiResponse, req *http.Request, endpoint string) {
+			if req.Method == api.GET && cache.Status == cache.STATUS_ON {
+				cacheResponse(vars, resp, endpoint)
+			}
+		}(vars, resp, req, endpoint)
 	}
 }
 

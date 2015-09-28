@@ -35,18 +35,24 @@ type Cache struct {
 }
 
 func (cache *Cache) Cache() {
-	cache.ResetExpireTime()
-	cacheChan <- cache
+	go func() {
+		cache.ResetExpireTime()
+		cacheChan <- cache
+	}()
 }
 
 func (cache *Cache) Invalidate() {
-	invalidateChan <- cache.Query
+	go func() {
+		invalidateChan <- cache.Query
+	}()
 }
 
 func (cache *Cache) InvalidateIfExpired(limit time.Time) {
-	if cache.ExpireTime.Before(limit) {
-		cache.Invalidate()
-	}
+	go func() {
+		if cache.ExpireTime.Before(limit) {
+			cache.Invalidate()
+		}
+	}()
 }
 
 func (cache *Cache) ResetExpireTime() {
