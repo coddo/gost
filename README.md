@@ -36,3 +36,8 @@ In order for the tests to run, you need to set the following environment variabl
 > **GOST_TESTAPP_HTTP** = serverName_testapp_http_server (i.e. :7500 for localhost:7500/; use 0.0.0.0:7500 for access from outside the local domain)
 
 If you don't want to use the terminal for creating the databases, you can always use [Robomongo](http://robomongo.org), a very easy to use GUI for mongodb.
+
+# Easily renaming the template
+
+To rename this template from __gost__ to your new application name that will be built over this, use the bash script named __app-rename__ to easily do all the renaming (folders, files and imports). Use the --help flag for usage details"
+
