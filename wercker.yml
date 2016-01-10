@@ -1,0 +1,35 @@
+box: wercker/golang@1.3.2
+# Build definition
+
+# Mongodb service
+services:
+    - wercker/mongodb@1.0.1
+
+build:
+  # The steps that will be executed on build
+  steps:
+    # Sets the go workspace and places the package
+    # at the right place in the workspace tree
+    - setup-go-workspace:
+        package-dir: gost
+
+    # Gets the dependencies
+    - script:
+        name: go get
+        code: |
+          cd $WERCKER_SOURCE_DIR
+          go version
+          go get -t ./...
+
+    # Build the project
+    - script:
+        name: go build
+        code: |
+          go build ./...
+
+    # Test the project. Also print the mongodb
+    # connection environment variables
+    - script:
+        name: go test
+        code: |
+          go test ./...

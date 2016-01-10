@@ -1,10 +1,9 @@
 package models
 
 import (
-	"encoding/json"
-	"go-server-template/dbmodels"
-	"go-server-template/service/userservice"
 	"gopkg.in/mgo.v2/bson"
+	"gost/dbmodels"
+	"gost/service/userservice"
 	"time"
 )
 
@@ -16,27 +15,7 @@ type UserSession struct {
 	ExpireDate time.Time `json:"expireDate"`
 }
 
-func (userSession *UserSession) SerializeJson() ([]byte, error) {
-	data, err := json.MarshalIndent(*userSession, JsonPrefix, JsonIndent)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
-}
-
-func (userSession *UserSession) DeserializeJson(obj []byte) error {
-	err := json.Unmarshal(obj, userSession)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (userSession *UserSession) PopConstraints() {
+func (userSession *UserSession) PopConstrains() {
 	dbUser, err := userservice.GetUser(userSession.User.Id)
 	if err == nil {
 		userSession.User.Expand(dbUser)
@@ -49,7 +28,7 @@ func (userSession *UserSession) Expand(dbUserSession *dbmodels.UserSession) {
 	userSession.Token = dbUserSession.Token
 	userSession.ExpireDate = dbUserSession.ExpireDate
 
-	userSession.PopConstraints()
+	userSession.PopConstrains()
 }
 
 func (userSession *UserSession) Collapse() *dbmodels.UserSession {

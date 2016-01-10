@@ -1,7 +1,7 @@
 package httphandle
 
 import (
-	"go-server-template/config"
+	"gost/config"
 	"net/http"
 	"net/url"
 )
@@ -17,7 +17,7 @@ func ApiHandler(rw http.ResponseWriter, req *http.Request) {
 	route := findRoute(path)
 
 	if route == nil {
-		GiveApiMessage(http.StatusNotFound, "The requested URL cannot be found", rw, req, path)
+		GiveApiMessage(http.StatusNotFound, "404 - The requested page cannot be found", rw, req, path)
 		return
 	}
 

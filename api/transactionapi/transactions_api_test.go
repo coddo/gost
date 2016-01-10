@@ -1,13 +1,12 @@
 package transactionapi
 
 import (
-	"encoding/json"
-	"go-server-template/api"
-	"go-server-template/dbmodels"
-	"go-server-template/models"
-	"go-server-template/service/transactionservice"
-	"go-server-template/tests"
 	"gopkg.in/mgo.v2/bson"
+	"gost/api"
+	"gost/dbmodels"
+	"gost/models"
+	"gost/service/transactionservice"
+	"gost/tests"
 	"net/http"
 	"net/url"
 	"testing"
@@ -20,25 +19,7 @@ type dummyTransaction struct {
 	BadField string
 }
 
-func (transaction *dummyTransaction) SerializeJson() ([]byte, error) {
-	data, err := json.MarshalIndent(*transaction, "  ", "")
-
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
-}
-
-func (transaction *dummyTransaction) DeserializeJson(obj []byte) error {
-	err := json.Unmarshal(obj, transaction)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
+func (transaction *dummyTransaction) PopConstrains() {}
 
 func TestTransactionsApi(t *testing.T) {
 	tests.InitializeServerConfigurations(transactionsRoute, new(TransactionsApi))
@@ -103,7 +84,7 @@ func testPostTransactionInGoodFormat(t *testing.T) bson.ObjectId {
 		Id:       bson.NewObjectId(),
 		Payer:    models.User{Id: bson.NewObjectId()},
 		Receiver: models.User{Id: bson.NewObjectId()},
-		Type:     dbmodels.CashTransactionType,
+		Type:     dbmodels.CASH_TRANSACTION_TYPE,
 		Ammount:  216.365,
 		Currency: "USD",
 	}

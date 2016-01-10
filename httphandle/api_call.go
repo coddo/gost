@@ -1,9 +1,10 @@
 package httphandle
 
 import (
-	"go-server-template/api"
-	"go-server-template/config"
-	"go-server-template/filter"
+	"gost/api"
+	"gost/cache"
+	"gost/config"
+	"gost/filter"
 	"io"
 	"io/ioutil"
 	"log"
@@ -25,6 +26,18 @@ func PerformApiCall(handlerName string, rw http.ResponseWriter, req *http.Reques
 	vars := createApiVars(req, rw, route)
 	if vars == nil {
 		return
+	}
+
+	// Try giving the response directly from the cache if available
+	if cache.Status == cache.STATUS_ON {
+		if cachedData := cache.QueryByRequest(vars.RequestForm, route.Pattern); cachedData != nil {
+			if req.Method == api.GET {
+				GiveApiResponse(cachedData.StatusCode, cachedData.Data, rw, req, route.Pattern, cachedData.ContentType, cachedData.File)
+				return
+			} else { // Invalidate the cache if a modification, deletion or addition was made to this endpoint
+				go cachedData.Invalidate()
+			}
+		}
 	}
 
 	// Populate the data vector for the api call
@@ -55,18 +68,45 @@ func PerformApiCall(handlerName string, rw http.ResponseWriter, req *http.Reques
 	resp := respObjects[0].Interface().(api.ApiResponse)
 
 	// Give the response to the api client
+	respond(vars, &resp, rw, req, route.Pattern)
+}
+
+func respond(vars *api.ApiVar, resp *api.ApiResponse, rw http.ResponseWriter, req *http.Request, endpoint string) {
 	if resp.StatusCode == 0 {
 		resp.StatusCode = http.StatusInternalServerError
-		GiveApiMessage(resp.StatusCode, http.StatusText(resp.StatusCode), rw, req, route.Pattern)
+		GiveApiMessage(resp.StatusCode, http.StatusText(resp.StatusCode), rw, req, endpoint)
 	} else if len(resp.ErrorMessage) > 0 {
-		GiveApiMessage(resp.StatusCode, resp.ErrorMessage, rw, req, route.Pattern)
+		GiveApiMessage(resp.StatusCode, resp.ErrorMessage, rw, req, endpoint)
 	} else {
 		if len(resp.ContentType) == 0 {
-			resp.ContentType = ContentJSON
+			resp.ContentType = CONTENT_JSON
 		}
 
-		GiveApiResponse(resp.StatusCode, resp.Message, rw, req, route.Pattern, resp.ContentType, resp.File)
+		GiveApiResponse(resp.StatusCode, resp.Message, rw, req, endpoint, resp.ContentType, resp.File)
+
+		// Try caching the data only if a GET request was made
+		go func(vars *api.ApiVar, resp *api.ApiResponse, req *http.Request, endpoint string) {
+			if req.Method == api.GET && cache.Status == cache.STATUS_ON {
+				cacheResponse(vars, resp, endpoint)
+			}
+		}(vars, resp, req, endpoint)
 	}
+}
+
+func cacheResponse(vars *api.ApiVar, resp *api.ApiResponse, endpoint string) {
+	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) || len(resp.Message) == 0 {
+		return
+	}
+
+	cacheEntity := &cache.Cache{
+		Query:       cache.MapKey(vars.RequestForm, endpoint),
+		Data:        resp.Message,
+		StatusCode:  resp.StatusCode,
+		ContentType: resp.ContentType,
+		File:        resp.File,
+	}
+
+	cacheEntity.Cache()
 }
 
 func createApiVars(req *http.Request, rw http.ResponseWriter, route *config.Route) *api.ApiVar {
@@ -93,7 +133,5 @@ func createApiVars(req *http.Request, rw http.ResponseWriter, route *config.Rout
 }
 
 func convertBodyToReadableFormat(data io.ReadCloser) ([]byte, error) {
-	body, err := ioutil.ReadAll(data)
-
-	return body, err
+	return ioutil.ReadAll(data)
 }

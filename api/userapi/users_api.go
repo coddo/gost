@@ -1,12 +1,12 @@
 package userapi
 
 import (
-	"go-server-template/api"
-	"go-server-template/dbmodels"
-	"go-server-template/filter/apifilter"
-	"go-server-template/models"
-	"go-server-template/service/userservice"
 	"gopkg.in/mgo.v2/bson"
+	"gost/api"
+	"gost/dbmodels"
+	"gost/filter/apifilter"
+	"gost/models"
+	"gost/service/userservice"
 	"net/http"
 	"strings"
 )
@@ -41,7 +41,7 @@ func (usersApi *UsersApi) GetUser(vars *api.ApiVar) api.ApiResponse {
 func (usersApi *UsersApi) PostUser(vars *api.ApiVar) api.ApiResponse {
 	user := &models.User{}
 
-	err := user.DeserializeJson(vars.RequestBody)
+	err := models.DeserializeJson(vars.RequestBody, user)
 	if err != nil {
 		return api.BadRequest(api.EntityFormatError)
 	}
@@ -66,7 +66,7 @@ func (usersApi *UsersApi) PostUser(vars *api.ApiVar) api.ApiResponse {
 
 func (usersApi *UsersApi) PutUser(vars *api.ApiVar) api.ApiResponse {
 	user := &models.User{}
-	err := user.DeserializeJson(vars.RequestBody)
+	err := models.DeserializeJson(vars.RequestBody, user)
 
 	if err != nil {
 		return api.BadRequest(api.EntityFormatError)
@@ -130,16 +130,15 @@ func getAllUsers(vars *api.ApiVar, limit int) api.ApiResponse {
 		return api.InternalServerError(err)
 	}
 
-	usersMap := make(map[int]models.Serializable, len(dbUsers))
+	users := make([]models.Modeler, len(dbUsers))
 	for i := 0; i < len(dbUsers); i++ {
 		user := &models.User{}
-
 		user.Expand(&dbUsers[i])
 
-		usersMap[i] = user
+		users[i] = user
 	}
 
-	return api.MultipleDataResponse(http.StatusOK, usersMap)
+	return api.MultipleDataResponse(http.StatusOK, users)
 }
 
 func getUser(vars *api.ApiVar, userId bson.ObjectId) api.ApiResponse {

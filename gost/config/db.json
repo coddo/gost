@@ -4,8 +4,6 @@
 	"pass": "",
 	"driver": "mongodb",
 	"hosts": [ 
-		"localhost",
-		"localhost:5555",
-		"localhost:7987"
+		"localhost"
 	]
 }

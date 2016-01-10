@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# Verify that the user has entered an application name as a program argument
+if [[ $# -eq 0 ]] || [[ $# -gt 2 ]]; then
+        echo "Either none or too many arguments have been specified!"
+	echo "Run as './app-rename new_app_name' or './app-rename old_app_name new_app_name'"
+	echo "The first run possibility assumes that the project name is 'gost'"
+        exit
+fi
+
+# Set the application names that will be used for the renaming
+if [[ $# -eq 1 ]]; then
+	if [[ "$1" = "--help" ]]; then
+		echo "This is a script initially built to easily rename the 'gost' web server template from github.com/coddo/gost"
+		echo "Use the script with the --help argument to view this usage information"
+		echo "If you want to rename 'gost', then run the script with one argument, representing the new name that you want to give to the application"
+		echo "If you want to rename another Golang project, then you need to run the script with 2 arguments, representing the current application's name and the new name that you want to give it"
+		exit
+	else
+		OldAppName="gost" # Assume that the project is 'gost' and not something else
+		AppName=$1
+	fi
+elif [[ $# -eq 2 ]]; then
+	OldAppName=$1
+	AppName=$2
+fi
+
+if [[ "${PWD##*/}" = $OldAppName ]]; then
+        echo "The script must be run from outside the project directory!"
+	echo "Cd out using 'cd..' and run the script as './$OldAppName/app-rename [arguments...]"
+        exit
+fi
+
+if [[ ! -d $OldAppName ]]; then
+	echo "The '$OldAppName' project is not present in the current directory!"
+	echo "If the Golang app you want to rename is not '$OldAppName' then you should run the script with 2 arguments: old_app_name new_app_name"
+	exit
+fi
+
+# Process a file by renaming all the $OldAppName instances in it with the new application name
+processFile() {
+        local File=$1
+	local Content=$(cat $File)
+
+	echo "${Content//$OldAppName/$AppName}" > $File
+
+        echo "$File - DONE"
+}
+
+# Process all the files inside the application
+processAllFiles() {
+	local FilesString=$1
+
+	IFS=' ' read -ra Files <<< $FilesString
+	for File in "${Files[@]}"; do
+                processFile $File
+	done
+}
+
+echo
+
+echo "Processing files:"
+processAllFiles "$(find -type f | grep '\.go$')"
+
+echo
+
+# Rename the 'gost' folder
+mv "#OldAppName/$OldAppName" "$OldAppName/$AppName"
+echo "Renaming the '$OldAppName'(main) folder - DONE"
+
+# Rename the base dir name
+mv "$OldAppName" "$AppName"
+echo "Renaming the project directory - DONE"
+
+echo
+echo "Finished renaming the app to $AppName"
+

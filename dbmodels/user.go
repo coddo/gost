@@ -6,8 +6,8 @@ import (
 
 // Account type constants
 const (
-	ClientAccountType        = 0
-	AdministratorAccountType = 1
+	CLIENT_ACCOUNT_TYPE        = 0
+	ADMINISTRATOR_ACCOUNT_TYPE = 1
 )
 
 // Struct representing an user account. This is a database dbmodels
@@ -32,7 +32,12 @@ type User struct {
 	Picture     string `bson:"picture,omitempty" json:"picture"`
 }
 
-func (user *User) Equal(otherUser User) bool {
+func (user *User) Equal(obj Object) bool {
+	otherUser, ok := obj.(*User)
+	if !ok {
+		return false
+	}
+
 	switch {
 	case user.Id != otherUser.Id:
 		return false

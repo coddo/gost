@@ -1,12 +1,11 @@
 package userapi
 
 import (
-	"encoding/json"
-	"go-server-template/api"
-	"go-server-template/dbmodels"
-	"go-server-template/models"
-	"go-server-template/tests"
 	"gopkg.in/mgo.v2/bson"
+	"gost/api"
+	"gost/dbmodels"
+	"gost/models"
+	"gost/tests"
 	"net/http"
 	"net/url"
 	"testing"
@@ -19,25 +18,7 @@ type dummyUser struct {
 	BadField string
 }
 
-func (user *dummyUser) SerializeJson() ([]byte, error) {
-	data, err := json.MarshalIndent(*user, "  ", "")
-
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
-}
-
-func (user *dummyUser) DeserializeJson(obj []byte) error {
-	err := json.Unmarshal(obj, user)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
+func (user *dummyUser) PopConstrains() {}
 
 func TestUsersApi(t *testing.T) {
 	tests.InitializeServerConfigurations(usersRoute, new(UsersApi))
@@ -127,7 +108,7 @@ func testPostUserInGoodFormat(t *testing.T) bson.ObjectId {
 	user := &models.User{
 		Id:          bson.NewObjectId(),
 		Password:    "CoddoPass",
-		AccountType: dbmodels.AdministratorAccountType,
+		AccountType: dbmodels.ADMINISTRATOR_ACCOUNT_TYPE,
 		FirstName:   "Claudiu",
 		LastName:    "Codoban",
 		Email:       "test@tests.com",

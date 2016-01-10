@@ -1,10 +1,10 @@
 package transactionapi
 
 import (
-	"go-server-template/api"
-	"go-server-template/filter/apifilter"
-	"go-server-template/models"
-	"go-server-template/service/transactionservice"
+	"gost/api"
+	"gost/filter/apifilter"
+	"gost/models"
+	"gost/service/transactionservice"
 	"net/http"
 )
 
@@ -36,7 +36,7 @@ func (t *TransactionsApi) GetTransaction(vars *api.ApiVar) api.ApiResponse {
 func (t *TransactionsApi) PostTransaction(vars *api.ApiVar) api.ApiResponse {
 	transaction := &models.Transaction{}
 
-	err := transaction.DeserializeJson(vars.RequestBody)
+	err := models.DeserializeJson(vars.RequestBody, transaction)
 	if err != nil {
 		return api.BadRequest(api.EntityFormatError)
 	}

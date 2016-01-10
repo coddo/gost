@@ -1,12 +1,13 @@
 package service
 
 import (
-	"go-server-template/config"
+	"gost/config"
 	"testing"
 )
 
 func TestServiceBase(t *testing.T) {
 	config.InitTestsDatabase()
+	InitDbService()
 
 	sess, col := Connect("testCollection")
 	if sess == nil || col == nil {

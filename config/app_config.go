@@ -8,6 +8,12 @@ import (
 	"os"
 )
 
+const (
+	ENV_APPLICATION_NAME    = "GOST_TESTAPP_NAME"
+	ENV_API_INSTANCE        = "GOST_TESTAPP_INSTANCE"
+	ENV_HTTP_SERVER_ADDRESS = "GOST_TESTAPP_HTTP"
+)
+
 // Application configuration file path
 var appConfigFile = "config/app.json"
 
@@ -51,7 +57,7 @@ func InitApp(appConfigPath string) {
 }
 
 func InitTestsApp() {
-	ApplicationName = os.Getenv("GST_TESTAPP_NAME")
-	ApiInstance = os.Getenv("GST_TESTAPP_INSTANCE")
-	HttpServerAddress = os.Getenv("GST_TESTAPP_HTTP")
+	ApplicationName = os.Getenv(ENV_APPLICATION_NAME)
+	ApiInstance = os.Getenv(ENV_API_INSTANCE)
+	HttpServerAddress = os.Getenv(ENV_HTTP_SERVER_ADDRESS)
 }

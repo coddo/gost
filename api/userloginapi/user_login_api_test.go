@@ -1,12 +1,11 @@
 package userloginapi
 
 import (
-	"encoding/json"
-	"go-server-template/api"
-	"go-server-template/models"
-	"go-server-template/service/userloginservice"
-	"go-server-template/tests"
 	"gopkg.in/mgo.v2/bson"
+	"gost/api"
+	"gost/models"
+	"gost/service/userloginservice"
+	"gost/tests"
 	"net/http"
 	"net/url"
 	"testing"
@@ -20,25 +19,7 @@ type dummyUserSession struct {
 	BadField string
 }
 
-func (userSession *dummyUserSession) SerializeJson() ([]byte, error) {
-	data, err := json.MarshalIndent(*userSession, "  ", "")
-
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
-}
-
-func (userSession *dummyUserSession) DeserializeJson(obj []byte) error {
-	err := json.Unmarshal(obj, userSession)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
+func (userSession *dummyUserSession) PopConstrains() {}
 
 func TestUserSessionsApi(t *testing.T) {
 	tests.InitializeServerConfigurations(userSessionsRoute, new(UserSessionsApi))

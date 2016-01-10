@@ -1,9 +1,10 @@
 package userservice
 
 import (
-	"go-server-template/config"
-	"go-server-template/dbmodels"
 	"gopkg.in/mgo.v2/bson"
+	"gost/config"
+	"gost/dbmodels"
+	"gost/service"
 	"testing"
 )
 
@@ -24,6 +25,7 @@ func TestUserCRUD(t *testing.T) {
 
 func setUpUsersTest(t *testing.T) {
 	config.InitTestsDatabase()
+	service.InitDbService()
 
 	if recover() != nil {
 		t.Fatal("Test setup failed!")
@@ -42,7 +44,7 @@ func createUser(t *testing.T, user *dbmodels.User) {
 	*user = dbmodels.User{
 		Id:          bson.NewObjectId(),
 		Password:    "CoddoPass",
-		AccountType: dbmodels.AdministratorAccountType,
+		AccountType: dbmodels.ADMINISTRATOR_ACCOUNT_TYPE,
 		FirstName:   "Claudiu",
 		LastName:    "Codoban",
 		Email:       "test@tests.com",
@@ -68,7 +70,7 @@ func changeAndUpdateUser(t *testing.T, user *dbmodels.User) {
 	user.Password = "ChangedPassword"
 	user.City = "Timisoara"
 	user.PostalCode = 12512521
-	user.AccountType = dbmodels.ClientAccountType
+	user.AccountType = dbmodels.CLIENT_ACCOUNT_TYPE
 
 	err := UpdateUser(user)
 
@@ -84,7 +86,7 @@ func verifyUserCorresponds(t *testing.T, user *dbmodels.User) {
 		t.Error("Could not fetch the user document from the database!")
 	}
 
-	if !dbuser.Equal(*user) {
+	if !dbuser.Equal(user) {
 		t.Error("The user document doesn't correspond with the document extracted from the database!")
 	}
 }

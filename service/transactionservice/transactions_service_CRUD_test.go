@@ -1,9 +1,10 @@
 package transactionservice
 
 import (
-	"go-server-template/config"
-	"go-server-template/dbmodels"
 	"gopkg.in/mgo.v2/bson"
+	"gost/config"
+	"gost/dbmodels"
+	"gost/service"
 	"testing"
 	"time"
 )
@@ -25,6 +26,7 @@ func TestTransactionCRUD(t *testing.T) {
 
 func setUpTransactionsTest(t *testing.T) {
 	config.InitTestsDatabase()
+	service.InitDbService()
 
 	if recover() != nil {
 		t.Fatal("Test setup failed!")
@@ -44,7 +46,7 @@ func createTransaction(t *testing.T, transaction *dbmodels.Transaction) {
 		Id:         bson.NewObjectId(),
 		PayerId:    bson.NewObjectId(),
 		ReceiverId: bson.NewObjectId(),
-		Type:       dbmodels.CashTransactionType,
+		Type:       dbmodels.CASH_TRANSACTION_TYPE,
 		Ammount:    6469.1264,
 		Currency:   "RON",
 		Date:       time.Now().Local(),
@@ -60,7 +62,7 @@ func createTransaction(t *testing.T, transaction *dbmodels.Transaction) {
 func changeAndUpdateTransaction(t *testing.T, transaction *dbmodels.Transaction) {
 	transaction.PayerId = bson.NewObjectId()
 	transaction.ReceiverId = bson.NewObjectId()
-	transaction.Type = dbmodels.CardTransactionType
+	transaction.Type = dbmodels.CARD_TRANSACTION_TYPE
 	transaction.Currency = "USD"
 
 	err := UpdateTransaction(transaction)
@@ -77,7 +79,7 @@ func verifyTransactionCorresponds(t *testing.T, transaction *dbmodels.Transactio
 		t.Error("Could not fetch the transaction document from the database!")
 	}
 
-	if !dbtransaction.Equal(*transaction) {
+	if !dbtransaction.Equal(transaction) {
 		t.Error("The transaction document doesn't correspond with the document extracted from the database!")
 	}
 }

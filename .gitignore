@@ -22,7 +22,7 @@ sftp-config.json
 *.o
 *.a
 *.so
-go-server-template/go-server-template
+gost/gost
 
 # Folders
 _obj
@@ -44,3 +44,6 @@ _testmain.go
 *.test
 *.prof
 *.out
+
+# Dot files
+.*

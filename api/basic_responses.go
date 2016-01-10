@@ -1,13 +1,12 @@
 package api
 
 import (
-	"encoding/json"
-	"go-server-template/models"
+	"gost/models"
 	"io/ioutil"
 )
 
-func SingleDataResponse(statusCode int, data models.Serializable) ApiResponse {
-	jsonData, err := data.SerializeJson()
+func SingleDataResponse(statusCode int, data models.Modeler) ApiResponse {
+	jsonData, err := models.SerializeJson(data)
 	if err != nil {
 		return InternalServerError(err)
 	}
@@ -18,14 +17,8 @@ func SingleDataResponse(statusCode int, data models.Serializable) ApiResponse {
 	}
 }
 
-func MultipleDataResponse(statusCode int, data map[int]models.Serializable) ApiResponse {
-	serializableData := make([]models.Serializable, len(data))
-
-	for i := 0; i < len(data); i++ {
-		serializableData[i] = data[i]
-	}
-
-	jsonData, err := json.MarshalIndent(serializableData, models.JsonPrefix, models.JsonIndent)
+func MultipleDataResponse(statusCode int, data []models.Modeler) ApiResponse {
+	jsonData, err := models.SerializeJson(data)
 	if err != nil {
 		return InternalServerError(err)
 	}

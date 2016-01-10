@@ -1,14 +1,14 @@
 package httphandle
 
 import (
-	"go-server-template/filter"
+	"gost/filter"
 	"log"
 	"net/http"
 )
 
 const (
-	ContentPlainText = "text/plain"
-	ContentJSON      = "application/json"
+	CONTENT_PLAIN_TEXT = "text/plain"
+	CONTENT_JSON       = "application/json"
 )
 
 func logRequest(statusCode int, message []byte, method, pattern string) {
@@ -64,14 +64,17 @@ func GiveApiResponse(statusCode int, message []byte, rw http.ResponseWriter, req
 func GiveApiMessage(statusCode int, message string, rw http.ResponseWriter, req *http.Request, pattern string) {
 	msg := []byte(message)
 
-	GiveApiResponse(statusCode, msg, rw, req, pattern, ContentPlainText, "")
+	GiveApiResponse(statusCode, msg, rw, req, pattern, CONTENT_PLAIN_TEXT, "")
 }
 
 func GiveApiStatus(statusCode int, rw http.ResponseWriter, req *http.Request, pattern string) string {
-	code := http.StatusNoContent
-	msg := http.StatusText(code)
+	msg := http.StatusText(statusCode)
 
-	GiveApiMessage(code, msg, rw, req, pattern)
+	if len(msg) == 0 {
+		msg = StatusText(statusCode)
+	}
+
+	GiveApiMessage(statusCode, msg, rw, req, pattern)
 
 	return msg
 }

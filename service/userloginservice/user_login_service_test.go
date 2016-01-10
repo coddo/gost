@@ -1,9 +1,10 @@
 package userloginservice
 
 import (
-	"go-server-template/config"
-	"go-server-template/dbmodels"
 	"gopkg.in/mgo.v2/bson"
+	"gost/config"
+	"gost/dbmodels"
+	"gost/service"
 	"testing"
 	"time"
 )
@@ -29,6 +30,7 @@ func TestUserSessionCRUD(t *testing.T) {
 
 func setUpUserSessionsTest(t *testing.T) {
 	config.InitTestsDatabase()
+	service.InitDbService()
 
 	if recover() != nil {
 		t.Fatal("Test setup failed!")
@@ -76,7 +78,7 @@ func testVerifyUserSessionCorresponds(t *testing.T, userSession *dbmodels.UserSe
 		t.Error("Could not fetch the user session document from the database!")
 	}
 
-	if !dbUserSession.Equal(*userSession) {
+	if !dbUserSession.Equal(userSession) {
 		t.Error("The user session document doesn't correspond with the document extracted from the database!")
 	}
 }

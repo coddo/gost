@@ -1,4 +1,0 @@
-{
-	"databaseName": "serverName_db",
-	"databaseConnectionString": "mongodb://localhost:27017/gst_db"
-}

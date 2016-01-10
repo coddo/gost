@@ -2,10 +2,10 @@ package userloginapi
 
 import (
 	"errors"
-	"go-server-template/api"
-	"go-server-template/filter/apifilter"
-	"go-server-template/models"
-	"go-server-template/service/userloginservice"
+	"gost/api"
+	"gost/filter/apifilter"
+	"gost/models"
+	"gost/service/userloginservice"
 	"net/http"
 	"time"
 )
@@ -55,7 +55,7 @@ func (userSessionsApi *UserSessionsApi) GetUserSession(vars *api.ApiVar) api.Api
 func (userSessionsApi *UserSessionsApi) PostUserSession(vars *api.ApiVar) api.ApiResponse {
 	userSession := &models.UserSession{}
 
-	err := userSession.DeserializeJson(vars.RequestBody)
+	err := models.DeserializeJson(vars.RequestBody, userSession)
 	if err != nil {
 		return api.BadRequest(api.EntityFormatError)
 	}

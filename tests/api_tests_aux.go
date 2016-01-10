@@ -2,9 +2,10 @@ package tests
 
 import (
 	"bytes"
-	"go-server-template/config"
-	"go-server-template/httphandle"
-	"go-server-template/models"
+	"gost/config"
+	"gost/httphandle"
+	"gost/models"
+	"gost/service"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -13,7 +14,7 @@ import (
 	"testing"
 )
 
-func PerformApiTestCall(endpointName, method string, expectedStatusCode int, urlParams url.Values, object models.Serializable, t *testing.T) *httptest.ResponseRecorder {
+func PerformApiTestCall(endpointName, method string, expectedStatusCode int, urlParams url.Values, object interface{}, t *testing.T) *httptest.ResponseRecorder {
 	Url, err := generateApiUrl(endpointName, urlParams)
 	if err != nil {
 		t.Error(err.Error())
@@ -23,7 +24,7 @@ func PerformApiTestCall(endpointName, method string, expectedStatusCode int, url
 	// Do nothing if no object is specified
 	var jsonData []byte
 	if object != nil {
-		jsonData, err = object.SerializeJson()
+		jsonData, err = models.SerializeJson(object)
 
 		if err != nil {
 			t.Fatal(err.Error())
@@ -49,6 +50,8 @@ func InitializeServerConfigurations(routeString string, apiInterface interface{}
 	config.InitTestsApp()
 	config.InitTestsDatabase()
 	config.InitTestsRoutes(routeString)
+
+	service.InitDbService()
 
 	httphandle.SetApiInterface(apiInterface)
 
