@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-const appFilePath = "test_data/app.json"
+const appFilePath = "../gost/config/app.json"
 
 func TestAppConfig(t *testing.T) {
 	InitApp(appFilePath)

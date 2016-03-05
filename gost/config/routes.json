@@ -23,9 +23,9 @@
     "id": "TransactionsRoute",
     "pattern": "/transactions",
     "handlers": {
+      "DELETE": "DeleteTransaction",
       "GET": "GetTransaction",
-      "POST": "PostTransaction",
-      "DELETE": "DeleteTransaction"
+      "POST": "PostTransaction"
     }
   }
 ]
