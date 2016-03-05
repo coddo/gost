@@ -12,8 +12,13 @@ import (
 	"time"
 )
 
-const userSessionsRoute = "[{\"id\": \"UserSessionsRoute\", \"pattern\": \"/users/login\", \"handlers\": {\"DELETE\": \"DeleteUserSession\", \"GET\": \"GetUserSession\", \"POST\": \"PostUserSession\", \"PUT\": \"PutUserSession\"}}]"
+const userSessionsRoute = "[{\"id\": \"UserSessionsRoute\", \"pattern\": \"/users/login\", \"handlers\": {\"DeleteUserSession\": \"DELETE\", \"GetUserSession\": \"GET\", \"PostUserSession\": \"POST\", \"PutUserSession\": \"PUT\"}}]"
 const apiPath = "/users/login"
+
+const (
+	GET  = "GetUserSession"
+	POST = "PostUserSession"
+)
 
 type dummyUserSession struct {
 	BadField string
@@ -36,14 +41,14 @@ func testGetUserSessionWithInexistentTokenInDB(t *testing.T) {
 	params := url.Values{}
 	params.Add("token", "asagasgsaga7615651")
 
-	tests.PerformApiTestCall(apiPath, api.GET, http.StatusNotFound, params, nil, t)
+	tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusNotFound, params, nil, t)
 }
 
 func testGetUserSessionWithGoodIdParam(t *testing.T, token string) {
 	params := url.Values{}
 	params.Add("token", token)
 
-	rw := tests.PerformApiTestCall(apiPath, api.GET, http.StatusOK, params, nil, t)
+	rw := tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusOK, params, nil, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -57,7 +62,7 @@ func testPostUserSessionInBadFormat(t *testing.T) {
 		BadField: "bad value",
 	}
 
-	tests.PerformApiTestCall(apiPath, api.POST, http.StatusBadRequest, nil, dUserSession, t)
+	tests.PerformApiTestCall(apiPath, POST, api.POST, http.StatusBadRequest, nil, dUserSession, t)
 }
 
 func testPostUserSessionInGoodFormat(t *testing.T) (bson.ObjectId, string) {
@@ -68,7 +73,7 @@ func testPostUserSessionInGoodFormat(t *testing.T) (bson.ObjectId, string) {
 		ExpireDate: time.Now().Local(),
 	}
 
-	rw := tests.PerformApiTestCall(apiPath, api.POST, http.StatusCreated, nil, userSession, t)
+	rw := tests.PerformApiTestCall(apiPath, POST, api.POST, http.StatusCreated, nil, userSession, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {

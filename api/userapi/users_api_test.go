@@ -11,8 +11,15 @@ import (
 	"testing"
 )
 
-const usersRoute = "[{\"id\": \"UsersRoute\", \"pattern\": \"/users\", \"handlers\": {\"DELETE\": \"DeleteUser\", \"GET\": \"GetUser\", \"POST\": \"PostUser\", \"PUT\": \"PutUser\"}}]"
+const usersRoute = "[{\"id\": \"UsersRoute\", \"pattern\": \"/users\", \"handlers\": {\"DeleteUser\": \"DELETE\", \"GetUser\": \"GET\", \"PostUser\": \"POST\", \"PutUser\": \"PUT\"}}]"
 const apiPath = "/users"
+
+const (
+	GET    = "GetUser"
+	POST   = "PostUser"
+	PUT    = "PutUser"
+	DELETE = "DeleteUser"
+)
 
 type dummyUser struct {
 	BadField string
@@ -45,21 +52,21 @@ func testGetUserWithInexistentIdInDB(t *testing.T) {
 	params := url.Values{}
 	params.Add("id", bson.NewObjectId().Hex())
 
-	tests.PerformApiTestCall(apiPath, api.GET, http.StatusNotFound, params, nil, t)
+	tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusNotFound, params, nil, t)
 }
 
 func testGetUserWithBadIdParam(t *testing.T) {
 	params := url.Values{}
 	params.Add("id", "2as456fas4")
 
-	tests.PerformApiTestCall(apiPath, api.GET, http.StatusBadRequest, params, nil, t)
+	tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusBadRequest, params, nil, t)
 }
 
 func testGetUserWithGoodIdParam(t *testing.T, id bson.ObjectId) {
 	params := url.Values{}
 	params.Add("id", id.Hex())
 
-	rw := tests.PerformApiTestCall(apiPath, api.GET, http.StatusOK, params, nil, t)
+	rw := tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusOK, params, nil, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -69,7 +76,7 @@ func testGetUserWithGoodIdParam(t *testing.T, id bson.ObjectId) {
 }
 
 func testGetAllUsersWithoutLimit(t *testing.T) {
-	rw := tests.PerformApiTestCall(apiPath, api.GET, http.StatusOK, nil, nil, t)
+	rw := tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusOK, nil, nil, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -81,14 +88,14 @@ func testGetAllUsersWithBadLimitParam(t *testing.T) {
 	params := url.Values{}
 	params.Add("limit", "asfsa")
 
-	tests.PerformApiTestCall(apiPath, api.GET, http.StatusBadRequest, params, nil, t)
+	tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusBadRequest, params, nil, t)
 }
 
 func testGetAllUsersWithGoodLimitParam(t *testing.T) {
 	params := url.Values{}
 	params.Add("limit", "20")
 
-	rw := tests.PerformApiTestCall(apiPath, api.GET, http.StatusOK, params, nil, t)
+	rw := tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusOK, params, nil, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -101,7 +108,7 @@ func testPostUserInBadFormat(t *testing.T) {
 		BadField: "bad value",
 	}
 
-	tests.PerformApiTestCall(apiPath, api.POST, http.StatusBadRequest, nil, dUser, t)
+	tests.PerformApiTestCall(apiPath, POST, api.POST, http.StatusBadRequest, nil, dUser, t)
 }
 
 func testPostUserInGoodFormat(t *testing.T) bson.ObjectId {
@@ -122,7 +129,7 @@ func testPostUserInGoodFormat(t *testing.T) bson.ObjectId {
 		Token:       "as7f6as8faf5aasf6721rqf",
 	}
 
-	rw := tests.PerformApiTestCall(apiPath, api.POST, http.StatusCreated, nil, user, t)
+	rw := tests.PerformApiTestCall(apiPath, POST, api.POST, http.StatusCreated, nil, user, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -140,7 +147,7 @@ func testPutUserInBadFormat(t *testing.T) {
 		Country:   "Romania",
 	}
 
-	tests.PerformApiTestCall(apiPath, api.PUT, http.StatusBadRequest, nil, user, t)
+	tests.PerformApiTestCall(apiPath, PUT, api.PUT, http.StatusBadRequest, nil, user, t)
 }
 
 func testPutUserWithoutId(t *testing.T) {
@@ -152,7 +159,7 @@ func testPutUserWithoutId(t *testing.T) {
 		Country:   "Romania",
 	}
 
-	tests.PerformApiTestCall(apiPath, api.PUT, http.StatusBadRequest, nil, user, t)
+	tests.PerformApiTestCall(apiPath, PUT, api.PUT, http.StatusBadRequest, nil, user, t)
 }
 
 func testPutUserWithNoExistentIdInDb(t *testing.T) {
@@ -166,7 +173,7 @@ func testPutUserWithNoExistentIdInDb(t *testing.T) {
 		Address:   "addr",
 	}
 
-	tests.PerformApiTestCall(apiPath, api.PUT, http.StatusNotFound, nil, user, t)
+	tests.PerformApiTestCall(apiPath, PUT, api.PUT, http.StatusNotFound, nil, user, t)
 }
 
 func testPutUserWithGoodRequestDetails(t *testing.T, id bson.ObjectId) {
@@ -180,7 +187,7 @@ func testPutUserWithGoodRequestDetails(t *testing.T, id bson.ObjectId) {
 		Address:   "addr",
 	}
 
-	rw := tests.PerformApiTestCall(apiPath, api.PUT, http.StatusOK, nil, user, t)
+	rw := tests.PerformApiTestCall(apiPath, PUT, api.PUT, http.StatusOK, nil, user, t)
 	body := rw.Body.String()
 
 	if len(body) == 0 {
@@ -189,26 +196,26 @@ func testPutUserWithGoodRequestDetails(t *testing.T, id bson.ObjectId) {
 }
 
 func testDeleteUserWithNoIdParam(t *testing.T) {
-	tests.PerformApiTestCall(apiPath, api.DELETE, http.StatusBadRequest, nil, nil, t)
+	tests.PerformApiTestCall(apiPath, DELETE, api.DELETE, http.StatusBadRequest, nil, nil, t)
 }
 
 func testDeleteUserWithIdParamInWrongFormat(t *testing.T) {
 	params := url.Values{}
 	params.Add("id", "a46fsa65gas")
 
-	tests.PerformApiTestCall(apiPath, api.DELETE, http.StatusBadRequest, params, nil, t)
+	tests.PerformApiTestCall(apiPath, DELETE, api.DELETE, http.StatusBadRequest, params, nil, t)
 }
 
 func testDeteleUserWithInexistentIdInDB(t *testing.T) {
 	params := url.Values{}
 	params.Add("id", bson.NewObjectId().Hex())
 
-	tests.PerformApiTestCall(apiPath, api.DELETE, http.StatusNotFound, params, nil, t)
+	tests.PerformApiTestCall(apiPath, DELETE, api.DELETE, http.StatusNotFound, params, nil, t)
 }
 
 func testDeteleUserWithGoodRequestParams(t *testing.T, id bson.ObjectId) {
 	params := url.Values{}
 	params.Add("id", id.Hex())
 
-	tests.PerformApiTestCall(apiPath, api.DELETE, http.StatusNoContent, params, nil, t)
+	tests.PerformApiTestCall(apiPath, DELETE, api.DELETE, http.StatusNoContent, params, nil, t)
 }

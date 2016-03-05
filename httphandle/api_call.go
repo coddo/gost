@@ -18,7 +18,7 @@ func SetApiInterface(interf interface{}) {
 	apiInterface = interf
 }
 
-func PerformApiCall(handlerName string, rw http.ResponseWriter, req *http.Request, route *config.Route) {
+func PerformApiCall(endpoint string, rw http.ResponseWriter, req *http.Request, route *config.Route) {
 	// Prepare data vector for an api/endpoint call
 	inputs := make([]reflect.Value, 1)
 
@@ -46,7 +46,7 @@ func PerformApiCall(handlerName string, rw http.ResponseWriter, req *http.Reques
 	// Perform the call on the corresponding endpoint and function
 	// This is done by using reflection techniques
 	var respObjects []reflect.Value
-	apiMethod := reflect.ValueOf(apiInterface).MethodByName(route.Handlers[req.Method])
+	apiMethod := reflect.ValueOf(apiInterface).MethodByName(endpoint)
 
 	// Check for zero value
 	if apiMethod != *new(reflect.Value) {

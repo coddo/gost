@@ -124,6 +124,26 @@ func deserializeRoutes(routesString []byte) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	//sortRoutesDescending()
+}
+
+func sortRoutesDescending() {
+	var maximum int
+
+	for i := 0; i < len(Routes)-1; i++ {
+		maximum = i
+
+		for j := i + 1; i < len(Routes); i++ {
+			if len(Routes[j].Pattern) > len(Routes[maximum].Pattern) {
+				maximum = j
+			}
+		}
+
+		aux := Routes[i]
+		Routes[i] = Routes[maximum]
+		Routes[maximum] = aux
+	}
 }
 
 func checkCollectionModification(route *Route, initialLength int) error {

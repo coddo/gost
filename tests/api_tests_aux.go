@@ -14,8 +14,8 @@ import (
 	"testing"
 )
 
-func PerformApiTestCall(endpointName, method string, expectedStatusCode int, urlParams url.Values, object interface{}, t *testing.T) *httptest.ResponseRecorder {
-	Url, err := generateApiUrl(endpointName, urlParams)
+func PerformApiTestCall(route, endpoint, method string, expectedStatusCode int, urlParams url.Values, object interface{}, t *testing.T) *httptest.ResponseRecorder {
+	Url, err := generateApiUrl(route, endpoint, urlParams)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -58,7 +58,7 @@ func InitializeServerConfigurations(routeString string, apiInterface interface{}
 	runtime.GOMAXPROCS(2)
 }
 
-func generateApiUrl(path string, params url.Values) (*url.URL, error) {
+func generateApiUrl(route, endpoint string, params url.Values) (*url.URL, error) {
 	buffer := &bytes.Buffer{}
 
 	if !strings.Contains(config.HttpServerAddress, "http://") {
@@ -67,7 +67,9 @@ func generateApiUrl(path string, params url.Values) (*url.URL, error) {
 
 	buffer.WriteString(config.HttpServerAddress)
 	buffer.WriteString(config.ApiInstance[0 : len(config.ApiInstance)-1])
-	buffer.WriteString(path)
+	buffer.WriteString(route)
+	buffer.WriteRune('/')
+	buffer.WriteString(endpoint)
 
 	bufferString := buffer.String()
 	bufferString = strings.Replace(bufferString, "[", "", 1)
