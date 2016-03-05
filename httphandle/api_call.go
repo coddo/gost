@@ -28,14 +28,14 @@ func PerformApiCall(handlerName string, rw http.ResponseWriter, req *http.Reques
 		return
 	}
 
-	// Try giving the response directly from the cache if available
+	// Try giving the response directly from the cache if available or invalidate it if necessary
 	if cache.Status == cache.STATUS_ON {
 		if cachedData := cache.QueryByRequest(vars.RequestForm, route.Pattern); cachedData != nil {
 			if req.Method == api.GET {
 				GiveApiResponse(cachedData.StatusCode, cachedData.Data, rw, req, route.Pattern, cachedData.ContentType, cachedData.File)
 				return
 			} else { // Invalidate the cache if a modification, deletion or addition was made to this endpoint
-				go cachedData.Invalidate()
+				cachedData.Invalidate()
 			}
 		}
 	}
