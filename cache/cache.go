@@ -2,7 +2,6 @@ package cache
 
 import (
 	"bytes"
-	"net/url"
 	"time"
 )
 
@@ -26,7 +25,7 @@ type Cacher interface {
 }
 
 type Cache struct {
-	Query       string
+	Key         string
 	Data        []byte
 	StatusCode  int
 	ContentType string
@@ -43,7 +42,7 @@ func (cache *Cache) Cache() {
 
 func (cache *Cache) Invalidate() {
 	go func() {
-		invalidateChan <- cache.Query
+		invalidateChan <- cache.Key
 	}()
 }
 
@@ -72,16 +71,14 @@ func QueryByKey(key string) *Cache {
 	return <-flag
 }
 
-func QueryByRequest(form url.Values, endpoint string) *Cache {
-	return QueryByKey(MapKey(form, endpoint))
+func QueryByRequest(endpoint string) *Cache {
+	return QueryByKey(MapKey(endpoint))
 }
 
-func MapKey(form url.Values, endpoint string) string {
+func MapKey(endpoint string) string {
 	var buf bytes.Buffer
 
 	buf.WriteString(endpoint)
-	buf.WriteRune(':')
-	buf.WriteString(form.Encode())
 
 	return buf.String()
 }
@@ -112,7 +109,7 @@ func invalidate(key string) {
 }
 
 func storeOrUpdate(cache *Cache) {
-	memoryCache[cache.Query] = cache
+	memoryCache[cache.Key] = cache
 }
 
 func startCachingLoop() {

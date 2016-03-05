@@ -17,11 +17,11 @@ type CacheTest struct {
 func TestCache(t *testing.T) {
 	const cacheExpireTime = 1 * time.Second
 
-	var queries = []string{
-		"test:x%2==0",
-		"test:(x+y)%z>1",
-		"test:z>550",
-		"thisNeedsToExpire",
+	var cacheKeys = []string{
+		MapKey("/testKey1"),
+		MapKey("/testKey2"),
+		MapKey("/testTheThirdKey"),
+		MapKey("/thisNeedsToExpire"),
 	}
 
 	var items []CacheTest
@@ -34,11 +34,11 @@ func TestCache(t *testing.T) {
 
 	items = testInitItems(t)
 
-	testFetchInexistentCache(t, queries[0])
-	cachedItems, expiringItem = testAddingToCache(t, items, queries)
+	testFetchInexistentCache(t, cacheKeys[0])
+	cachedItems, expiringItem = testAddingToCache(t, items, cacheKeys)
 	testFetchingFromCache(t, cachedItems)
 	testRemovingFromCache(t, cachedItems)
-	testFetchInexistentCache(t, queries[1])
+	testFetchInexistentCache(t, cacheKeys[1])
 	testExpiringItem(t, expiringItem, cacheExpireTime)
 }
 
@@ -47,7 +47,7 @@ func testExpiringItem(t *testing.T, expiringItem *Cache, cacheExpireTime time.Du
 
 	time.Sleep(2 * cacheExpireTime)
 
-	it := QueryByKey(expiringItem.Query)
+	it := QueryByKey(expiringItem.Key)
 
 	if it != nil {
 		t.Fatal("The cache items did not properly expire")
@@ -79,9 +79,9 @@ func testFetchingFromCache(t *testing.T, cachedItems []*Cache) {
 	i := 0
 
 	for i < 2 {
-		q1 = QueryByKey(cachedItems[0].Query)
-		q2 = QueryByKey(cachedItems[1].Query)
-		q3 = QueryByKey(cachedItems[2].Query)
+		q1 = QueryByKey(cachedItems[0].Key)
+		q2 = QueryByKey(cachedItems[1].Key)
+		q3 = QueryByKey(cachedItems[2].Key)
 
 		if q1 == nil || q2 == nil || q3 == nil {
 			t.Fatal("Cache didn't properly return test items")
@@ -90,12 +90,12 @@ func testFetchingFromCache(t *testing.T, cachedItems []*Cache) {
 		i++
 	}
 
-	if q1.Query != cachedItems[0].Query || q2.Query != cachedItems[1].Query || q3.Query != cachedItems[2].Query {
+	if q1.Key != cachedItems[0].Key || q2.Key != cachedItems[1].Key || q3.Key != cachedItems[2].Key {
 		t.Fatal("Wrong cache values were returned")
 	}
 }
 
-func testAddingToCache(t *testing.T, items []CacheTest, queries []string) ([]*Cache, *Cache) {
+func testAddingToCache(t *testing.T, items []CacheTest, cacheKeys []string) ([]*Cache, *Cache) {
 	log.Println("Testing the data caching system")
 
 	var cachedItems []*Cache
@@ -113,8 +113,8 @@ func testAddingToCache(t *testing.T, items []CacheTest, queries []string) ([]*Ca
 	}
 	j1, _ := json.MarshalIndent(q1, "", "  ")
 	c1 := &Cache{
-		Query: queries[0],
-		Data:  j1,
+		Key:  cacheKeys[0],
+		Data: j1,
 	}
 	c1.Cache()
 	cachedItems = append(cachedItems, c1)
@@ -127,8 +127,8 @@ func testAddingToCache(t *testing.T, items []CacheTest, queries []string) ([]*Ca
 	}
 	j2, _ := json.MarshalIndent(q2, "", "  ")
 	c2 := &Cache{
-		Query: queries[1],
-		Data:  j2,
+		Key:  cacheKeys[1],
+		Data: j2,
 	}
 	c2.Cache()
 	cachedItems = append(cachedItems, c2)
@@ -141,16 +141,16 @@ func testAddingToCache(t *testing.T, items []CacheTest, queries []string) ([]*Ca
 	}
 	j3, _ := json.MarshalIndent(q3, "", "  ")
 	c3 := &Cache{
-		Query: queries[2],
-		Data:  j3,
+		Key:  cacheKeys[2],
+		Data: j3,
 	}
 	c3.Cache()
 	cachedItems = append(cachedItems, c3)
 
 	// Expiring type
 	expiringCacheItem = &Cache{
-		Query: queries[3],
-		Data:  j1,
+		Key:  cacheKeys[3],
+		Data: j1,
 	}
 	expiringCacheItem.Cache()
 
