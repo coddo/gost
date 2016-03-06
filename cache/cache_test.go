@@ -98,7 +98,7 @@ func testFetchingFromCache(t *testing.T, cachedItems []*Cache) {
 func testAddingToCache(t *testing.T, items []CacheTest, cacheKeys []string) ([]*Cache, *Cache) {
 	log.Println("Testing the data caching system")
 
-	var cachedItems []*Cache
+	var cachedItems []*Cache = make([]*Cache, 3)
 	var expiringCacheItem *Cache
 
 	q1 := make([]CacheTest, 0)
@@ -116,8 +116,7 @@ func testAddingToCache(t *testing.T, items []CacheTest, cacheKeys []string) ([]*
 		Key:  cacheKeys[0],
 		Data: j1,
 	}
-	c1.Cache()
-	cachedItems = append(cachedItems, c1)
+	cachedItems[0] = c1
 
 	// Second type
 	for i := 0; i < len(items); i++ {
@@ -130,8 +129,7 @@ func testAddingToCache(t *testing.T, items []CacheTest, cacheKeys []string) ([]*
 		Key:  cacheKeys[1],
 		Data: j2,
 	}
-	c2.Cache()
-	cachedItems = append(cachedItems, c2)
+	cachedItems[1] = c2
 
 	// Third type
 	for i := 0; i < len(items); i++ {
@@ -144,15 +142,20 @@ func testAddingToCache(t *testing.T, items []CacheTest, cacheKeys []string) ([]*
 		Key:  cacheKeys[2],
 		Data: j3,
 	}
-	c3.Cache()
-	cachedItems = append(cachedItems, c3)
+	cachedItems[2] = c3
 
 	// Expiring type
 	expiringCacheItem = &Cache{
 		Key:  cacheKeys[3],
 		Data: j1,
 	}
+
 	expiringCacheItem.Cache()
+	for _, cachedItem := range cachedItems {
+		cachedItem.Cache()
+	}
+
+	time.Sleep(500 * time.Millisecond)
 
 	return cachedItems, expiringCacheItem
 }

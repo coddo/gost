@@ -35,7 +35,6 @@ type Cache struct {
 
 func (cache *Cache) Cache() {
 	go func() {
-		cache.ResetExpireTime()
 		cacheChan <- cache
 	}()
 }
@@ -109,6 +108,7 @@ func invalidate(key string) {
 }
 
 func storeOrUpdate(cache *Cache) {
+	cache.ResetExpireTime()
 	memoryCache[cache.Key] = cache
 }
 
