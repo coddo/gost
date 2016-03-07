@@ -2,6 +2,7 @@ package cache
 
 import (
 	"bytes"
+	"errors"
 	"time"
 )
 
@@ -12,6 +13,10 @@ const (
 
 const (
 	CACHE_EXPIRE_TIME = 1 * time.Minute
+)
+
+var (
+	KEY_INVALIDATED_ERROR = errors.New("The search key has been invalidated")
 )
 
 var Status bool = STATUS_OFF
@@ -62,12 +67,17 @@ func QueryByKey(key string) *Cache {
 		getKeyChannel <- key
 	}()
 
-	flag := make(chan *Cache)
-	defer close(flag)
+	flagChan := make(chan *Cache)
+	defer close(flagChan)
 
-	getChan <- flag
+	getChan <- flagChan
 
-	return <-flag
+	select {
+	case returnItem := <-flagChan:
+		return returnItem
+	case <-errorChan:
+		return nil
+	}
 }
 
 func QueryByRequest(endpoint string) *Cache {
@@ -87,6 +97,7 @@ var memoryCache = make(map[string]*Cache)
 var (
 	getKeyChannel  = make(chan string)
 	getChan        = make(chan chan *Cache)
+	errorChan      = make(chan error)
 	cacheChan      = make(chan *Cache)
 	invalidateChan = make(chan string)
 	exitChan       = make(chan int)
@@ -101,6 +112,7 @@ func stopCachingSystem() {
 	close(getChan)
 	close(cacheChan)
 	close(invalidateChan)
+	close(errorChan)
 }
 
 func invalidate(key string) {
@@ -125,12 +137,12 @@ Loop:
 		case flag := <-getChan:
 			key := <-getKeyChannel
 
-			item := memoryCache[key]
-			if item != nil {
+			if item, ok := memoryCache[key]; ok {
 				item.ResetExpireTime()
+				flag <- item
+			} else {
+				errorChan <- KEY_INVALIDATED_ERROR
 			}
-
-			flag <- item
 		}
 	}
 }
