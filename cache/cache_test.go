@@ -3,7 +3,6 @@ package cache
 import (
 	"encoding/json"
 	"gost/config"
-	"log"
 	"testing"
 	"time"
 )
@@ -37,23 +36,19 @@ func TestCache(t *testing.T) {
 	testFetchInexistentCache(t, cacheKeys[0])
 	cachedItems, expiringItem = testAddingToCache(t, items, cacheKeys)
 	testFetchingFromCache(t, cachedItems)
-
 	testRemovingFromCache(t, cachedItems)
-	time.Sleep(100 * time.Millisecond)
-
 	testFetchInexistentCache(t, cacheKeys[1])
 	testExpiringItem(t, expiringItem, cacheExpireTime)
 }
 
 func testExpiringItem(t *testing.T, expiringItem *Cache, cacheExpireTime time.Duration) {
-	log.Println("Testing the expired cache invalidation system")
+	t.Log("Testing the expired cache invalidation system")
 
 	expiringKey := expiringItem.Key
 
 	time.Sleep(1000 * time.Millisecond)
 
-	it, err := QueryByKey(expiringKey)
-	log.Println("##### RETRIEVED ITEM: ", it)
+	_, err := QueryByKey(expiringKey)
 
 	if err == nil || err != KEY_INVALIDATED_ERROR {
 		t.Fatal("The cache items did not properly expire")
@@ -61,7 +56,7 @@ func testExpiringItem(t *testing.T, expiringItem *Cache, cacheExpireTime time.Du
 }
 
 func testFetchInexistentCache(t *testing.T, mockQuery string) {
-	log.Println("Testing the cache querying system with inexistent or invalid data")
+	t.Log("Testing the cache querying system with inexistent or invalid data")
 
 	// Will never be added
 	data, _ := QueryByKey("keySFAFSAGKAGHAJSKfhaskfhaskf")
@@ -77,7 +72,7 @@ func testFetchInexistentCache(t *testing.T, mockQuery string) {
 }
 
 func testFetchingFromCache(t *testing.T, cachedItems []*Cache) {
-	log.Println("Testing the cache querying system with valid data")
+	t.Log("Testing the cache querying system with valid data")
 
 	var q1 *Cache
 	var q2 *Cache
@@ -102,7 +97,7 @@ func testFetchingFromCache(t *testing.T, cachedItems []*Cache) {
 }
 
 func testAddingToCache(t *testing.T, items []CacheTest, cacheKeys []string) ([]*Cache, *Cache) {
-	log.Println("Testing the data caching system")
+	t.Log("Testing the data caching system")
 
 	var cachedItems []*Cache = make([]*Cache, 3)
 	var expiringCacheItem *Cache
@@ -167,7 +162,7 @@ func testAddingToCache(t *testing.T, items []CacheTest, cacheKeys []string) ([]*
 }
 
 func testRemovingFromCache(t *testing.T, cachedItems []*Cache) {
-	log.Println("Testing the cache invalidation system")
+	t.Log("Testing the cache invalidation system")
 
 	for _, it := range cachedItems {
 		it.Invalidate()
