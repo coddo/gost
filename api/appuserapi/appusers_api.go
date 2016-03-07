@@ -1,4 +1,4 @@
-package userapi
+package appuserapi
 
 import (
 	"gopkg.in/mgo.v2/bson"
@@ -6,16 +6,16 @@ import (
 	"gost/dbmodels"
 	"gost/filter/apifilter"
 	"gost/models"
-	"gost/service/userservice"
+	"gost/service/appuserservice"
 	"net/http"
 	"strings"
 )
 
-type UsersApi int
+type ApplicationUsersApi int
 
-const ApiName = "users"
+const ApiName = "applicationUsers"
 
-func (usersApi *UsersApi) GetUser(vars *api.ApiVar) api.ApiResponse {
+func (usersApi *ApplicationUsersApi) GetUser(vars *api.ApiVar) api.ApiResponse {
 	userId, err, found := apifilter.GetIdFromParams(vars.RequestForm)
 	if found {
 		if err != nil {
@@ -38,8 +38,8 @@ func (usersApi *UsersApi) GetUser(vars *api.ApiVar) api.ApiResponse {
 
 }
 
-func (usersApi *UsersApi) PostUser(vars *api.ApiVar) api.ApiResponse {
-	user := &models.User{}
+func (usersApi *ApplicationUsersApi) PostUser(vars *api.ApiVar) api.ApiResponse {
+	user := &models.ApplicationUser{}
 
 	err := models.DeserializeJson(vars.RequestBody, user)
 	if err != nil {
@@ -55,7 +55,7 @@ func (usersApi *UsersApi) PostUser(vars *api.ApiVar) api.ApiResponse {
 		return api.InternalServerError(api.EntityProcessError)
 	}
 
-	err = userservice.CreateUser(dbUser)
+	err = appuserservice.CreateUser(dbUser)
 	if err != nil {
 		return api.InternalServerError(api.EntityProcessError)
 	}
@@ -64,8 +64,8 @@ func (usersApi *UsersApi) PostUser(vars *api.ApiVar) api.ApiResponse {
 	return api.SingleDataResponse(http.StatusCreated, user)
 }
 
-func (usersApi *UsersApi) PutUser(vars *api.ApiVar) api.ApiResponse {
-	user := &models.User{}
+func (usersApi *ApplicationUsersApi) PutUser(vars *api.ApiVar) api.ApiResponse {
+	user := &models.ApplicationUser{}
 	err := models.DeserializeJson(vars.RequestBody, user)
 
 	if err != nil {
@@ -85,7 +85,7 @@ func (usersApi *UsersApi) PutUser(vars *api.ApiVar) api.ApiResponse {
 		return api.InternalServerError(api.EntityProcessError)
 	}
 
-	err = userservice.UpdateUser(dbUser)
+	err = appuserservice.UpdateUser(dbUser)
 	if err != nil {
 		return api.NotFound(api.EntityNotFoundError)
 	}
@@ -93,7 +93,7 @@ func (usersApi *UsersApi) PutUser(vars *api.ApiVar) api.ApiResponse {
 	return api.SingleDataResponse(http.StatusOK, user)
 }
 
-func (usersApi *UsersApi) DeleteUser(vars *api.ApiVar) api.ApiResponse {
+func (usersApi *ApplicationUsersApi) DeleteUser(vars *api.ApiVar) api.ApiResponse {
 	userId, err, found := apifilter.GetIdFromParams(vars.RequestForm)
 
 	if found {
@@ -101,7 +101,7 @@ func (usersApi *UsersApi) DeleteUser(vars *api.ApiVar) api.ApiResponse {
 			return api.BadRequest(err)
 		}
 
-		err = userservice.DeleteUser(userId)
+		err = appuserservice.DeleteUser(userId)
 		if err != nil {
 			return api.NotFound(err)
 		}
@@ -113,7 +113,7 @@ func (usersApi *UsersApi) DeleteUser(vars *api.ApiVar) api.ApiResponse {
 }
 
 func getAllUsers(vars *api.ApiVar, limit int) api.ApiResponse {
-	var dbUsers []dbmodels.User
+	var dbUsers []dbmodels.ApplicationUser
 	var err error
 
 	if limit == 0 {
@@ -121,9 +121,9 @@ func getAllUsers(vars *api.ApiVar, limit int) api.ApiResponse {
 	}
 
 	if limit != -1 {
-		dbUsers, err = userservice.GetAllUsersLimited(limit)
+		dbUsers, err = appuserservice.GetAllUsersLimited(limit)
 	} else {
-		dbUsers, err = userservice.GetAllUsers()
+		dbUsers, err = appuserservice.GetAllUsers()
 	}
 
 	if err != nil {
@@ -132,7 +132,7 @@ func getAllUsers(vars *api.ApiVar, limit int) api.ApiResponse {
 
 	users := make([]models.Modeler, len(dbUsers))
 	for i := 0; i < len(dbUsers); i++ {
-		user := &models.User{}
+		user := &models.ApplicationUser{}
 		user.Expand(&dbUsers[i])
 
 		users[i] = user
@@ -142,7 +142,7 @@ func getAllUsers(vars *api.ApiVar, limit int) api.ApiResponse {
 }
 
 func getUser(vars *api.ApiVar, userId bson.ObjectId) api.ApiResponse {
-	dbUser, err := userservice.GetUser(userId)
+	dbUser, err := appuserservice.GetUser(userId)
 
 	if err != nil {
 		if strings.Contains(strings.ToLower(err.Error()), "found") {
@@ -156,7 +156,7 @@ func getUser(vars *api.ApiVar, userId bson.ObjectId) api.ApiResponse {
 		return api.NotFound(api.EntityNotFoundError)
 	}
 
-	user := &models.User{}
+	user := &models.ApplicationUser{}
 	user.Expand(dbUser)
 
 	return api.SingleDataResponse(http.StatusOK, user)

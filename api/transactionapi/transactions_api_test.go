@@ -77,7 +77,7 @@ func testPostTransactionInBadFormat(t *testing.T) {
 func testPostTransactionNotIntegral(t *testing.T) {
 	transaction := &models.Transaction{
 		Id:       bson.NewObjectId(),
-		Payer:    models.User{Id: bson.NewObjectId()},
+		Payer:    models.ApplicationUser{Id: bson.NewObjectId()},
 		Currency: "USD",
 	}
 
@@ -87,8 +87,8 @@ func testPostTransactionNotIntegral(t *testing.T) {
 func testPostTransactionInGoodFormat(t *testing.T) bson.ObjectId {
 	transaction := &models.Transaction{
 		Id:       bson.NewObjectId(),
-		Payer:    models.User{Id: bson.NewObjectId()},
-		Receiver: models.User{Id: bson.NewObjectId()},
+		Payer:    models.ApplicationUser{Id: bson.NewObjectId()},
+		Receiver: models.ApplicationUser{Id: bson.NewObjectId()},
 		Type:     dbmodels.CASH_TRANSACTION_TYPE,
 		Ammount:  216.365,
 		Currency: "USD",

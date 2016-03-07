@@ -67,10 +67,10 @@ func testPostUserSessionInBadFormat(t *testing.T) {
 
 func testPostUserSessionInGoodFormat(t *testing.T) (bson.ObjectId, string) {
 	userSession := &models.UserSession{
-		Id:         bson.NewObjectId(),
-		User:       models.User{Id: bson.NewObjectId()},
-		Token:      "as7f6as8faf5aasf6721rqf",
-		ExpireDate: time.Now().Local(),
+		Id:              bson.NewObjectId(),
+		ApplicationUser: models.ApplicationUser{Id: bson.NewObjectId()},
+		Token:           "as7f6as8faf5aasf6721rqf",
+		ExpireDate:      time.Now().Local(),
 	}
 
 	rw := tests.PerformApiTestCall(apiPath, POST, api.POST, http.StatusCreated, nil, userSession, t)

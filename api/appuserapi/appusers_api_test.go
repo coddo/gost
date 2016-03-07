@@ -1,4 +1,4 @@
-package userapi
+package appuserapi
 
 import (
 	"gopkg.in/mgo.v2/bson"
@@ -11,8 +11,8 @@ import (
 	"testing"
 )
 
-const usersRoute = "[{\"id\": \"UsersRoute\", \"pattern\": \"/users\", \"handlers\": {\"DeleteUser\": \"DELETE\", \"GetUser\": \"GET\", \"PostUser\": \"POST\", \"PutUser\": \"PUT\"}}]"
-const apiPath = "/users"
+const applicationUsersRoute = "[{\"id\": \"ApplicationUsersRoute\", \"pattern\": \"/appusers\", \"handlers\": {\"DeleteUser\": \"DELETE\", \"GetUser\": \"GET\", \"PostUser\": \"POST\", \"PutUser\": \"PUT\"}}]"
+const apiPath = "/appusers"
 
 const (
 	GET    = "GetUser"
@@ -28,7 +28,7 @@ type dummyUser struct {
 func (user *dummyUser) PopConstrains() {}
 
 func TestUsersApi(t *testing.T) {
-	tests.InitializeServerConfigurations(usersRoute, new(UsersApi))
+	tests.InitializeServerConfigurations(applicationUsersRoute, new(ApplicationUsersApi))
 
 	testPostUserInBadFormat(t)
 	id := testPostUserInGoodFormat(t)
@@ -112,21 +112,12 @@ func testPostUserInBadFormat(t *testing.T) {
 }
 
 func testPostUserInGoodFormat(t *testing.T) bson.ObjectId {
-	user := &models.User{
-		Id:          bson.NewObjectId(),
-		Password:    "CoddoPass",
-		AccountType: dbmodels.ADMINISTRATOR_ACCOUNT_TYPE,
-		FirstName:   "Claudiu",
-		LastName:    "Codoban",
-		Email:       "test@tests.com",
-		Sex:         'M',
-		Country:     "Romania",
-		State:       "Hunedoara",
-		City:        "Deva",
-		Address:     "AddrTest",
-		PostalCode:  330099,
-		Picture:     "ftp://pictLink",
-		Token:       "as7f6as8faf5aasf6721rqf",
+	user := &models.ApplicationUser{
+		Id:                 bson.NewObjectId(),
+		Password:           "CoddoPass",
+		AccountType:        dbmodels.ADMINISTRATOR_ACCOUNT_TYPE,
+		Email:              "test@tests.com",
+		ResetPasswordToken: "as7f6as8faf5aasf6721rqf",
 	}
 
 	rw := tests.PerformApiTestCall(apiPath, POST, api.POST, http.StatusCreated, nil, user, t)
@@ -140,51 +131,41 @@ func testPostUserInGoodFormat(t *testing.T) bson.ObjectId {
 }
 
 func testPutUserInBadFormat(t *testing.T) {
-	user := &models.User{
-		Id:        "507f191e810c19729de860ea",
-		Sex:       'M',
-		FirstName: "gigel",
-		Country:   "Romania",
+	user := &models.ApplicationUser{
+		Id:                 "507f191e810c19729de860ea",
+		ResetPasswordToken: "asg1a89wqg4a5s",
 	}
 
 	tests.PerformApiTestCall(apiPath, PUT, api.PUT, http.StatusBadRequest, nil, user, t)
 }
 
 func testPutUserWithoutId(t *testing.T) {
-	user := &models.User{
-		Email:     "ceva@ceva.com",
-		Sex:       'M',
-		FirstName: "gigel",
-		Token:     "fsa4fas564g6g4s6ag",
-		Country:   "Romania",
+	user := &models.ApplicationUser{
+		Email:              "ceva@ceva.com",
+		Password:           "CoddoPass",
+		ResetPasswordToken: "fsa4fas564g6g4s6ag",
 	}
 
 	tests.PerformApiTestCall(apiPath, PUT, api.PUT, http.StatusBadRequest, nil, user, t)
 }
 
 func testPutUserWithNoExistentIdInDb(t *testing.T) {
-	user := &models.User{
-		Id:        bson.NewObjectId(),
-		Email:     "ceva@ceva.com",
-		Sex:       'M',
-		FirstName: "gigel",
-		Token:     "fsa4fas564g6g4s6ag",
-		Country:   "Romania",
-		Address:   "addr",
+	user := &models.ApplicationUser{
+		Id:                 bson.NewObjectId(),
+		Email:              "ceva@ceva.com",
+		Password:           "CoddoPass",
+		ResetPasswordToken: "fsa4fas564g6g4s6ag",
 	}
 
 	tests.PerformApiTestCall(apiPath, PUT, api.PUT, http.StatusNotFound, nil, user, t)
 }
 
 func testPutUserWithGoodRequestDetails(t *testing.T, id bson.ObjectId) {
-	user := &models.User{
-		Id:        id,
-		Email:     "ceva@ceva.com",
-		Sex:       'M',
-		FirstName: "gigel",
-		Token:     "fsa4fas564g6g4s6ag",
-		Country:   "Romania",
-		Address:   "addr",
+	user := &models.ApplicationUser{
+		Id:                 id,
+		Email:              "ceva@ceva.com",
+		Password:           "CoddoPass",
+		ResetPasswordToken: "fsa4fas564g6g4s6ag",
 	}
 
 	rw := tests.PerformApiTestCall(apiPath, PUT, api.PUT, http.StatusOK, nil, user, t)

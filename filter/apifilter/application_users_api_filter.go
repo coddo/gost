@@ -4,11 +4,11 @@ import (
 	"gost/models"
 )
 
-func CheckUserIntegrity(user *models.User) bool {
+func CheckUserIntegrity(user *models.ApplicationUser) bool {
 	switch {
 	case len(user.Email) == 0:
 		return false
-	case len(user.Token) == 0:
+	case len(user.Password) == 0:
 		return false
 	}
 

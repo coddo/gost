@@ -1,7 +1,7 @@
 package main
 
 import (
-	"gost/api/userapi"
+	"gost/api/appuserapi"
 	"gost/cache"
 	"gost/config"
 	"gost/httphandle"
@@ -17,7 +17,7 @@ var numberOfProcessors = runtime.NumCPU()
 
 // Add all the existing endpoints as part of this container
 type ApiContainer struct {
-	userapi.UsersApi
+	appuserapi.ApplicationUsersApi
 }
 
 func StartWebFramework() {
