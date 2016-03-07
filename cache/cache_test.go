@@ -52,6 +52,7 @@ func testExpiringItem(t *testing.T, expiringItem *Cache, cacheExpireTime time.Du
 	it := QueryByKey(expiringKey)
 
 	if it != nil {
+		log.Println("RETRIEVED ITEM: ", it)
 		t.Fatal("The cache items did not properly expire")
 	}
 }

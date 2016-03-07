@@ -3,6 +3,7 @@ package cache
 import (
 	"bytes"
 	"errors"
+	"log"
 	"time"
 )
 
@@ -12,7 +13,7 @@ const (
 )
 
 const (
-	CACHE_EXPIRE_TIME = 1 * time.Minute
+	CACHE_EXPIRE_TIME = 7 * 24 * time.Hour
 )
 
 var (
@@ -72,10 +73,13 @@ func QueryByKey(key string) *Cache {
 
 	getChan <- flagChan
 
+	log.Println("*****GET CHANNEL SET CORRECTLY")
 	select {
 	case returnItem := <-flagChan:
+		log.Println("*****ITEM SUCCESSFULLY RETRIEVED FROM CHANNEL: ", returnItem)
 		return returnItem
 	case <-errorChan:
+		log.Println("*****ITEM RETRIEVE FAILED FROM CHANNEL")
 		return nil
 	}
 }
@@ -138,9 +142,11 @@ Loop:
 			key := <-getKeyChannel
 
 			if item, ok := memoryCache[key]; ok {
+				log.Println("*****MAP SEARCH WAS OK")
 				item.ResetExpireTime()
 				flag <- item
 			} else {
+				log.Println("*****MAP SEARCH WAS A FAILURE")
 				errorChan <- KEY_INVALIDATED_ERROR
 			}
 		}
