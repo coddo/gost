@@ -45,9 +45,11 @@ func TestCache(t *testing.T) {
 func testExpiringItem(t *testing.T, expiringItem *Cache, cacheExpireTime time.Duration) {
 	log.Println("Testing the expired cache invalidation system")
 
+	expiringKey := expiringItem.Key
+
 	time.Sleep(2500 * time.Millisecond)
 
-	it := QueryByKey(expiringItem.Key)
+	it := QueryByKey(expiringKey)
 
 	if it != nil {
 		t.Fatal("The cache items did not properly expire")
