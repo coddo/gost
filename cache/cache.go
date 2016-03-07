@@ -17,7 +17,9 @@ const (
 )
 
 var (
-	KEY_INVALIDATED_ERROR = errors.New("The search key has been invalidated")
+	KEY_INVALIDATED_ERROR        = errors.New("The search key has been invalidated")
+	KEY_FORMAT_ERROR             = errors.New("The search key is not in a correct format")
+	CACHING_SYSTEM_STOPPED_ERROR = errors.New("The search key has been invalidated")
 )
 
 var Status bool = STATUS_OFF
@@ -63,7 +65,11 @@ func (cache *Cache) ResetExpireTime() {
 	}()
 }
 
-func QueryByKey(key string) *Cache {
+func QueryByKey(key string) (*Cache, error) {
+	if exited {
+		return nil, CACHING_SYSTEM_STOPPED_ERROR
+	}
+
 	go func() {
 		getKeyChannel <- key
 	}()
@@ -73,18 +79,15 @@ func QueryByKey(key string) *Cache {
 
 	getChan <- flagChan
 
-	log.Println("*****GET CHANNEL SET CORRECTLY")
 	select {
 	case returnItem := <-flagChan:
-		log.Println("*****ITEM SUCCESSFULLY RETRIEVED FROM CHANNEL: ", returnItem)
-		return returnItem
-	case <-errorChan:
-		log.Println("*****ITEM RETRIEVE FAILED FROM CHANNEL")
-		return nil
+		return returnItem, nil
+	case err := <-errorChan:
+		return nil, err
 	}
 }
 
-func QueryByRequest(endpoint string) *Cache {
+func QueryByRequest(endpoint string) (*Cache, error) {
 	return QueryByKey(MapKey(endpoint))
 }
 
@@ -120,7 +123,10 @@ func stopCachingSystem() {
 }
 
 func invalidate(key string) {
-	delete(memoryCache, key)
+	if _, exists := memoryCache[key]; exists {
+		delete(memoryCache, key)
+		log.Println("**** DELETED:", key)
+	}
 }
 
 func storeOrUpdate(cache *Cache) {
@@ -133,20 +139,26 @@ Loop:
 	for {
 		select {
 		case <-exitChan:
+			log.Println("&&&&&& EXIT")
 			break Loop
 		case key := <-invalidateChan:
+			log.Println("&&&&&& INVALIDATE:", key)
 			invalidate(key)
 		case cache := <-cacheChan:
+			log.Println("&&&&&& STORE:", cache.Key)
 			storeOrUpdate(cache)
 		case flag := <-getChan:
 			key := <-getKeyChannel
+			log.Println("&&&&&& GET:", key)
+
+			if len(key) == 0 {
+				errorChan <- KEY_FORMAT_ERROR
+			}
 
 			if item, ok := memoryCache[key]; ok {
-				log.Println("*****MAP SEARCH WAS OK")
 				item.ResetExpireTime()
 				flag <- item
 			} else {
-				log.Println("*****MAP SEARCH WAS A FAILURE")
 				errorChan <- KEY_INVALIDATED_ERROR
 			}
 		}
@@ -158,10 +170,9 @@ func startExpiredInvalidator(cacheExpireTime time.Duration) {
 		time.Sleep(cacheExpireTime)
 
 		if !exited {
-			m := memoryCache
 			date := time.Now()
 
-			for _, item := range m {
+			for _, item := range memoryCache {
 				item.InvalidateIfExpired(date)
 			}
 		}

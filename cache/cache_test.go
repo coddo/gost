@@ -15,7 +15,7 @@ type CacheTest struct {
 }
 
 func TestCache(t *testing.T) {
-	const cacheExpireTime = 1 * time.Second
+	const cacheExpireTime = 500 * time.Millisecond
 
 	var cacheKeys = []string{
 		MapKey("/testKey1"),
@@ -37,7 +37,10 @@ func TestCache(t *testing.T) {
 	testFetchInexistentCache(t, cacheKeys[0])
 	cachedItems, expiringItem = testAddingToCache(t, items, cacheKeys)
 	testFetchingFromCache(t, cachedItems)
+
 	testRemovingFromCache(t, cachedItems)
+	time.Sleep(100 * time.Millisecond)
+
 	testFetchInexistentCache(t, cacheKeys[1])
 	testExpiringItem(t, expiringItem, cacheExpireTime)
 }
@@ -47,12 +50,12 @@ func testExpiringItem(t *testing.T, expiringItem *Cache, cacheExpireTime time.Du
 
 	expiringKey := expiringItem.Key
 
-	time.Sleep(2500 * time.Millisecond)
+	time.Sleep(1000 * time.Millisecond)
 
-	it := QueryByKey(expiringKey)
+	it, err := QueryByKey(expiringKey)
+	log.Println("##### RETRIEVED ITEM: ", it)
 
-	if it != nil {
-		log.Println("RETRIEVED ITEM: ", it)
+	if err == nil || err != KEY_INVALIDATED_ERROR {
 		t.Fatal("The cache items did not properly expire")
 	}
 }
@@ -61,13 +64,13 @@ func testFetchInexistentCache(t *testing.T, mockQuery string) {
 	log.Println("Testing the cache querying system with inexistent or invalid data")
 
 	// Will never be added
-	data := QueryByKey("keySFAFSAGKAGHAJSKfhaskfhaskf")
+	data, _ := QueryByKey("keySFAFSAGKAGHAJSKfhaskfhaskf")
 	if data != nil {
 		t.Fatal("Unexpected output from cache")
 	}
 
 	// Will be added later during the test
-	data = QueryByKey(mockQuery)
+	data, _ = QueryByKey(mockQuery)
 	if data != nil {
 		t.Fatal("Unexpected output from cache")
 	}
@@ -82,9 +85,9 @@ func testFetchingFromCache(t *testing.T, cachedItems []*Cache) {
 	i := 0
 
 	for i < 2 {
-		q1 = QueryByKey(cachedItems[0].Key)
-		q2 = QueryByKey(cachedItems[1].Key)
-		q3 = QueryByKey(cachedItems[2].Key)
+		q1, _ = QueryByKey(cachedItems[0].Key)
+		q2, _ = QueryByKey(cachedItems[1].Key)
+		q3, _ = QueryByKey(cachedItems[2].Key)
 
 		if q1 == nil || q2 == nil || q3 == nil {
 			t.Fatal("Cache didn't properly return test items")
