@@ -3,7 +3,6 @@ package cache
 import (
 	"bytes"
 	"errors"
-	"log"
 	"time"
 )
 
@@ -137,19 +136,15 @@ Loop:
 	for {
 		select {
 		case <-exitChan:
-			log.Println("SEND ON EXIT CHAN")
 			break Loop
 		case key := <-invalidateChan:
-			log.Println("SEND ON INVALIDATE CHAN")
 			invalidate(key)
 		case cache := <-cacheChan:
-			log.Println("SEND ON STORE CHAN")
 			storeOrUpdate(cache)
 		case flag := <-getChan:
 			key := <-getKeyChannel
 
 			if len(key) == 0 {
-				log.Println("SEND ON ERROR CHAN: EMPTY KEY")
 				errorChan <- KEY_FORMAT_ERROR
 			}
 
@@ -157,7 +152,6 @@ Loop:
 				item.ResetExpireTime()
 				flag <- item
 			} else {
-				log.Println("SEND ON ERROR CHAN: INVALIDATED CACHE")
 				errorChan <- KEY_INVALIDATED_ERROR
 			}
 		}
