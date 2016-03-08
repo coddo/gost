@@ -14,8 +14,8 @@ const (
 
 // Account status constants
 const (
-	ACCOUNT_ACTIVATED   = true
-	ACCOUNT_DEACTIVATED = false
+	STATUS_ACCOUNT_ACTIVATED   = true
+	STATUS_ACCOUNT_DEACTIVATED = false
 )
 
 // Struct representing an user account. This is a database dbmodels

@@ -35,10 +35,9 @@ func (usersApi *ApplicationUsersApi) GetUser(vars *api.ApiVar) api.ApiResponse {
 	}
 
 	return getAllUsers(vars, -1)
-
 }
 
-func (usersApi *ApplicationUsersApi) PostUser(vars *api.ApiVar) api.ApiResponse {
+func (usersApi *ApplicationUsersApi) CreateUser(vars *api.ApiVar) api.ApiResponse {
 	user := &models.ApplicationUser{}
 
 	err := models.DeserializeJson(vars.RequestBody, user)
@@ -64,7 +63,7 @@ func (usersApi *ApplicationUsersApi) PostUser(vars *api.ApiVar) api.ApiResponse 
 	return api.SingleDataResponse(http.StatusCreated, user)
 }
 
-func (usersApi *ApplicationUsersApi) PutUser(vars *api.ApiVar) api.ApiResponse {
+func (usersApi *ApplicationUsersApi) UpdateUser(vars *api.ApiVar) api.ApiResponse {
 	user := &models.ApplicationUser{}
 	err := models.DeserializeJson(vars.RequestBody, user)
 
@@ -91,25 +90,6 @@ func (usersApi *ApplicationUsersApi) PutUser(vars *api.ApiVar) api.ApiResponse {
 	}
 
 	return api.SingleDataResponse(http.StatusOK, user)
-}
-
-func (usersApi *ApplicationUsersApi) DeleteUser(vars *api.ApiVar) api.ApiResponse {
-	userId, err, found := apifilter.GetIdFromParams(vars.RequestForm)
-
-	if found {
-		if err != nil {
-			return api.BadRequest(err)
-		}
-
-		err = appuserservice.DeleteUser(userId)
-		if err != nil {
-			return api.NotFound(err)
-		}
-
-		return api.StatusResponse(http.StatusOK)
-	}
-
-	return api.BadRequest(err)
 }
 
 func getAllUsers(vars *api.ApiVar, limit int) api.ApiResponse {

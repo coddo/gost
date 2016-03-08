@@ -34,7 +34,7 @@ func setUpUsersTest(t *testing.T) {
 }
 
 func tearDownUsersTest(t *testing.T, user *dbmodels.ApplicationUser) {
-	err := DeleteUser(user.Id)
+	err := deleteUser(user.Id)
 
 	if err != nil {
 		t.Fatal("The user document could not be deleted!")
@@ -49,7 +49,7 @@ func createUser(t *testing.T, user *dbmodels.ApplicationUser) {
 		Email:                        "test@tests.com",
 		ResetPasswordToken:           "as7f6as8faf5aasf6721rqf",
 		ResetPasswordTokenExpireDate: time.Now(),
-		Status: dbmodels.ACCOUNT_ACTIVATED,
+		Status: dbmodels.STATUS_ACCOUNT_ACTIVATED,
 	}
 
 	err := CreateUser(user)
@@ -63,6 +63,7 @@ func changeAndUpdateUser(t *testing.T, user *dbmodels.ApplicationUser) {
 	user.Email = "testEmailCHanged@email.go"
 	user.Password = "ChangedPassword"
 	user.AccountType = dbmodels.NORMAL_USER_ACCOUNT_TYPE
+	user.Status = dbmodels.STATUS_ACCOUNT_DEACTIVATED
 
 	err := UpdateUser(user)
 
@@ -81,4 +82,13 @@ func verifyUserCorresponds(t *testing.T, user *dbmodels.ApplicationUser) {
 	if !dbuser.Equal(user) {
 		t.Error("The user document doesn't correspond with the document extracted from the database!")
 	}
+}
+
+func deleteUser(userId bson.ObjectId) error {
+	session, collection := service.Connect(CollectionName)
+	defer session.Close()
+
+	err := collection.RemoveId(userId)
+
+	return err
 }

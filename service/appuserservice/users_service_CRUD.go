@@ -34,15 +34,6 @@ func UpdateUser(user *dbmodels.ApplicationUser) error {
 	return err
 }
 
-func DeleteUser(userId bson.ObjectId) error {
-	session, collection := service.Connect(CollectionName)
-	defer session.Close()
-
-	err := collection.RemoveId(userId)
-
-	return err
-}
-
 func GetUser(userId bson.ObjectId) (*dbmodels.ApplicationUser, error) {
 	session, collection := service.Connect(CollectionName)
 	defer session.Close()

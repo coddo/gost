@@ -12,12 +12,12 @@ import (
 	"time"
 )
 
-const userSessionsRoute = "[{\"id\": \"UserSessionsRoute\", \"pattern\": \"/users/login\", \"handlers\": {\"DeleteUserSession\": \"DELETE\", \"GetUserSession\": \"GET\", \"PostUserSession\": \"POST\", \"PutUserSession\": \"PUT\"}}]"
+const userSessionsRoute = "[{\"id\": \"UserSessionsRoute\", \"pattern\": \"/users/login\", \"handlers\": {\"DeleteUserSession\": \"DELETE\", \"GetUserSession\": \"GET\", \"CreateUserSession\": \"POST\", \"UpdateUserSession\": \"PUT\"}}]"
 const apiPath = "/users/login"
 
 const (
 	GET  = "GetUserSession"
-	POST = "PostUserSession"
+	POST = "CreateUserSession"
 )
 
 type dummyUserSession struct {
@@ -29,8 +29,8 @@ func (userSession *dummyUserSession) PopConstrains() {}
 func TestUserSessionsApi(t *testing.T) {
 	tests.InitializeServerConfigurations(userSessionsRoute, new(UserSessionsApi))
 
-	testPostUserSessionInBadFormat(t)
-	sessionId, token := testPostUserSessionInGoodFormat(t)
+	testCreateUserSessionInBadFormat(t)
+	sessionId, token := testCreateUserSessionInGoodFormat(t)
 	testGetUserSessionWithInexistentTokenInDB(t)
 	testGetUserSessionWithGoodIdParam(t, token)
 
@@ -57,7 +57,7 @@ func testGetUserSessionWithGoodIdParam(t *testing.T, token string) {
 
 }
 
-func testPostUserSessionInBadFormat(t *testing.T) {
+func testCreateUserSessionInBadFormat(t *testing.T) {
 	dUserSession := &dummyUserSession{
 		BadField: "bad value",
 	}
@@ -65,7 +65,7 @@ func testPostUserSessionInBadFormat(t *testing.T) {
 	tests.PerformApiTestCall(apiPath, POST, api.POST, http.StatusBadRequest, nil, dUserSession, t)
 }
 
-func testPostUserSessionInGoodFormat(t *testing.T) (bson.ObjectId, string) {
+func testCreateUserSessionInGoodFormat(t *testing.T) (bson.ObjectId, string) {
 	userSession := &models.UserSession{
 		Id:              bson.NewObjectId(),
 		ApplicationUser: models.ApplicationUser{Id: bson.NewObjectId()},

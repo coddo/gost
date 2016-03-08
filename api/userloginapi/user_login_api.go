@@ -52,7 +52,7 @@ func (userSessionsApi *UserSessionsApi) GetUserSession(vars *api.ApiVar) api.Api
 	return api.SingleDataResponse(http.StatusOK, userSession)
 }
 
-func (userSessionsApi *UserSessionsApi) PostUserSession(vars *api.ApiVar) api.ApiResponse {
+func (userSessionsApi *UserSessionsApi) CreateUserSession(vars *api.ApiVar) api.ApiResponse {
 	userSession := &models.UserSession{}
 
 	err := models.DeserializeJson(vars.RequestBody, userSession)
