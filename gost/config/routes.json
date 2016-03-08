@@ -3,10 +3,10 @@
     "id": "ApplicationUsersRoute",
     "pattern": "/appusers",
     "handlers": {
-      "CreateUser": "POST",
-      "DeleteUser": "DELETE",
-      "GetUser": "GET",
-      "UpdateUser": "PUT"
+      "Create": "POST",
+      "Get": "GET",
+      "GetAll": "GET",
+      "Update": "PUT"
     }
   },
   {

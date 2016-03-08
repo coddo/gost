@@ -11,14 +11,14 @@ import (
 	"testing"
 )
 
-const applicationUsersRoute = "[{\"id\": \"ApplicationUsersRoute\", \"pattern\": \"/appusers\", \"handlers\": {\"DeleteUser\": \"DELETE\", \"GetUser\": \"GET\", \"CreateUser\": \"POST\", \"UpdateUser\": \"PUT\"}}]"
+const applicationUsersRoute = "[{\"id\": \"ApplicationUsersRoute\", \"pattern\": \"/appusers\", \"handlers\": {\"GetAll\": \"GET\", \"Get\": \"GET\", \"Create\": \"POST\", \"Update\": \"PUT\"}}]"
 const apiPath = "/appusers"
 
 const (
-	GET    = "GetUser"
-	POST   = "CreateUser"
-	PUT    = "UpdateUser"
-	DELETE = "DeleteUser"
+	GET    = "Get"
+	GETALL = "GetAll"
+	CREATE = "Create"
+	UPDATE = "Update"
 )
 
 type dummyUser struct {
@@ -41,6 +41,7 @@ func TestUsersApi(t *testing.T) {
 	testGetUserWithGoodIdParam(t, id)
 	testGetAllUsersWithoutLimit(t)
 	testGetAllUsersWithBadLimitParam(t)
+	testGetAllUsersWithZeroLimitParam(t)
 	testGetAllUsersWithGoodLimitParam(t)
 }
 
@@ -68,11 +69,10 @@ func testGetUserWithGoodIdParam(t *testing.T, id bson.ObjectId) {
 	if len(body) == 0 {
 		t.Error("Response body is empty or in deteriorated format:", body)
 	}
-
 }
 
 func testGetAllUsersWithoutLimit(t *testing.T) {
-	rw := tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusOK, nil, nil, t)
+	rw := tests.PerformApiTestCall(apiPath, GETALL, api.GET, http.StatusOK, nil, nil, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -84,14 +84,21 @@ func testGetAllUsersWithBadLimitParam(t *testing.T) {
 	params := url.Values{}
 	params.Add("limit", "asfsa")
 
-	tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusBadRequest, params, nil, t)
+	tests.PerformApiTestCall(apiPath, GETALL, api.GET, http.StatusBadRequest, params, nil, t)
+}
+
+func testGetAllUsersWithZeroLimitParam(t *testing.T) {
+	params := url.Values{}
+	params.Add("limit", "0")
+
+	tests.PerformApiTestCall(apiPath, GETALL, api.GET, http.StatusBadRequest, params, nil, t)
 }
 
 func testGetAllUsersWithGoodLimitParam(t *testing.T) {
 	params := url.Values{}
 	params.Add("limit", "20")
 
-	rw := tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusOK, params, nil, t)
+	rw := tests.PerformApiTestCall(apiPath, GETALL, api.GET, http.StatusOK, params, nil, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -104,7 +111,7 @@ func testCreateUserInBadFormat(t *testing.T) {
 		BadField: "bad value",
 	}
 
-	tests.PerformApiTestCall(apiPath, POST, api.POST, http.StatusBadRequest, nil, dUser, t)
+	tests.PerformApiTestCall(apiPath, CREATE, api.POST, http.StatusBadRequest, nil, dUser, t)
 }
 
 func testCreateUserInGoodFormat(t *testing.T) bson.ObjectId {
@@ -116,7 +123,7 @@ func testCreateUserInGoodFormat(t *testing.T) bson.ObjectId {
 		ResetPasswordToken: "as7f6as8faf5aasf6721rqf",
 	}
 
-	rw := tests.PerformApiTestCall(apiPath, POST, api.POST, http.StatusCreated, nil, user, t)
+	rw := tests.PerformApiTestCall(apiPath, CREATE, api.POST, http.StatusCreated, nil, user, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -132,7 +139,7 @@ func testUpdateUserInBadFormat(t *testing.T) {
 		ResetPasswordToken: "asg1a89wqg4a5s",
 	}
 
-	tests.PerformApiTestCall(apiPath, PUT, api.PUT, http.StatusBadRequest, nil, user, t)
+	tests.PerformApiTestCall(apiPath, UPDATE, api.PUT, http.StatusBadRequest, nil, user, t)
 }
 
 func testUpdateUserWithoutId(t *testing.T) {
@@ -142,7 +149,7 @@ func testUpdateUserWithoutId(t *testing.T) {
 		ResetPasswordToken: "fsa4fas564g6g4s6ag",
 	}
 
-	tests.PerformApiTestCall(apiPath, PUT, api.PUT, http.StatusBadRequest, nil, user, t)
+	tests.PerformApiTestCall(apiPath, UPDATE, api.PUT, http.StatusBadRequest, nil, user, t)
 }
 
 func testUpdateUserWithNoExistentIdInDb(t *testing.T) {
@@ -153,7 +160,7 @@ func testUpdateUserWithNoExistentIdInDb(t *testing.T) {
 		ResetPasswordToken: "fsa4fas564g6g4s6ag",
 	}
 
-	tests.PerformApiTestCall(apiPath, PUT, api.PUT, http.StatusNotFound, nil, user, t)
+	tests.PerformApiTestCall(apiPath, UPDATE, api.PUT, http.StatusNotFound, nil, user, t)
 }
 
 func testUpdateUserWithGoodRequestDetails(t *testing.T, id bson.ObjectId) {
@@ -164,7 +171,7 @@ func testUpdateUserWithGoodRequestDetails(t *testing.T, id bson.ObjectId) {
 		ResetPasswordToken: "fsa4fas564g6g4s6ag",
 	}
 
-	rw := tests.PerformApiTestCall(apiPath, PUT, api.PUT, http.StatusOK, nil, user, t)
+	rw := tests.PerformApiTestCall(apiPath, UPDATE, api.PUT, http.StatusOK, nil, user, t)
 	body := rw.Body.String()
 
 	if len(body) == 0 {

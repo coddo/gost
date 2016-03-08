@@ -11,8 +11,7 @@ import (
 func GetIntValueFromParams(paramName string, reqForm url.Values) (int, error, bool) {
 	value := reqForm.Get(paramName)
 	if value == "" {
-		errMsg := []string{"The", paramName, "parameter was not specified"}
-		return -1, errors.New(strings.Join(errMsg, " ")), false
+		return -1, nil, false
 	}
 
 	if intVal, err := strconv.Atoi(value); err == nil {
@@ -32,7 +31,7 @@ func GetStringValueFromParams(paramName string, reqForm url.Values) (string, boo
 func GetIdFromParams(reqForm url.Values) (bson.ObjectId, error, bool) {
 	id := reqForm.Get("id")
 	if id == "" {
-		return "", errors.New("The id parameter was not specified"), false
+		return "", nil, false
 	}
 
 	if !bson.IsObjectIdHex(id) {

@@ -31,7 +31,6 @@ var (
 	EntityNotFoundError  = errors.New("No entity with the specified data was found")
 
 	IdParamNotSpecifiedError = errors.New("No id was specified for the entity to be updated")
-	LimitParamError          = errors.New("The limit cannot be 0. Use the value -1 for retrieving all the entities")
 )
 
 type ApiVar struct {
