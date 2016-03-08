@@ -2,7 +2,6 @@ package httphandle
 
 import (
 	"gost/config"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -10,8 +9,6 @@ import (
 
 func ApiHandler(rw http.ResponseWriter, req *http.Request) {
 	pattern, endpoint, parseSuccessful := parseRequestURL(req.URL)
-
-	log.Println("***", pattern, endpoint)
 
 	if !parseSuccessful {
 		GiveApiMessage(http.StatusBadRequest, "The format of the request URL is invalid", rw, req, pattern)
