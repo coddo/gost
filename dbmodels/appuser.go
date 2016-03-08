@@ -12,6 +12,12 @@ const (
 	ADMINISTRATOR_ACCOUNT_TYPE = 1
 )
 
+// Account status constants
+const (
+	ACCOUNT_ACTIVATED   = true
+	ACCOUNT_DEACTIVATED = false
+)
+
 // Struct representing an user account. This is a database dbmodels
 type ApplicationUser struct {
 	Id bson.ObjectId `bson:"_id" json:"id"`
@@ -23,6 +29,7 @@ type ApplicationUser struct {
 	ResetPasswordTokenExpireDate   time.Time `bson:"resetPasswordTokenExpireDate,omitempty" json:"resetPasswordTokenExpireDate"`
 	ActivateAccountToken           string    `bson:"activateAccountToken" json:"activateAccountToken"`
 	ActivateAccountTokenExpireDate time.Time `bson:"activateAccountTokenExpireDate,omitempty" json:"activateAccountTokenExpireDate"`
+	Status                         bool      `bson:"status,omitempty" json:"status"`
 }
 
 func (user *ApplicationUser) Equal(obj Object) bool {
@@ -47,6 +54,8 @@ func (user *ApplicationUser) Equal(obj Object) bool {
 	case user.ActivateAccountToken != otherUser.ActivateAccountToken:
 		return false
 	case !util.CompareDates(user.ActivateAccountTokenExpireDate, otherUser.ActivateAccountTokenExpireDate):
+		return false
+	case user.Status != otherUser.Status:
 		return false
 	}
 

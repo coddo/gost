@@ -17,6 +17,7 @@ type ApplicationUser struct {
 	ResetPasswordTokenExpireDate   time.Time `json:"resetPasswordTokenExpireDate"`
 	ActivateAccountToken           string    `json:"activateAccountToken"`
 	ActivateAccountTokenExpireDate time.Time `json:"activateAccountTokenExpireDate"`
+	Status                         bool      `json:"status"`
 }
 
 func (user *ApplicationUser) PopConstrains() {
@@ -32,6 +33,7 @@ func (user *ApplicationUser) Expand(dbUser *dbmodels.ApplicationUser) {
 	user.ResetPasswordTokenExpireDate = dbUser.ResetPasswordTokenExpireDate
 	user.ActivateAccountToken = dbUser.ActivateAccountToken
 	user.ActivateAccountTokenExpireDate = dbUser.ActivateAccountTokenExpireDate
+	user.Status = dbUser.Status
 
 	user.PopConstrains()
 }
@@ -46,6 +48,7 @@ func (user *ApplicationUser) Collapse() *dbmodels.ApplicationUser {
 		ResetPasswordTokenExpireDate:   user.ResetPasswordTokenExpireDate,
 		ActivateAccountToken:           user.ActivateAccountToken,
 		ActivateAccountTokenExpireDate: user.ActivateAccountTokenExpireDate,
+		Status: user.Status,
 	}
 
 	return &dbUser

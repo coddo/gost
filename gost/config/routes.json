@@ -1,7 +1,7 @@
 [
   {
-    "id": "UsersRoute",
-    "pattern": "/users",
+    "id": "ApplicationUsersRoute",
+    "pattern": "/appusers",
     "handlers": {
       "DeleteUser": "DELETE",
       "GetUser": "GET",

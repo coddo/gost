@@ -49,6 +49,7 @@ func createUser(t *testing.T, user *dbmodels.ApplicationUser) {
 		Email:                        "test@tests.com",
 		ResetPasswordToken:           "as7f6as8faf5aasf6721rqf",
 		ResetPasswordTokenExpireDate: time.Now(),
+		Status: dbmodels.ACCOUNT_ACTIVATED,
 	}
 
 	err := CreateUser(user)
