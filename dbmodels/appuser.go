@@ -2,6 +2,7 @@ package dbmodels
 
 import (
 	"gopkg.in/mgo.v2/bson"
+	"gost/util"
 	"time"
 )
 
@@ -15,11 +16,13 @@ const (
 type ApplicationUser struct {
 	Id bson.ObjectId `bson:"_id" json:"id"`
 
-	Email                   string    `bson:"email,omitempty" json:"email"`
-	Password                string    `bson:"password,omitempty" json:"password"`
-	AccountType             int       `bson:"accountType,omitempty" json:"accountType"`
-	ResetPasswordToken      string    `bson:"resetPasswordTokenToken,omitempty" json:"resetPasswordTokenToken"`
-	ResetPasswordExpireDate time.Time `bson:"resetPasswordExpireDate,omitempty" json:"resetPasswordExpireDate"`
+	Email                          string    `bson:"email,omitempty" json:"email"`
+	Password                       string    `bson:"password,omitempty" json:"password"`
+	AccountType                    int       `bson:"accountType,omitempty" json:"accountType"`
+	ResetPasswordToken             string    `bson:"resetPasswordToken,omitempty" json:"resetPasswordToken"`
+	ResetPasswordTokenExpireDate   time.Time `bson:"resetPasswordTokenExpireDate,omitempty" json:"resetPasswordTokenExpireDate"`
+	ActivateAccountToken           string    `bson:"activateAccountToken" json:"activateAccountToken"`
+	ActivateAccountTokenExpireDate time.Time `bson:"activateAccountTokenExpireDate,omitempty" json:"activateAccountTokenExpireDate"`
 }
 
 func (user *ApplicationUser) Equal(obj Object) bool {
@@ -39,7 +42,11 @@ func (user *ApplicationUser) Equal(obj Object) bool {
 		return false
 	case user.ResetPasswordToken != otherUser.ResetPasswordToken:
 		return false
-	case !user.ResetPasswordExpireDate.Truncate(time.Millisecond).Equal(otherUser.ResetPasswordExpireDate.Truncate(time.Millisecond)):
+	case !util.CompareDates(user.ResetPasswordTokenExpireDate, otherUser.ResetPasswordTokenExpireDate):
+		return false
+	case user.ActivateAccountToken != otherUser.ActivateAccountToken:
+		return false
+	case !util.CompareDates(user.ActivateAccountTokenExpireDate, otherUser.ActivateAccountTokenExpireDate):
 		return false
 	}
 

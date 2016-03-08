@@ -43,12 +43,12 @@ func tearDownUsersTest(t *testing.T, user *dbmodels.ApplicationUser) {
 
 func createUser(t *testing.T, user *dbmodels.ApplicationUser) {
 	*user = dbmodels.ApplicationUser{
-		Id:                      bson.NewObjectId(),
-		Password:                "CoddoPass",
-		AccountType:             dbmodels.ADMINISTRATOR_ACCOUNT_TYPE,
-		Email:                   "test@tests.com",
-		ResetPasswordToken:      "as7f6as8faf5aasf6721rqf",
-		ResetPasswordExpireDate: time.Now(),
+		Id:                           bson.NewObjectId(),
+		Password:                     "CoddoPass",
+		AccountType:                  dbmodels.ADMINISTRATOR_ACCOUNT_TYPE,
+		Email:                        "test@tests.com",
+		ResetPasswordToken:           "as7f6as8faf5aasf6721rqf",
+		ResetPasswordTokenExpireDate: time.Now(),
 	}
 
 	err := CreateUser(user)

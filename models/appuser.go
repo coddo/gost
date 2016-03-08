@@ -10,11 +10,13 @@ import (
 type ApplicationUser struct {
 	Id bson.ObjectId `json:"id"`
 
-	Email                   string    `json:"email"`
-	Password                string    `json:"password"`
-	AccountType             int       `json:"accountType"`
-	ResetPasswordToken      string    `json:"resetPasswordTokenToken"`
-	ResetPasswordExpireDate time.Time `json:"resetPasswordExpireDate"`
+	Email                          string    `json:"email"`
+	Password                       string    `json:"password"`
+	AccountType                    int       `json:"accountType"`
+	ResetPasswordToken             string    `json:"resetPasswordToken"`
+	ResetPasswordTokenExpireDate   time.Time `json:"resetPasswordTokenExpireDate"`
+	ActivateAccountToken           string    `json:"activateAccountToken"`
+	ActivateAccountTokenExpireDate time.Time `json:"activateAccountTokenExpireDate"`
 }
 
 func (user *ApplicationUser) PopConstrains() {
@@ -27,19 +29,23 @@ func (user *ApplicationUser) Expand(dbUser *dbmodels.ApplicationUser) {
 	user.Password = dbUser.Password
 	user.AccountType = dbUser.AccountType
 	user.ResetPasswordToken = dbUser.ResetPasswordToken
-	user.ResetPasswordExpireDate = dbUser.ResetPasswordExpireDate
+	user.ResetPasswordTokenExpireDate = dbUser.ResetPasswordTokenExpireDate
+	user.ActivateAccountToken = dbUser.ActivateAccountToken
+	user.ActivateAccountTokenExpireDate = dbUser.ActivateAccountTokenExpireDate
 
 	user.PopConstrains()
 }
 
 func (user *ApplicationUser) Collapse() *dbmodels.ApplicationUser {
 	dbUser := dbmodels.ApplicationUser{
-		Id:                      user.Id,
-		Email:                   user.Email,
-		Password:                user.Password,
-		AccountType:             user.AccountType,
-		ResetPasswordToken:      user.ResetPasswordToken,
-		ResetPasswordExpireDate: user.ResetPasswordExpireDate,
+		Id:                             user.Id,
+		Email:                          user.Email,
+		Password:                       user.Password,
+		AccountType:                    user.AccountType,
+		ResetPasswordToken:             user.ResetPasswordToken,
+		ResetPasswordTokenExpireDate:   user.ResetPasswordTokenExpireDate,
+		ActivateAccountToken:           user.ActivateAccountToken,
+		ActivateAccountTokenExpireDate: user.ActivateAccountTokenExpireDate,
 	}
 
 	return &dbUser
