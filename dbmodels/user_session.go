@@ -2,6 +2,7 @@ package dbmodels
 
 import (
 	"gopkg.in/mgo.v2/bson"
+	"gost/util"
 	"time"
 )
 
@@ -26,7 +27,7 @@ func (userSession *UserSession) Equal(obj Object) bool {
 		return false
 	case userSession.UserId != otherSession.UserId:
 		return false
-	case !userSession.ExpireDate.Truncate(time.Millisecond).Equal(otherSession.ExpireDate.Truncate(time.Millisecond)):
+	case !util.CompareDates(userSession.ExpireDate, otherSession.ExpireDate):
 		return false
 	}
 

@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-const routesFilePath = "test_data/routes.json"
+const routesFilePath = "../gost/config/routes.json"
 
 func TestRoutesConfig(t *testing.T) {
 	configRoutes(t)

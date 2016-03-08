@@ -1,4 +1,4 @@
-box: wercker/golang@1.3.2
+box: wercker/golang@1.4.0
 # Build definition
 
 # Mongodb service
@@ -32,4 +32,4 @@ build:
     - script:
         name: go test
         code: |
-          go test ./...
+          go test -v ./...

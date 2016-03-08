@@ -3,15 +3,15 @@ package models
 import (
 	"gopkg.in/mgo.v2/bson"
 	"gost/dbmodels"
-	"gost/service/userservice"
+	"gost/service/appuserservice"
 	"time"
 )
 
 type Transaction struct {
 	Id bson.ObjectId `json:"id"`
 
-	Payer    User `json:"payer"`
-	Receiver User `json:"receiver"`
+	Payer    ApplicationUser `json:"payer"`
+	Receiver ApplicationUser `json:"receiver"`
 
 	PaymentPortal string `json:"paymentPortal"`
 	PaymentToken  string `json:"paymentToken"`
@@ -23,12 +23,12 @@ type Transaction struct {
 }
 
 func (transaction *Transaction) PopConstrains() {
-	dbPayer, err := userservice.GetUser(transaction.Payer.Id)
+	dbPayer, err := appuserservice.GetUser(transaction.Payer.Id)
 	if err != nil {
 		transaction.Payer.Expand(dbPayer)
 	}
 
-	dbReceiver, err := userservice.GetUser(transaction.Receiver.Id)
+	dbReceiver, err := appuserservice.GetUser(transaction.Receiver.Id)
 	if err != nil {
 		transaction.Receiver.Expand(dbReceiver)
 	}

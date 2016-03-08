@@ -19,11 +19,11 @@ var dbConfigFileName string = "config/db.json"
 // Struct for modelling the configuration json representing
 // The database connection details
 type DbConfig struct {
-	DatabaseName string   `json:"databaseName"`
-	User         string   `json:"user"`
-	Pass         string   `json:"pass"`
-	Driver       string   `json:"driver"`
-	Hosts        []string `json:"hosts"`
+	DatabaseName    string   `json:"databaseName"`
+	ApplicationUser string   `json:"user"`
+	Pass            string   `json:"pass"`
+	Driver          string   `json:"driver"`
+	Hosts           []string `json:"hosts"`
 }
 
 // The database connection string variable
@@ -58,8 +58,8 @@ func createConnectionString(data DbConfig) string {
 	buf.WriteString(data.Driver)
 	buf.WriteString("://")
 
-	if len(data.User) > 0 {
-		buf.WriteString(data.User)
+	if len(data.ApplicationUser) > 0 {
+		buf.WriteString(data.ApplicationUser)
 		buf.WriteString(":")
 		buf.WriteString(data.Pass)
 		buf.WriteString("@")

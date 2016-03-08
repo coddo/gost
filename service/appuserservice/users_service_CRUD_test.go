@@ -1,4 +1,4 @@
-package userservice
+package appuserservice
 
 import (
 	"gopkg.in/mgo.v2/bson"
@@ -6,10 +6,11 @@ import (
 	"gost/dbmodels"
 	"gost/service"
 	"testing"
+	"time"
 )
 
 func TestUserCRUD(t *testing.T) {
-	user := &dbmodels.User{}
+	user := &dbmodels.ApplicationUser{}
 
 	setUpUsersTest(t)
 	defer tearDownUsersTest(t, user)
@@ -32,7 +33,7 @@ func setUpUsersTest(t *testing.T) {
 	}
 }
 
-func tearDownUsersTest(t *testing.T, user *dbmodels.User) {
+func tearDownUsersTest(t *testing.T, user *dbmodels.ApplicationUser) {
 	err := DeleteUser(user.Id)
 
 	if err != nil {
@@ -40,22 +41,15 @@ func tearDownUsersTest(t *testing.T, user *dbmodels.User) {
 	}
 }
 
-func createUser(t *testing.T, user *dbmodels.User) {
-	*user = dbmodels.User{
-		Id:          bson.NewObjectId(),
-		Password:    "CoddoPass",
-		AccountType: dbmodels.ADMINISTRATOR_ACCOUNT_TYPE,
-		FirstName:   "Claudiu",
-		LastName:    "Codoban",
-		Email:       "test@tests.com",
-		Sex:         'M',
-		Country:     "Romania",
-		State:       "Hunedoara",
-		City:        "Deva",
-		Address:     "AddrTest",
-		PostalCode:  330099,
-		Picture:     "ftp://pictLink",
-		Token:       "as7f6as8faf5aasf6721rqf",
+func createUser(t *testing.T, user *dbmodels.ApplicationUser) {
+	*user = dbmodels.ApplicationUser{
+		Id:                           bson.NewObjectId(),
+		Password:                     "CoddoPass",
+		AccountType:                  dbmodels.ADMINISTRATOR_ACCOUNT_TYPE,
+		Email:                        "test@tests.com",
+		ResetPasswordToken:           "as7f6as8faf5aasf6721rqf",
+		ResetPasswordTokenExpireDate: time.Now(),
+		Status: dbmodels.ACCOUNT_ACTIVATED,
 	}
 
 	err := CreateUser(user)
@@ -65,12 +59,10 @@ func createUser(t *testing.T, user *dbmodels.User) {
 	}
 }
 
-func changeAndUpdateUser(t *testing.T, user *dbmodels.User) {
+func changeAndUpdateUser(t *testing.T, user *dbmodels.ApplicationUser) {
 	user.Email = "testEmailCHanged@email.go"
 	user.Password = "ChangedPassword"
-	user.City = "Timisoara"
-	user.PostalCode = 12512521
-	user.AccountType = dbmodels.CLIENT_ACCOUNT_TYPE
+	user.AccountType = dbmodels.NORMAL_USER_ACCOUNT_TYPE
 
 	err := UpdateUser(user)
 
@@ -79,7 +71,7 @@ func changeAndUpdateUser(t *testing.T, user *dbmodels.User) {
 	}
 }
 
-func verifyUserCorresponds(t *testing.T, user *dbmodels.User) {
+func verifyUserCorresponds(t *testing.T, user *dbmodels.ApplicationUser) {
 	dbuser, err := GetUser(user.Id)
 
 	if err != nil || dbuser == nil {

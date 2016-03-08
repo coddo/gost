@@ -2,7 +2,7 @@ package cache
 
 import (
 	"bytes"
-	"net/url"
+	"errors"
 	"time"
 )
 
@@ -12,7 +12,13 @@ const (
 )
 
 const (
-	CACHE_EXPIRE_TIME = 1 * time.Minute
+	CACHE_EXPIRE_TIME = 7 * 24 * time.Hour
+)
+
+var (
+	KEY_INVALIDATED_ERROR        = errors.New("The search key has been invalidated")
+	KEY_FORMAT_ERROR             = errors.New("The search key is not in a correct format")
+	CACHING_SYSTEM_STOPPED_ERROR = errors.New("The search key has been invalidated")
 )
 
 var Status bool = STATUS_OFF
@@ -26,7 +32,7 @@ type Cacher interface {
 }
 
 type Cache struct {
-	Query       string
+	Key         string
 	Data        []byte
 	StatusCode  int
 	ContentType string
@@ -35,12 +41,15 @@ type Cache struct {
 }
 
 func (cache *Cache) Cache() {
-	cache.ResetExpireTime()
-	cacheChan <- cache
+	go func() {
+		cacheChan <- cache
+	}()
 }
 
 func (cache *Cache) Invalidate() {
-	invalidateChan <- cache.Query
+	go func() {
+		invalidateChan <- cache.Key
+	}()
 }
 
 func (cache *Cache) InvalidateIfExpired(limit time.Time) {
@@ -50,32 +59,41 @@ func (cache *Cache) InvalidateIfExpired(limit time.Time) {
 }
 
 func (cache *Cache) ResetExpireTime() {
-	cache.ExpireTime = time.Now().Add(selectedCacheExpireTime)
+	go func() {
+		cache.ExpireTime = time.Now().Add(selectedCacheExpireTime)
+	}()
 }
 
-func QueryByKey(key string) *Cache {
+func QueryByKey(key string) (*Cache, error) {
+	if exited {
+		return nil, CACHING_SYSTEM_STOPPED_ERROR
+	}
+
 	go func() {
 		getKeyChannel <- key
 	}()
 
-	flag := make(chan *Cache)
-	defer close(flag)
+	flagChan := make(chan *Cache)
+	defer close(flagChan)
 
-	getChan <- flag
+	getChan <- flagChan
 
-	return <-flag
+	select {
+	case returnItem := <-flagChan:
+		return returnItem, nil
+	case err := <-errorChan:
+		return nil, err
+	}
 }
 
-func QueryByRequest(form url.Values, endpoint string) *Cache {
-	return QueryByKey(MapKey(form, endpoint))
+func QueryByRequest(endpoint string) (*Cache, error) {
+	return QueryByKey(MapKey(endpoint))
 }
 
-func MapKey(form url.Values, endpoint string) string {
+func MapKey(endpoint string) string {
 	var buf bytes.Buffer
 
 	buf.WriteString(endpoint)
-	buf.WriteRune(':')
-	buf.WriteString(form.Encode())
 
 	return buf.String()
 }
@@ -85,6 +103,7 @@ var memoryCache = make(map[string]*Cache)
 var (
 	getKeyChannel  = make(chan string)
 	getChan        = make(chan chan *Cache)
+	errorChan      = make(chan error)
 	cacheChan      = make(chan *Cache)
 	invalidateChan = make(chan string)
 	exitChan       = make(chan int)
@@ -102,11 +121,14 @@ func stopCachingSystem() {
 }
 
 func invalidate(key string) {
-	delete(memoryCache, key)
+	if _, exists := memoryCache[key]; exists {
+		delete(memoryCache, key)
+	}
 }
 
 func storeOrUpdate(cache *Cache) {
-	memoryCache[cache.Query] = cache
+	cache.ResetExpireTime()
+	memoryCache[cache.Key] = cache
 }
 
 func startCachingLoop() {
@@ -122,12 +144,16 @@ Loop:
 		case flag := <-getChan:
 			key := <-getKeyChannel
 
-			item := memoryCache[key]
-			if item != nil {
-				item.ResetExpireTime()
+			if len(key) == 0 {
+				errorChan <- KEY_FORMAT_ERROR
 			}
 
-			flag <- item
+			if item, ok := memoryCache[key]; ok {
+				item.ResetExpireTime()
+				flag <- item
+			} else {
+				errorChan <- KEY_INVALIDATED_ERROR
+			}
 		}
 	}
 }
@@ -137,10 +163,9 @@ func startExpiredInvalidator(cacheExpireTime time.Duration) {
 		time.Sleep(cacheExpireTime)
 
 		if !exited {
-			m := memoryCache
 			date := time.Now()
 
-			for _, item := range m {
+			for _, item := range memoryCache {
 				item.InvalidateIfExpired(date)
 			}
 		}

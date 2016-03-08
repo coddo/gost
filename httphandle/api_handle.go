@@ -4,31 +4,30 @@ import (
 	"gost/config"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 func ApiHandler(rw http.ResponseWriter, req *http.Request) {
-	path, err := parseRequestURL(req.URL)
+	pattern, endpoint, parseSuccessful := parseRequestURL(req.URL)
 
-	if err != nil {
-		GiveApiMessage(http.StatusBadRequest, "The format of the request URL is invalid", rw, req, path)
+	if !parseSuccessful {
+		GiveApiMessage(http.StatusBadRequest, "The format of the request URL is invalid", rw, req, pattern)
 		return
 	}
 
-	route := findRoute(path)
+	route := findRoute(pattern)
 
 	if route == nil {
-		GiveApiMessage(http.StatusNotFound, "404 - The requested page cannot be found", rw, req, path)
+		GiveApiMessage(http.StatusNotFound, "404 - The requested page cannot be found", rw, req, pattern)
 		return
 	}
 
-	handler := findApiMethod(req.Method, route)
-
-	if handler == "" {
-		GiveApiMessage(http.StatusBadRequest, "The requested method is either not implemented, or not allowed", rw, req, path)
+	if !validateEndpoint(endpoint, route) {
+		GiveApiMessage(http.StatusUnauthorized, "The requested endpoint is either not implemented, or not allowed", rw, req, pattern)
 		return
 	}
 
-	PerformApiCall(handler, rw, req, route)
+	PerformApiCall(endpoint, rw, req, route)
 }
 
 func findRoute(pattern string) *config.Route {
@@ -41,14 +40,45 @@ func findRoute(pattern string) *config.Route {
 	return nil
 }
 
-func findApiMethod(requestMethod string, route *config.Route) string {
-	if handler, found := route.Handlers[requestMethod]; found {
-		return handler
+func validateEndpoint(endpoint string, route *config.Route) bool {
+	if _, found := route.Handlers[endpoint]; found {
+		return true
 	}
 
-	return ""
+	return false
 }
 
-func parseRequestURL(u *url.URL) (string, error) {
-	return u.Path[len(config.ApiInstance)-1:], nil
+func parseRequestURL(u *url.URL) (string, string, bool) {
+	successfulParse := true
+
+	defer func() {
+		if r := recover(); r != nil {
+			successfulParse = false
+		}
+	}()
+
+	fullPath := u.Path[len(config.ApiInstance)-1:]
+
+	// Cut off any URL parameters and the last '/' character if present
+	if paramCharIndex := strings.Index(fullPath, "?"); paramCharIndex != -1 {
+		fullPath = fullPath[:paramCharIndex]
+	}
+
+	if fullPath[len(fullPath)-1] == '/' {
+		fullPath = fullPath[:len(fullPath)-1]
+	}
+
+	lastSeparatorIndex := strings.LastIndex(fullPath, "/")
+
+	if lastSeparatorIndex == -1 {
+		return "", "", false
+	}
+
+	// Get the endpoint name
+	endpoint := fullPath[lastSeparatorIndex+1:]
+
+	// Get the pattern of the route
+	pattern := fullPath[:lastSeparatorIndex]
+
+	return pattern, endpoint, successfulParse
 }

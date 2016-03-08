@@ -1,4 +1,4 @@
-package userservice
+package appuserservice
 
 import (
 	"gopkg.in/mgo.v2/bson"
@@ -8,7 +8,7 @@ import (
 
 const CollectionName = "users"
 
-func CreateUser(user *dbmodels.User) error {
+func CreateUser(user *dbmodels.ApplicationUser) error {
 	session, collection := service.Connect(CollectionName)
 	defer session.Close()
 
@@ -21,7 +21,7 @@ func CreateUser(user *dbmodels.User) error {
 	return err
 }
 
-func UpdateUser(user *dbmodels.User) error {
+func UpdateUser(user *dbmodels.ApplicationUser) error {
 	session, collection := service.Connect(CollectionName)
 	defer session.Close()
 
@@ -43,31 +43,31 @@ func DeleteUser(userId bson.ObjectId) error {
 	return err
 }
 
-func GetUser(userId bson.ObjectId) (*dbmodels.User, error) {
+func GetUser(userId bson.ObjectId) (*dbmodels.ApplicationUser, error) {
 	session, collection := service.Connect(CollectionName)
 	defer session.Close()
 
-	user := dbmodels.User{}
+	user := dbmodels.ApplicationUser{}
 	err := collection.FindId(userId).One(&user)
 
 	return &user, err
 }
 
-func GetAllUsers() ([]dbmodels.User, error) {
+func GetAllUsers() ([]dbmodels.ApplicationUser, error) {
 	session, collection := service.Connect(CollectionName)
 	defer session.Close()
 
-	var users []dbmodels.User
+	var users []dbmodels.ApplicationUser
 	err := collection.Find(bson.M{}).All(&users)
 
 	return users, err
 }
 
-func GetAllUsersLimited(limit int) ([]dbmodels.User, error) {
+func GetAllUsersLimited(limit int) ([]dbmodels.ApplicationUser, error) {
 	session, collection := service.Connect(CollectionName)
 	defer session.Close()
 
-	var users []dbmodels.User
+	var users []dbmodels.ApplicationUser
 	err := collection.Find(bson.M{}).Limit(limit).All(&users)
 
 	return users, err

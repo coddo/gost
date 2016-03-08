@@ -1,7 +1,9 @@
 package main
 
 import (
-	"gost/api/userapi"
+	"gost/api/appuserapi"
+	"gost/api/transactionapi"
+	"gost/api/userloginapi"
 	"gost/cache"
 	"gost/config"
 	"gost/httphandle"
@@ -17,7 +19,21 @@ var numberOfProcessors = runtime.NumCPU()
 
 // Add all the existing endpoints as part of this container
 type ApiContainer struct {
-	userapi.UsersApi
+	appuserapi.ApplicationUsersApi
+	transactionapi.TransactionsApi
+	userloginapi.UserSessionsApi
+}
+
+func StartWebFramework() {
+	// Start listener for performing a graceful shutdown of the server
+	go listenForInterruptSignal()
+
+	// Start a http or and https server depending on the program arguments
+	if len(os.Args) <= 1 || os.Args[1] == "http" {
+		servers.StartHTTPServer()
+	} else if os.Args[1] == "https" {
+		servers.StartHTTPSServer()
+	}
 }
 
 // Function for performing automatic initializations at application startup
@@ -34,24 +50,17 @@ func init() {
 
 	// Register the API endpoints
 	httphandle.SetApiInterface(new(ApiContainer))
-}
-
-// Application entry point - sets the behavior for the app
-func main() {
-	// Start listener for performing a graceful shutdown of the server
-	go listenForInterruptSignal()
-
-	runtime.GOMAXPROCS(numberOfProcessors)
 
 	// Start the caching system
 	cache.StartCachingSystem(cache.CACHE_EXPIRE_TIME)
 
-	// Start a http or and https server depending on the program arguments
-	if len(os.Args) <= 1 || os.Args[1] == "http" {
-		servers.StartHTTPServer()
-	} else if os.Args[1] == "https" {
-		servers.StartHTTPSServer()
-	}
+	// Set the app to use all the available processors
+	runtime.GOMAXPROCS(numberOfProcessors)
+}
+
+// Application entry point - sets the behavior for the app
+func main() {
+	StartWebFramework()
 }
 
 func listenForInterruptSignal() {

@@ -2,6 +2,7 @@ package dbmodels
 
 import (
 	"gopkg.in/mgo.v2/bson"
+	"gost/util"
 	"time"
 )
 
@@ -44,7 +45,7 @@ func (transaction *Transaction) Equal(obj Object) bool {
 		return false
 	case transaction.Currency != otherTransaction.Currency:
 		return false
-	case !transaction.Date.Truncate(time.Millisecond).Equal(otherTransaction.Date.Truncate(time.Millisecond)):
+	case !util.CompareDates(transaction.Date, otherTransaction.Date):
 		return false
 	}
 

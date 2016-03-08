@@ -18,7 +18,7 @@ func SetApiInterface(interf interface{}) {
 	apiInterface = interf
 }
 
-func PerformApiCall(handlerName string, rw http.ResponseWriter, req *http.Request, route *config.Route) {
+func PerformApiCall(endpoint string, rw http.ResponseWriter, req *http.Request, route *config.Route) {
 	// Prepare data vector for an api/endpoint call
 	inputs := make([]reflect.Value, 1)
 
@@ -28,14 +28,14 @@ func PerformApiCall(handlerName string, rw http.ResponseWriter, req *http.Reques
 		return
 	}
 
-	// Try giving the response directly from the cache if available
+	// Try giving the response directly from the cache if available or invalidate it if necessary
 	if cache.Status == cache.STATUS_ON {
-		if cachedData := cache.QueryByRequest(vars.RequestForm, route.Pattern); cachedData != nil {
+		if cachedData, err := cache.QueryByRequest(route.Pattern); err == nil {
 			if req.Method == api.GET {
 				GiveApiResponse(cachedData.StatusCode, cachedData.Data, rw, req, route.Pattern, cachedData.ContentType, cachedData.File)
 				return
 			} else { // Invalidate the cache if a modification, deletion or addition was made to this endpoint
-				go cachedData.Invalidate()
+				cachedData.Invalidate()
 			}
 		}
 	}
@@ -46,7 +46,7 @@ func PerformApiCall(handlerName string, rw http.ResponseWriter, req *http.Reques
 	// Perform the call on the corresponding endpoint and function
 	// This is done by using reflection techniques
 	var respObjects []reflect.Value
-	apiMethod := reflect.ValueOf(apiInterface).MethodByName(route.Handlers[req.Method])
+	apiMethod := reflect.ValueOf(apiInterface).MethodByName(endpoint)
 
 	// Check for zero value
 	if apiMethod != *new(reflect.Value) {
@@ -68,10 +68,10 @@ func PerformApiCall(handlerName string, rw http.ResponseWriter, req *http.Reques
 	resp := respObjects[0].Interface().(api.ApiResponse)
 
 	// Give the response to the api client
-	respond(vars, &resp, rw, req, route.Pattern)
+	respond(&resp, rw, req, route.Pattern)
 }
 
-func respond(vars *api.ApiVar, resp *api.ApiResponse, rw http.ResponseWriter, req *http.Request, endpoint string) {
+func respond(resp *api.ApiResponse, rw http.ResponseWriter, req *http.Request, endpoint string) {
 	if resp.StatusCode == 0 {
 		resp.StatusCode = http.StatusInternalServerError
 		GiveApiMessage(resp.StatusCode, http.StatusText(resp.StatusCode), rw, req, endpoint)
@@ -85,21 +85,21 @@ func respond(vars *api.ApiVar, resp *api.ApiResponse, rw http.ResponseWriter, re
 		GiveApiResponse(resp.StatusCode, resp.Message, rw, req, endpoint, resp.ContentType, resp.File)
 
 		// Try caching the data only if a GET request was made
-		go func(vars *api.ApiVar, resp *api.ApiResponse, req *http.Request, endpoint string) {
+		go func(resp *api.ApiResponse, req *http.Request, endpoint string) {
 			if req.Method == api.GET && cache.Status == cache.STATUS_ON {
-				cacheResponse(vars, resp, endpoint)
+				cacheResponse(resp, endpoint)
 			}
-		}(vars, resp, req, endpoint)
+		}(resp, req, endpoint)
 	}
 }
 
-func cacheResponse(vars *api.ApiVar, resp *api.ApiResponse, endpoint string) {
+func cacheResponse(resp *api.ApiResponse, endpoint string) {
 	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) || len(resp.Message) == 0 {
 		return
 	}
 
 	cacheEntity := &cache.Cache{
-		Query:       cache.MapKey(vars.RequestForm, endpoint),
+		Key:         cache.MapKey(endpoint),
 		Data:        resp.Message,
 		StatusCode:  resp.StatusCode,
 		ContentType: resp.ContentType,

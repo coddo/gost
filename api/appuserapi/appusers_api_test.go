@@ -1,4 +1,4 @@
-package userapi
+package appuserapi
 
 import (
 	"gopkg.in/mgo.v2/bson"
@@ -11,8 +11,15 @@ import (
 	"testing"
 )
 
-const usersRoute = "[{\"id\": \"UsersRoute\", \"pattern\": \"/users\", \"handlers\": {\"DELETE\": \"DeleteUser\", \"GET\": \"GetUser\", \"POST\": \"PostUser\", \"PUT\": \"PutUser\"}}]"
-const apiPath = "/users"
+const applicationUsersRoute = "[{\"id\": \"ApplicationUsersRoute\", \"pattern\": \"/appusers\", \"handlers\": {\"DeleteUser\": \"DELETE\", \"GetUser\": \"GET\", \"PostUser\": \"POST\", \"PutUser\": \"PUT\"}}]"
+const apiPath = "/appusers"
+
+const (
+	GET    = "GetUser"
+	POST   = "PostUser"
+	PUT    = "PutUser"
+	DELETE = "DeleteUser"
+)
 
 type dummyUser struct {
 	BadField string
@@ -21,7 +28,7 @@ type dummyUser struct {
 func (user *dummyUser) PopConstrains() {}
 
 func TestUsersApi(t *testing.T) {
-	tests.InitializeServerConfigurations(usersRoute, new(UsersApi))
+	tests.InitializeServerConfigurations(applicationUsersRoute, new(ApplicationUsersApi))
 
 	testPostUserInBadFormat(t)
 	id := testPostUserInGoodFormat(t)
@@ -45,21 +52,21 @@ func testGetUserWithInexistentIdInDB(t *testing.T) {
 	params := url.Values{}
 	params.Add("id", bson.NewObjectId().Hex())
 
-	tests.PerformApiTestCall(apiPath, api.GET, http.StatusNotFound, params, nil, t)
+	tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusNotFound, params, nil, t)
 }
 
 func testGetUserWithBadIdParam(t *testing.T) {
 	params := url.Values{}
 	params.Add("id", "2as456fas4")
 
-	tests.PerformApiTestCall(apiPath, api.GET, http.StatusBadRequest, params, nil, t)
+	tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusBadRequest, params, nil, t)
 }
 
 func testGetUserWithGoodIdParam(t *testing.T, id bson.ObjectId) {
 	params := url.Values{}
 	params.Add("id", id.Hex())
 
-	rw := tests.PerformApiTestCall(apiPath, api.GET, http.StatusOK, params, nil, t)
+	rw := tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusOK, params, nil, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -69,7 +76,7 @@ func testGetUserWithGoodIdParam(t *testing.T, id bson.ObjectId) {
 }
 
 func testGetAllUsersWithoutLimit(t *testing.T) {
-	rw := tests.PerformApiTestCall(apiPath, api.GET, http.StatusOK, nil, nil, t)
+	rw := tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusOK, nil, nil, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -81,14 +88,14 @@ func testGetAllUsersWithBadLimitParam(t *testing.T) {
 	params := url.Values{}
 	params.Add("limit", "asfsa")
 
-	tests.PerformApiTestCall(apiPath, api.GET, http.StatusBadRequest, params, nil, t)
+	tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusBadRequest, params, nil, t)
 }
 
 func testGetAllUsersWithGoodLimitParam(t *testing.T) {
 	params := url.Values{}
 	params.Add("limit", "20")
 
-	rw := tests.PerformApiTestCall(apiPath, api.GET, http.StatusOK, params, nil, t)
+	rw := tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusOK, params, nil, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -101,28 +108,19 @@ func testPostUserInBadFormat(t *testing.T) {
 		BadField: "bad value",
 	}
 
-	tests.PerformApiTestCall(apiPath, api.POST, http.StatusBadRequest, nil, dUser, t)
+	tests.PerformApiTestCall(apiPath, POST, api.POST, http.StatusBadRequest, nil, dUser, t)
 }
 
 func testPostUserInGoodFormat(t *testing.T) bson.ObjectId {
-	user := &models.User{
-		Id:          bson.NewObjectId(),
-		Password:    "CoddoPass",
-		AccountType: dbmodels.ADMINISTRATOR_ACCOUNT_TYPE,
-		FirstName:   "Claudiu",
-		LastName:    "Codoban",
-		Email:       "test@tests.com",
-		Sex:         'M',
-		Country:     "Romania",
-		State:       "Hunedoara",
-		City:        "Deva",
-		Address:     "AddrTest",
-		PostalCode:  330099,
-		Picture:     "ftp://pictLink",
-		Token:       "as7f6as8faf5aasf6721rqf",
+	user := &models.ApplicationUser{
+		Id:                 bson.NewObjectId(),
+		Password:           "CoddoPass",
+		AccountType:        dbmodels.ADMINISTRATOR_ACCOUNT_TYPE,
+		Email:              "test@tests.com",
+		ResetPasswordToken: "as7f6as8faf5aasf6721rqf",
 	}
 
-	rw := tests.PerformApiTestCall(apiPath, api.POST, http.StatusCreated, nil, user, t)
+	rw := tests.PerformApiTestCall(apiPath, POST, api.POST, http.StatusCreated, nil, user, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -133,54 +131,44 @@ func testPostUserInGoodFormat(t *testing.T) bson.ObjectId {
 }
 
 func testPutUserInBadFormat(t *testing.T) {
-	user := &models.User{
-		Id:        "507f191e810c19729de860ea",
-		Sex:       'M',
-		FirstName: "gigel",
-		Country:   "Romania",
+	user := &models.ApplicationUser{
+		Id:                 "507f191e810c19729de860ea",
+		ResetPasswordToken: "asg1a89wqg4a5s",
 	}
 
-	tests.PerformApiTestCall(apiPath, api.PUT, http.StatusBadRequest, nil, user, t)
+	tests.PerformApiTestCall(apiPath, PUT, api.PUT, http.StatusBadRequest, nil, user, t)
 }
 
 func testPutUserWithoutId(t *testing.T) {
-	user := &models.User{
-		Email:     "ceva@ceva.com",
-		Sex:       'M',
-		FirstName: "gigel",
-		Token:     "fsa4fas564g6g4s6ag",
-		Country:   "Romania",
+	user := &models.ApplicationUser{
+		Email:              "ceva@ceva.com",
+		Password:           "CoddoPass",
+		ResetPasswordToken: "fsa4fas564g6g4s6ag",
 	}
 
-	tests.PerformApiTestCall(apiPath, api.PUT, http.StatusBadRequest, nil, user, t)
+	tests.PerformApiTestCall(apiPath, PUT, api.PUT, http.StatusBadRequest, nil, user, t)
 }
 
 func testPutUserWithNoExistentIdInDb(t *testing.T) {
-	user := &models.User{
-		Id:        bson.NewObjectId(),
-		Email:     "ceva@ceva.com",
-		Sex:       'M',
-		FirstName: "gigel",
-		Token:     "fsa4fas564g6g4s6ag",
-		Country:   "Romania",
-		Address:   "addr",
+	user := &models.ApplicationUser{
+		Id:                 bson.NewObjectId(),
+		Email:              "ceva@ceva.com",
+		Password:           "CoddoPass",
+		ResetPasswordToken: "fsa4fas564g6g4s6ag",
 	}
 
-	tests.PerformApiTestCall(apiPath, api.PUT, http.StatusNotFound, nil, user, t)
+	tests.PerformApiTestCall(apiPath, PUT, api.PUT, http.StatusNotFound, nil, user, t)
 }
 
 func testPutUserWithGoodRequestDetails(t *testing.T, id bson.ObjectId) {
-	user := &models.User{
-		Id:        id,
-		Email:     "ceva@ceva.com",
-		Sex:       'M',
-		FirstName: "gigel",
-		Token:     "fsa4fas564g6g4s6ag",
-		Country:   "Romania",
-		Address:   "addr",
+	user := &models.ApplicationUser{
+		Id:                 id,
+		Email:              "ceva@ceva.com",
+		Password:           "CoddoPass",
+		ResetPasswordToken: "fsa4fas564g6g4s6ag",
 	}
 
-	rw := tests.PerformApiTestCall(apiPath, api.PUT, http.StatusOK, nil, user, t)
+	rw := tests.PerformApiTestCall(apiPath, PUT, api.PUT, http.StatusOK, nil, user, t)
 	body := rw.Body.String()
 
 	if len(body) == 0 {
@@ -189,26 +177,26 @@ func testPutUserWithGoodRequestDetails(t *testing.T, id bson.ObjectId) {
 }
 
 func testDeleteUserWithNoIdParam(t *testing.T) {
-	tests.PerformApiTestCall(apiPath, api.DELETE, http.StatusBadRequest, nil, nil, t)
+	tests.PerformApiTestCall(apiPath, DELETE, api.DELETE, http.StatusBadRequest, nil, nil, t)
 }
 
 func testDeleteUserWithIdParamInWrongFormat(t *testing.T) {
 	params := url.Values{}
 	params.Add("id", "a46fsa65gas")
 
-	tests.PerformApiTestCall(apiPath, api.DELETE, http.StatusBadRequest, params, nil, t)
+	tests.PerformApiTestCall(apiPath, DELETE, api.DELETE, http.StatusBadRequest, params, nil, t)
 }
 
 func testDeteleUserWithInexistentIdInDB(t *testing.T) {
 	params := url.Values{}
 	params.Add("id", bson.NewObjectId().Hex())
 
-	tests.PerformApiTestCall(apiPath, api.DELETE, http.StatusNotFound, params, nil, t)
+	tests.PerformApiTestCall(apiPath, DELETE, api.DELETE, http.StatusNotFound, params, nil, t)
 }
 
 func testDeteleUserWithGoodRequestParams(t *testing.T, id bson.ObjectId) {
 	params := url.Values{}
 	params.Add("id", id.Hex())
 
-	tests.PerformApiTestCall(apiPath, api.DELETE, http.StatusNoContent, params, nil, t)
+	tests.PerformApiTestCall(apiPath, DELETE, api.DELETE, http.StatusNoContent, params, nil, t)
 }
