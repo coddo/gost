@@ -52,7 +52,7 @@ func init() {
 	httphandle.SetApiInterface(new(ApiContainer))
 
 	// Start the caching system
-	cache.StartCachingSystem(cache.CACHE_EXPIRE_TIME)
+	cache.StartCachingSystem(cache.CacheExpireTime)
 
 	// Set the app to use all the available processors
 	runtime.GOMAXPROCS(numberOfProcessors)

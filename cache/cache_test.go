@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type CacheTest struct {
+type cacheTest struct {
 	X int
 	Y int
 	Z int
@@ -23,7 +23,7 @@ func TestCache(t *testing.T) {
 		MapKey("/thisNeedsToExpire"),
 	}
 
-	var items []CacheTest
+	var items []cacheTest
 	var cachedItems []*Cache
 	var expiringItem *Cache
 
@@ -50,7 +50,7 @@ func testExpiringItem(t *testing.T, expiringItem *Cache, cacheExpireTime time.Du
 
 	_, err := QueryByKey(expiringKey)
 
-	if err == nil || err != KEY_INVALIDATED_ERROR {
+	if err == nil || err != ErrKeyInvalidated {
 		t.Fatal("The cache items did not properly expire")
 	}
 }
@@ -96,15 +96,15 @@ func testFetchingFromCache(t *testing.T, cachedItems []*Cache) {
 	}
 }
 
-func testAddingToCache(t *testing.T, items []CacheTest, cacheKeys []string) ([]*Cache, *Cache) {
+func testAddingToCache(t *testing.T, items []cacheTest, cacheKeys []string) ([]*Cache, *Cache) {
 	t.Log("Testing the data caching system")
 
-	var cachedItems []*Cache = make([]*Cache, 3)
+	var cachedItems = make([]*Cache, 3)
 	var expiringCacheItem *Cache
 
-	q1 := make([]CacheTest, 0)
-	q2 := make([]CacheTest, 0)
-	q3 := make([]CacheTest, 0)
+	var q1 []cacheTest
+	var q2 []cacheTest
+	var q3 []cacheTest
 
 	// First type
 	for i := 0; i < len(items); i++ {
@@ -169,11 +169,11 @@ func testRemovingFromCache(t *testing.T, cachedItems []*Cache) {
 	}
 }
 
-func testInitItems(t *testing.T) []CacheTest {
-	var items []CacheTest
+func testInitItems(t *testing.T) []cacheTest {
+	var items []cacheTest
 
 	for i := 1; i < 1000; i++ {
-		items = append(items, CacheTest{
+		items = append(items, cacheTest{
 			X: i,
 			Y: i * 11 / 3,
 			Z: i * 3,

@@ -29,7 +29,7 @@ func PerformApiCall(endpoint string, rw http.ResponseWriter, req *http.Request, 
 	}
 
 	// Try giving the response directly from the cache if available or invalidate it if necessary
-	if cache.Status == cache.STATUS_ON {
+	if cache.Status == cache.StatusON {
 		if cachedData, err := cache.QueryByRequest(route.Pattern); err == nil {
 			if req.Method == api.GET {
 				GiveApiResponse(cachedData.StatusCode, cachedData.Data, rw, req, route.Pattern, cachedData.ContentType, cachedData.File)
@@ -86,7 +86,7 @@ func respond(resp *api.Response, rw http.ResponseWriter, req *http.Request, endp
 
 		// Try caching the data only if a GET request was made
 		go func(resp *api.Response, req *http.Request, endpoint string) {
-			if req.Method == api.GET && cache.Status == cache.STATUS_ON {
+			if req.Method == api.GET && cache.Status == cache.StatusON {
 				cacheResponse(resp, endpoint)
 			}
 		}(resp, req, endpoint)
