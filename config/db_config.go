@@ -28,7 +28,7 @@ var DbConnectionString string
 // This variable needs to be initialized
 var DbName string
 
-// Initialization of production database
+// InitDatabase initializes the production database
 func InitDatabase(configFile string) {
 	if len(configFile) != 0 {
 		dbConfigFileName = configFile
