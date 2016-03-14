@@ -1,12 +1,13 @@
 package transactionservice
 
 import (
-	"gopkg.in/mgo.v2/bson"
-	"gost/config"
 	"gost/dbmodels"
 	"gost/service"
+	testconfig "gost/tests/config"
 	"testing"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 func TestTransactionCRUD(t *testing.T) {
@@ -25,7 +26,7 @@ func TestTransactionCRUD(t *testing.T) {
 }
 
 func setUpTransactionsTest(t *testing.T) {
-	config.InitTestsDatabase()
+	testconfig.InitTestsDatabase()
 	service.InitDbService()
 
 	if recover() != nil {

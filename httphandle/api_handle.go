@@ -57,7 +57,7 @@ func parseRequestURL(u *url.URL) (string, string, bool) {
 		}
 	}()
 
-	fullPath := u.Path[len(config.ApiInstance)-1:]
+	fullPath := u.Path[len(config.APIInstance)-1:]
 
 	// Cut off any URL parameters and the last '/' character if present
 	if paramCharIndex := strings.Index(fullPath, "?"); paramCharIndex != -1 {

@@ -14,29 +14,29 @@ const (
 )
 
 func StartHTTPServer() {
-	http.HandleFunc(config.ApiInstance, httphandle.ApiHandler)
+	http.HandleFunc(config.APIInstance, httphandle.ApiHandler)
 
 	server := &http.Server{
-		Addr:           config.HttpServerAddress,
+		Addr:           config.HTTPServerAddress,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	log.Println("HTTP Server STARTED! Listening at:", config.HttpServerAddress+config.ApiInstance)
+	log.Println("HTTP Server STARTED! Listening at:", config.HTTPServerAddress+config.APIInstance)
 	log.Fatal(server.ListenAndServe())
 }
 
 func StartHTTPSServer() {
-	http.HandleFunc(config.ApiInstance, httphandle.ApiHandler)
+	http.HandleFunc(config.APIInstance, httphandle.ApiHandler)
 
 	server := &http.Server{
-		Addr:           config.HttpServerAddress,
+		Addr:           config.HTTPServerAddress,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	log.Println("HTTPS Server STARTED! Listening at:", config.HttpServerAddress+config.ApiInstance)
+	log.Println("HTTPS Server STARTED! Listening at:", config.HTTPServerAddress+config.APIInstance)
 	log.Fatal(server.ListenAndServeTLS(CERT_FILE, KEY_FILE))
 }

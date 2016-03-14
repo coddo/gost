@@ -14,10 +14,6 @@ var routesConfigFile = "config/routes.json"
 // Variable for storing all the routes that the api will have
 var Routes []Route
 
-func InitTestsRoutes(routesString string) {
-	deserializeRoutes([]byte(routesString))
-}
-
 func InitRoutes(routesConfigPath string) {
 	if len(routesConfigPath) != 0 {
 		routesConfigFile = routesConfigPath

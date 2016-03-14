@@ -6,6 +6,7 @@ import (
 	"gost/httphandle"
 	"gost/models"
 	"gost/service"
+	testconfig "gost/tests/config"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -47,9 +48,10 @@ func PerformApiTestCall(route, endpoint, method string, expectedStatusCode int, 
 }
 
 func InitializeServerConfigurations(routeString string, apiInterface interface{}) {
-	config.InitTestsApp()
-	config.InitTestsDatabase()
-	config.InitTestsRoutes(routeString)
+	testconfig.InitTestsApp()
+
+	testconfig.InitTestsDatabase()
+	testconfig.InitTestsRoutes(routeString)
 
 	service.InitDbService()
 
@@ -61,12 +63,12 @@ func InitializeServerConfigurations(routeString string, apiInterface interface{}
 func generateApiUrl(route, endpoint string, params url.Values) (*url.URL, error) {
 	buffer := &bytes.Buffer{}
 
-	if !strings.Contains(config.HttpServerAddress, "http://") {
+	if !strings.Contains(config.HTTPServerAddress, "http://") {
 		buffer.WriteString("http://")
 	}
 
-	buffer.WriteString(config.HttpServerAddress)
-	buffer.WriteString(config.ApiInstance[0 : len(config.ApiInstance)-1])
+	buffer.WriteString(config.HTTPServerAddress)
+	buffer.WriteString(config.APIInstance[0 : len(config.APIInstance)-1])
 	buffer.WriteString(route)
 	buffer.WriteRune('/')
 	buffer.WriteString(endpoint)

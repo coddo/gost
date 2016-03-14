@@ -2,7 +2,7 @@ package cache
 
 import (
 	"encoding/json"
-	"gost/config"
+	testconfig "gost/tests/config"
 	"testing"
 	"time"
 )
@@ -27,7 +27,7 @@ func TestCache(t *testing.T) {
 	var cachedItems []*Cache
 	var expiringItem *Cache
 
-	config.InitTestsDatabase()
+	testconfig.InitTestsDatabase()
 	StartCachingSystem(cacheExpireTime)
 	defer StopCachingSystem()
 

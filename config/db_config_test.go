@@ -1,8 +1,6 @@
 package config
 
-import (
-	"testing"
-)
+import "testing"
 
 const dbFilePath = "../gost/config/db.json"
 
