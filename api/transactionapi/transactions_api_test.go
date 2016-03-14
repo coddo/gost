@@ -1,6 +1,7 @@
 package transactionapi
 
 import (
+	"fmt"
 	"gost/api"
 	"gost/dbmodels"
 	"gost/models"
@@ -13,13 +14,15 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const transactionsRoute = "[{\"id\": \"TransactionsRoute\", \"pattern\": \"/transactions\", \"handlers\": {\"DeleteTransaction\": \"DELETE\", \"GetTransaction\": \"GET\", \"PostTransaction\": \"POST\"}}]"
+const (
+	GET    = "Get"
+	CREATE = "Create"
+)
+
 const apiPath = "/transactions"
 
-const (
-	GET  = "GetTransaction"
-	POST = "PostTransaction"
-)
+var transactionsRoute = fmt.Sprintf(`[{"id": "TransactionsRoute", "pattern": "/transactions", 
+    "handlers": {"%s": "POST", "%s": "GET"}}]`, CREATE, GET)
 
 type dummyTransaction struct {
 	BadField string
@@ -72,7 +75,7 @@ func testPostTransactionInBadFormat(t *testing.T) {
 		BadField: "bad value",
 	}
 
-	tests.PerformApiTestCall(apiPath, POST, api.POST, http.StatusBadRequest, nil, dTransaction, t)
+	tests.PerformApiTestCall(apiPath, CREATE, api.POST, http.StatusBadRequest, nil, dTransaction, t)
 }
 
 func testPostTransactionNotIntegral(t *testing.T) {
@@ -82,7 +85,7 @@ func testPostTransactionNotIntegral(t *testing.T) {
 		Currency: "USD",
 	}
 
-	tests.PerformApiTestCall(apiPath, POST, api.POST, http.StatusBadRequest, nil, transaction, t)
+	tests.PerformApiTestCall(apiPath, CREATE, api.POST, http.StatusBadRequest, nil, transaction, t)
 }
 
 func testPostTransactionInGoodFormat(t *testing.T) bson.ObjectId {
@@ -95,7 +98,7 @@ func testPostTransactionInGoodFormat(t *testing.T) bson.ObjectId {
 		Currency: "USD",
 	}
 
-	rw := tests.PerformApiTestCall(apiPath, POST, api.POST, http.StatusCreated, nil, transaction, t)
+	rw := tests.PerformApiTestCall(apiPath, CREATE, api.POST, http.StatusCreated, nil, transaction, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {

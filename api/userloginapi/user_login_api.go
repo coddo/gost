@@ -37,11 +37,11 @@ func (userSessionsApi *UserSessionsAPI) Get(vars *api.Request) api.Response {
 	dbUserSession, err := userloginservice.GetUserSession(token)
 	if err != nil {
 		return api.NotFound(err)
-	} else if util.IsDateExpired(dbUserSession.ExpireDate) {
+	} else if util.IsDateExpiredFromNow(dbUserSession.ExpireDate) {
 		userloginservice.DeleteUserSession(dbUserSession.Id)
 		return api.Unauthorized(ErrTokenExpired)
 	}
-	dbUserSession.ExpireDate = util.NextDate(time.Hour * 24 * daysUntilExpire)
+	dbUserSession.ExpireDate = util.NextDateFromNow(time.Hour * 24 * daysUntilExpire)
 
 	err = userloginservice.UpdateUserSession(dbUserSession)
 	if err != nil {
@@ -68,7 +68,7 @@ func (userSessionsApi *UserSessionsAPI) Create(vars *api.Request) api.Response {
 		return api.BadRequest(api.ErrEntityIntegrity)
 	}
 
-	userSession.ExpireDate = util.NextDate(time.Hour * 24 * daysUntilExpire)
+	userSession.ExpireDate = util.NextDateFromNow(time.Hour * 24 * daysUntilExpire)
 
 	dbUserSession := userSession.Collapse()
 	if dbUserSession == nil {

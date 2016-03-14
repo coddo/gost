@@ -1,6 +1,7 @@
 package appuserapi
 
 import (
+	"fmt"
 	"gost/api"
 	"gost/dbmodels"
 	"gost/models"
@@ -12,15 +13,17 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const applicationUsersRoute = "[{\"id\": \"ApplicationUsersRoute\", \"pattern\": \"/appusers\", \"handlers\": {\"GetAll\": \"GET\", \"Get\": \"GET\", \"Create\": \"POST\", \"Update\": \"PUT\"}}]"
-const apiPath = "/appusers"
-
 const (
 	GET    = "Get"
 	GETALL = "GetAll"
 	CREATE = "Create"
 	UPDATE = "Update"
 )
+
+const apiPath = "/appusers"
+
+var applicationUsersRoute = fmt.Sprintf(`[{"id": "ApplicationUsersRoute", "pattern": "/appusers", 
+    "handlers": {"%s": "GET", "%s": "GET", "%s": "POST", "%s": "PUT"}}]`, GET, GETALL, CREATE, UPDATE)
 
 type dummyUser struct {
 	BadField string

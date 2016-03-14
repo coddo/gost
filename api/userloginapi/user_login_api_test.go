@@ -1,6 +1,7 @@
 package userloginapi
 
 import (
+	"fmt"
 	"gost/api"
 	"gost/models"
 	"gost/service/userloginservice"
@@ -13,13 +14,15 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const userSessionsRoute = "[{\"id\": \"UserSessionsRoute\", \"pattern\": \"/users/login\", \"handlers\": {\"DeleteUserSession\": \"DELETE\", \"GetUserSession\": \"GET\", \"CreateUserSession\": \"POST\", \"UpdateUserSession\": \"PUT\"}}]"
+const (
+	GET    = "Get"
+	CREATE = "Create"
+)
+
 const apiPath = "/users/login"
 
-const (
-	GET  = "GetUserSession"
-	POST = "CreateUserSession"
-)
+var userSessionsRoute = fmt.Sprintf(`[{"id": "UserSessionsRoute", "pattern": "/users/login", 
+    "handlers": {"%s": "GET", "%s": "POST"}}]`, GET, CREATE)
 
 type dummyUserSession struct {
 	BadField string
@@ -63,7 +66,7 @@ func testCreateUserSessionInBadFormat(t *testing.T) {
 		BadField: "bad value",
 	}
 
-	tests.PerformApiTestCall(apiPath, POST, api.POST, http.StatusBadRequest, nil, dUserSession, t)
+	tests.PerformApiTestCall(apiPath, CREATE, api.POST, http.StatusBadRequest, nil, dUserSession, t)
 }
 
 func testCreateUserSessionInGoodFormat(t *testing.T) (bson.ObjectId, string) {
@@ -74,7 +77,7 @@ func testCreateUserSessionInGoodFormat(t *testing.T) (bson.ObjectId, string) {
 		ExpireDate:      time.Now().Local(),
 	}
 
-	rw := tests.PerformApiTestCall(apiPath, POST, api.POST, http.StatusCreated, nil, userSession, t)
+	rw := tests.PerformApiTestCall(apiPath, CREATE, api.POST, http.StatusCreated, nil, userSession, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {

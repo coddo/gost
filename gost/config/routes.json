@@ -13,18 +13,18 @@
     "id": "UserSessionsRoute",
     "pattern": "/users/login",
     "handlers": {
-      "CreateUserSession": "POST",
-      "DeleteUserSession": "DELETE",
-      "GetUserSession": "GET"
+      "Create": "POST",
+      "Delete": "DELETE",
+      "Get": "GET"
     }
   },
   {
     "id": "TransactionsRoute",
     "pattern": "/transactions",
     "handlers": {
-      "CreateTransaction": "POST",
-      "DeleteTransaction": "DELETE",
-      "GetTransaction": "GET"
+      "Create": "POST",
+      "Delete": "DELETE",
+      "Get": "GET"
     }
   }
 ]
