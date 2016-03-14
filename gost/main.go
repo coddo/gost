@@ -19,9 +19,9 @@ var numberOfProcessors = runtime.NumCPU()
 
 // Add all the existing endpoints as part of this container
 type ApiContainer struct {
-	appuserapi.ApplicationUsersApi
-	transactionapi.TransactionsApi
-	userloginapi.UserSessionsApi
+	appuserapi.ApplicationUsersAPI
+	transactionapi.TransactionsAPI
+	userloginapi.UserSessionsAPI
 }
 
 func StartWebFramework() {

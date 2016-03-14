@@ -1,7 +1,6 @@
 package userloginapi
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"gost/api"
 	"gost/models"
 	"gost/service/userloginservice"
@@ -10,6 +9,8 @@ import (
 	"net/url"
 	"testing"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 const userSessionsRoute = "[{\"id\": \"UserSessionsRoute\", \"pattern\": \"/users/login\", \"handlers\": {\"DeleteUserSession\": \"DELETE\", \"GetUserSession\": \"GET\", \"CreateUserSession\": \"POST\", \"UpdateUserSession\": \"PUT\"}}]"
@@ -27,14 +28,14 @@ type dummyUserSession struct {
 func (userSession *dummyUserSession) PopConstrains() {}
 
 func TestUserSessionsApi(t *testing.T) {
-	tests.InitializeServerConfigurations(userSessionsRoute, new(UserSessionsApi))
+	tests.InitializeServerConfigurations(userSessionsRoute, new(UserSessionsAPI))
 
 	testCreateUserSessionInBadFormat(t)
-	sessionId, token := testCreateUserSessionInGoodFormat(t)
+	sessionID, token := testCreateUserSessionInGoodFormat(t)
 	testGetUserSessionWithInexistentTokenInDB(t)
-	testGetUserSessionWithGoodIdParam(t, token)
+	testGetUserSessionWithGoodIDParam(t, token)
 
-	userloginservice.DeleteUserSession(sessionId)
+	userloginservice.DeleteUserSession(sessionID)
 }
 
 func testGetUserSessionWithInexistentTokenInDB(t *testing.T) {
@@ -44,7 +45,7 @@ func testGetUserSessionWithInexistentTokenInDB(t *testing.T) {
 	tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusNotFound, params, nil, t)
 }
 
-func testGetUserSessionWithGoodIdParam(t *testing.T, token string) {
+func testGetUserSessionWithGoodIDParam(t *testing.T, token string) {
 	params := url.Values{}
 	params.Add("token", token)
 

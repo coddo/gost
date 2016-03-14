@@ -1,7 +1,6 @@
 package appuserapi
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"gost/api"
 	"gost/dbmodels"
 	"gost/models"
@@ -9,6 +8,8 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 const applicationUsersRoute = "[{\"id\": \"ApplicationUsersRoute\", \"pattern\": \"/appusers\", \"handlers\": {\"GetAll\": \"GET\", \"Get\": \"GET\", \"Create\": \"POST\", \"Update\": \"PUT\"}}]"
@@ -28,38 +29,38 @@ type dummyUser struct {
 func (user *dummyUser) PopConstrains() {}
 
 func TestUsersApi(t *testing.T) {
-	tests.InitializeServerConfigurations(applicationUsersRoute, new(ApplicationUsersApi))
+	tests.InitializeServerConfigurations(applicationUsersRoute, new(ApplicationUsersAPI))
 
 	testCreateUserInBadFormat(t)
 	id := testCreateUserInGoodFormat(t)
 	testUpdateUserInBadFormat(t)
-	testUpdateUserWithoutId(t)
-	testUpdateUserWithNoExistentIdInDb(t)
+	testUpdateUserWithoutID(t)
+	testUpdateUserWithNoExistentIDInDb(t)
 	testUpdateUserWithGoodRequestDetails(t, id)
-	testGetUserWithInexistentIdInDB(t)
-	testGetUserWithBadIdParam(t)
-	testGetUserWithGoodIdParam(t, id)
+	testGetUserWithInexistentIDInDatabase(t)
+	testGetUserWithBadIDParam(t)
+	testGetUserWithGoodIDParam(t, id)
 	testGetAllUsersWithoutLimit(t)
 	testGetAllUsersWithBadLimitParam(t)
 	testGetAllUsersWithZeroLimitParam(t)
 	testGetAllUsersWithGoodLimitParam(t)
 }
 
-func testGetUserWithInexistentIdInDB(t *testing.T) {
+func testGetUserWithInexistentIDInDatabase(t *testing.T) {
 	params := url.Values{}
 	params.Add("id", bson.NewObjectId().Hex())
 
 	tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusNotFound, params, nil, t)
 }
 
-func testGetUserWithBadIdParam(t *testing.T) {
+func testGetUserWithBadIDParam(t *testing.T) {
 	params := url.Values{}
 	params.Add("id", "2as456fas4")
 
 	tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusBadRequest, params, nil, t)
 }
 
-func testGetUserWithGoodIdParam(t *testing.T, id bson.ObjectId) {
+func testGetUserWithGoodIDParam(t *testing.T, id bson.ObjectId) {
 	params := url.Values{}
 	params.Add("id", id.Hex())
 
@@ -142,7 +143,7 @@ func testUpdateUserInBadFormat(t *testing.T) {
 	tests.PerformApiTestCall(apiPath, UPDATE, api.PUT, http.StatusBadRequest, nil, user, t)
 }
 
-func testUpdateUserWithoutId(t *testing.T) {
+func testUpdateUserWithoutID(t *testing.T) {
 	user := &models.ApplicationUser{
 		Email:              "ceva@ceva.com",
 		Password:           "CoddoPass",
@@ -152,7 +153,7 @@ func testUpdateUserWithoutId(t *testing.T) {
 	tests.PerformApiTestCall(apiPath, UPDATE, api.PUT, http.StatusBadRequest, nil, user, t)
 }
 
-func testUpdateUserWithNoExistentIdInDb(t *testing.T) {
+func testUpdateUserWithNoExistentIDInDb(t *testing.T) {
 	user := &models.ApplicationUser{
 		Id:                 bson.NewObjectId(),
 		Email:              "ceva@ceva.com",

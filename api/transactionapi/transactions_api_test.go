@@ -1,7 +1,6 @@
 package transactionapi
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"gost/api"
 	"gost/dbmodels"
 	"gost/models"
@@ -10,6 +9,8 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 const transactionsRoute = "[{\"id\": \"TransactionsRoute\", \"pattern\": \"/transactions\", \"handlers\": {\"DeleteTransaction\": \"DELETE\", \"GetTransaction\": \"GET\", \"PostTransaction\": \"POST\"}}]"
@@ -27,34 +28,34 @@ type dummyTransaction struct {
 func (transaction *dummyTransaction) PopConstrains() {}
 
 func TestTransactionsApi(t *testing.T) {
-	tests.InitializeServerConfigurations(transactionsRoute, new(TransactionsApi))
+	tests.InitializeServerConfigurations(transactionsRoute, new(TransactionsAPI))
 
 	testPostTransactionInBadFormat(t)
 	testPostTransactionNotIntegral(t)
 	id := testPostTransactionInGoodFormat(t)
-	testGetTransactionWithInexistentIdInDB(t)
-	testGetTransactionWithBadIdParam(t)
-	testGetTransactionWithGoodIdParam(t, id)
+	testGetTransactionWithInexistentIDInDB(t)
+	testGetTransactionWithBadIDParam(t)
+	testGetTransactionWithGoodIDParam(t, id)
 
 	// Delete the created transaction
 	transactionservice.DeleteTransaction(id)
 }
 
-func testGetTransactionWithInexistentIdInDB(t *testing.T) {
+func testGetTransactionWithInexistentIDInDB(t *testing.T) {
 	params := url.Values{}
 	params.Add("id", bson.NewObjectId().Hex())
 
 	tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusNotFound, params, nil, t)
 }
 
-func testGetTransactionWithBadIdParam(t *testing.T) {
+func testGetTransactionWithBadIDParam(t *testing.T) {
 	params := url.Values{}
 	params.Add("id", "2as456fas4")
 
 	tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusBadRequest, params, nil, t)
 }
 
-func testGetTransactionWithGoodIdParam(t *testing.T, id bson.ObjectId) {
+func testGetTransactionWithGoodIDParam(t *testing.T, id bson.ObjectId) {
 	params := url.Values{}
 	params.Add("id", id.Hex())
 

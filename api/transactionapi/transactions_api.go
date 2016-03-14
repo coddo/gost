@@ -8,20 +8,21 @@ import (
 	"net/http"
 )
 
-type TransactionsApi int
+// TransactionsAPI defines the API endpoint for application transactions of any kind
+type TransactionsAPI int
 
-const ApiName = "transactions"
+// Get endpoint retrieves a certain transaction based on its Id
+func (t *TransactionsAPI) Get(vars *api.Request) api.Response {
+	transactionID, err, found := apifilter.GetIdFromParams(vars.Form)
 
-func (t *TransactionsApi) GetTransaction(vars *api.ApiVar) api.ApiResponse {
-	transactionId, err, found := apifilter.GetIdFromParams(vars.RequestForm)
 	if found {
 		if err != nil {
 			return api.BadRequest(err)
 		}
 
-		dbTransaction, err := transactionservice.GetTransaction(transactionId)
+		dbTransaction, err := transactionservice.GetTransaction(transactionID)
 		if err != nil || dbTransaction == nil {
-			return api.NotFound(api.EntityNotFoundError)
+			return api.NotFound(api.ErrEntityNotFound)
 		}
 
 		transaction := &models.Transaction{}
@@ -30,29 +31,30 @@ func (t *TransactionsApi) GetTransaction(vars *api.ApiVar) api.ApiResponse {
 		return api.SingleDataResponse(http.StatusOK, transaction)
 	}
 
-	return api.BadRequest(api.IdParamNotSpecifiedError)
+	return api.BadRequest(api.ErrIDParamNotSpecified)
 }
 
-func (t *TransactionsApi) PostTransaction(vars *api.ApiVar) api.ApiResponse {
+// Create endpoint creates a new transaction with the valid transfer tokens and data
+func (t *TransactionsAPI) Create(vars *api.Request) api.Response {
 	transaction := &models.Transaction{}
 
-	err := models.DeserializeJson(vars.RequestBody, transaction)
+	err := models.DeserializeJson(vars.Body, transaction)
 	if err != nil {
-		return api.BadRequest(api.EntityFormatError)
+		return api.BadRequest(api.ErrEntityFormat)
 	}
 
 	if !apifilter.CheckTransactionIntegrity(transaction) {
-		return api.BadRequest(api.EntityIntegrityError)
+		return api.BadRequest(api.ErrEntityIntegrity)
 	}
 
 	dbTransaction := transaction.Collapse()
 	if dbTransaction == nil {
-		return api.InternalServerError(api.EntityProcessError)
+		return api.InternalServerError(api.ErrEntityProcess)
 	}
 
 	err = transactionservice.CreateTransaction(dbTransaction)
 	if err != nil {
-		return api.InternalServerError(api.EntityProcessError)
+		return api.InternalServerError(api.ErrEntityProcess)
 	}
 	transaction.Id = dbTransaction.Id
 

@@ -65,13 +65,13 @@ func PerformApiCall(endpoint string, rw http.ResponseWriter, req *http.Request, 
 	}
 
 	// Extract the response from the endpoint into a concrete type
-	resp := respObjects[0].Interface().(api.ApiResponse)
+	resp := respObjects[0].Interface().(api.Response)
 
 	// Give the response to the api client
 	respond(&resp, rw, req, route.Pattern)
 }
 
-func respond(resp *api.ApiResponse, rw http.ResponseWriter, req *http.Request, endpoint string) {
+func respond(resp *api.Response, rw http.ResponseWriter, req *http.Request, endpoint string) {
 	if resp.StatusCode == 0 {
 		resp.StatusCode = http.StatusInternalServerError
 		GiveApiMessage(resp.StatusCode, http.StatusText(resp.StatusCode), rw, req, endpoint)
@@ -85,7 +85,7 @@ func respond(resp *api.ApiResponse, rw http.ResponseWriter, req *http.Request, e
 		GiveApiResponse(resp.StatusCode, resp.Message, rw, req, endpoint, resp.ContentType, resp.File)
 
 		// Try caching the data only if a GET request was made
-		go func(resp *api.ApiResponse, req *http.Request, endpoint string) {
+		go func(resp *api.Response, req *http.Request, endpoint string) {
 			if req.Method == api.GET && cache.Status == cache.STATUS_ON {
 				cacheResponse(resp, endpoint)
 			}
@@ -93,7 +93,7 @@ func respond(resp *api.ApiResponse, rw http.ResponseWriter, req *http.Request, e
 	}
 }
 
-func cacheResponse(resp *api.ApiResponse, endpoint string) {
+func cacheResponse(resp *api.Response, endpoint string) {
 	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) || len(resp.Message) == 0 {
 		return
 	}
@@ -109,7 +109,7 @@ func cacheResponse(resp *api.ApiResponse, endpoint string) {
 	cacheEntity.Cache()
 }
 
-func createApiVars(req *http.Request, rw http.ResponseWriter, route *config.Route) *api.ApiVar {
+func createApiVars(req *http.Request, rw http.ResponseWriter, route *config.Route) *api.Request {
 	err, statusCode := filter.CheckMethodAndParseContent(req)
 	if err != nil {
 		GiveApiMessage(statusCode, err.Error(), rw, req, route.Pattern)
@@ -122,11 +122,11 @@ func createApiVars(req *http.Request, rw http.ResponseWriter, route *config.Rout
 		return nil
 	}
 
-	vars := &api.ApiVar{
-		RequestHeader:        req.Header,
-		RequestForm:          req.Form,
-		RequestContentLength: req.ContentLength,
-		RequestBody:          body,
+	vars := &api.Request{
+		Header:        req.Header,
+		Form:          req.Form,
+		ContentLength: req.ContentLength,
+		Body:          body,
 	}
 
 	return vars
