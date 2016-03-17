@@ -20,7 +20,7 @@ var (
 
 // Get endpoint fetches an application user based on a provided ID
 func (usersApi *ApplicationUsersAPI) Get(vars *api.Request) api.Response {
-	userID, err, found := apifilter.GetIdFromParams(vars.Form)
+	userID, found, err := apifilter.GetIDFromParams(vars.Form)
 
 	if err != nil {
 		return api.BadRequest(err)
@@ -53,7 +53,7 @@ func (usersApi *ApplicationUsersAPI) Get(vars *api.Request) api.Response {
 // GetAll endpoint fetches all the existing users in the application.
 // The number of returned entities can be limited using a "limit" request parameter
 func (usersApi *ApplicationUsersAPI) GetAll(vars *api.Request) api.Response {
-	limit, err, isLimitSpecified := apifilter.GetIntValueFromParams("limit", vars.Form)
+	limit, isLimitSpecified, err := apifilter.GetIntValueFromParams("limit", vars.Form)
 
 	if err != nil {
 		return api.BadRequest(err)
