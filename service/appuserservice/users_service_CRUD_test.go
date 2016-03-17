@@ -35,7 +35,7 @@ func setUpUsersTest(t *testing.T) {
 }
 
 func tearDownUsersTest(t *testing.T, user *dbmodels.ApplicationUser) {
-	err := deleteUser(user.Id)
+	err := deleteUser(user.ID)
 
 	if err != nil {
 		t.Fatal("The user document could not be deleted!")
@@ -44,13 +44,13 @@ func tearDownUsersTest(t *testing.T, user *dbmodels.ApplicationUser) {
 
 func createUser(t *testing.T, user *dbmodels.ApplicationUser) {
 	*user = dbmodels.ApplicationUser{
-		Id:                           bson.NewObjectId(),
+		ID:                           bson.NewObjectId(),
 		Password:                     "CoddoPass",
-		AccountType:                  dbmodels.ADMINISTRATOR_ACCOUNT_TYPE,
+		AccountType:                  dbmodels.AdministratorAccountType,
 		Email:                        "test@tests.com",
 		ResetPasswordToken:           "as7f6as8faf5aasf6721rqf",
 		ResetPasswordTokenExpireDate: time.Now(),
-		Status: dbmodels.STATUS_ACCOUNT_ACTIVATED,
+		Status: dbmodels.StatusAccountActivated,
 	}
 
 	err := CreateUser(user)
@@ -63,8 +63,8 @@ func createUser(t *testing.T, user *dbmodels.ApplicationUser) {
 func changeAndUpdateUser(t *testing.T, user *dbmodels.ApplicationUser) {
 	user.Email = "testEmailCHanged@email.go"
 	user.Password = "ChangedPassword"
-	user.AccountType = dbmodels.NORMAL_USER_ACCOUNT_TYPE
-	user.Status = dbmodels.STATUS_ACCOUNT_DEACTIVATED
+	user.AccountType = dbmodels.NormalUserAccountType
+	user.Status = dbmodels.StatusAccountDeactivated
 
 	err := UpdateUser(user)
 
@@ -74,7 +74,7 @@ func changeAndUpdateUser(t *testing.T, user *dbmodels.ApplicationUser) {
 }
 
 func verifyUserCorresponds(t *testing.T, user *dbmodels.ApplicationUser) {
-	dbuser, err := GetUser(user.Id)
+	dbuser, err := GetUser(user.ID)
 
 	if err != nil || dbuser == nil {
 		t.Error("Could not fetch the user document from the database!")

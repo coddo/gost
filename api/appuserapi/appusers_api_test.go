@@ -122,7 +122,7 @@ func testCreateUserInGoodFormat(t *testing.T) bson.ObjectId {
 	user := &models.ApplicationUser{
 		Id:                 bson.NewObjectId(),
 		Password:           "CoddoPass",
-		AccountType:        dbmodels.ADMINISTRATOR_ACCOUNT_TYPE,
+		AccountType:        dbmodels.AdministratorAccountType,
 		Email:              "test@tests.com",
 		ResetPasswordToken: "as7f6as8faf5aasf6721rqf",
 	}

@@ -12,8 +12,8 @@ func CreateTransaction(transaction *dbmodels.Transaction) error {
 	session, collection := service.Connect(CollectionName)
 	defer session.Close()
 
-	if transaction.Id == "" {
-		transaction.Id = bson.NewObjectId()
+	if transaction.ID == "" {
+		transaction.ID = bson.NewObjectId()
 	}
 
 	err := collection.Insert(transaction)
@@ -25,11 +25,11 @@ func UpdateTransaction(transaction *dbmodels.Transaction) error {
 	session, collection := service.Connect(CollectionName)
 	defer session.Close()
 
-	if transaction.Id == "" {
+	if transaction.ID == "" {
 		return service.NoIdSpecifiedError
 	}
 
-	err := collection.UpdateId(transaction.Id, transaction)
+	err := collection.UpdateId(transaction.ID, transaction)
 
 	return err
 }

@@ -25,7 +25,7 @@ func (user *ApplicationUser) PopConstrains() {
 }
 
 func (user *ApplicationUser) Expand(dbUser *dbmodels.ApplicationUser) {
-	user.Id = dbUser.Id
+	user.Id = dbUser.ID
 	user.Email = dbUser.Email
 	user.Password = dbUser.Password
 	user.AccountType = dbUser.AccountType
@@ -40,7 +40,7 @@ func (user *ApplicationUser) Expand(dbUser *dbmodels.ApplicationUser) {
 
 func (user *ApplicationUser) Collapse() *dbmodels.ApplicationUser {
 	dbUser := dbmodels.ApplicationUser{
-		Id:                             user.Id,
+		ID:                             user.Id,
 		Email:                          user.Email,
 		Password:                       user.Password,
 		AccountType:                    user.AccountType,

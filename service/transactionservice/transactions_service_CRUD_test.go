@@ -35,7 +35,7 @@ func setUpTransactionsTest(t *testing.T) {
 }
 
 func tearDownTransactionsTest(t *testing.T, transaction *dbmodels.Transaction) {
-	err := DeleteTransaction(transaction.Id)
+	err := DeleteTransaction(transaction.ID)
 
 	if err != nil {
 		t.Fatal("The transaction document could not be deleted!")
@@ -44,10 +44,10 @@ func tearDownTransactionsTest(t *testing.T, transaction *dbmodels.Transaction) {
 
 func createTransaction(t *testing.T, transaction *dbmodels.Transaction) {
 	*transaction = dbmodels.Transaction{
-		Id:         bson.NewObjectId(),
-		PayerId:    bson.NewObjectId(),
-		ReceiverId: bson.NewObjectId(),
-		Type:       dbmodels.CASH_TRANSACTION_TYPE,
+		ID:         bson.NewObjectId(),
+		PayerID:    bson.NewObjectId(),
+		ReceiverID: bson.NewObjectId(),
+		Type:       dbmodels.CashTransactionType,
 		Ammount:    6469.1264,
 		Currency:   "RON",
 		Date:       time.Now().Local(),
@@ -61,9 +61,9 @@ func createTransaction(t *testing.T, transaction *dbmodels.Transaction) {
 }
 
 func changeAndUpdateTransaction(t *testing.T, transaction *dbmodels.Transaction) {
-	transaction.PayerId = bson.NewObjectId()
-	transaction.ReceiverId = bson.NewObjectId()
-	transaction.Type = dbmodels.CARD_TRANSACTION_TYPE
+	transaction.PayerID = bson.NewObjectId()
+	transaction.ReceiverID = bson.NewObjectId()
+	transaction.Type = dbmodels.CardTransactionType
 	transaction.Currency = "USD"
 
 	err := UpdateTransaction(transaction)
@@ -74,7 +74,7 @@ func changeAndUpdateTransaction(t *testing.T, transaction *dbmodels.Transaction)
 }
 
 func verifyTransactionCorresponds(t *testing.T, transaction *dbmodels.Transaction) {
-	dbtransaction, err := GetTransaction(transaction.Id)
+	dbtransaction, err := GetTransaction(transaction.ID)
 
 	if err != nil || dbtransaction == nil {
 		t.Error("Could not fetch the transaction document from the database!")

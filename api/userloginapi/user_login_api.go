@@ -38,7 +38,7 @@ func (userSessionsApi *UserSessionsAPI) Get(vars *api.Request) api.Response {
 	if err != nil {
 		return api.NotFound(err)
 	} else if util.IsDateExpiredFromNow(dbUserSession.ExpireDate) {
-		userloginservice.DeleteUserSession(dbUserSession.Id)
+		userloginservice.DeleteUserSession(dbUserSession.ID)
 		return api.Unauthorized(ErrTokenExpired)
 	}
 	dbUserSession.ExpireDate = util.NextDateFromNow(time.Hour * 24 * daysUntilExpire)
@@ -51,7 +51,7 @@ func (userSessionsApi *UserSessionsAPI) Get(vars *api.Request) api.Response {
 	userSession := new(models.UserSession)
 	userSession.Expand(dbUserSession)
 
-	userloginservice.DeleteExpiredSessionsForUser(dbUserSession.UserId)
+	userloginservice.DeleteExpiredSessionsForUser(dbUserSession.UserID)
 	return api.SingleDataResponse(http.StatusOK, userSession)
 }
 
@@ -79,8 +79,8 @@ func (userSessionsApi *UserSessionsAPI) Create(vars *api.Request) api.Response {
 	if err != nil {
 		return api.InternalServerError(api.ErrEntityProcess)
 	}
-	userSession.Id = dbUserSession.Id
+	userSession.Id = dbUserSession.ID
 
-	userloginservice.DeleteExpiredSessionsForUser(dbUserSession.UserId)
+	userloginservice.DeleteExpiredSessionsForUser(dbUserSession.UserID)
 	return api.SingleDataResponse(http.StatusCreated, userSession)
 }

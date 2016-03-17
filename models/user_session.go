@@ -23,8 +23,8 @@ func (userSession *UserSession) PopConstrains() {
 }
 
 func (userSession *UserSession) Expand(dbUserSession *dbmodels.UserSession) {
-	userSession.Id = dbUserSession.Id
-	userSession.ApplicationUser.Id = dbUserSession.UserId
+	userSession.Id = dbUserSession.ID
+	userSession.ApplicationUser.Id = dbUserSession.UserID
 	userSession.Token = dbUserSession.Token
 	userSession.ExpireDate = dbUserSession.ExpireDate
 
@@ -33,8 +33,8 @@ func (userSession *UserSession) Expand(dbUserSession *dbmodels.UserSession) {
 
 func (userSession *UserSession) Collapse() *dbmodels.UserSession {
 	dbUserSession := dbmodels.UserSession{
-		Id:         userSession.Id,
-		UserId:     userSession.ApplicationUser.Id,
+		ID:         userSession.Id,
+		UserID:     userSession.ApplicationUser.Id,
 		Token:      userSession.Token,
 		ExpireDate: userSession.ExpireDate,
 	}

@@ -13,8 +13,8 @@ func CreateUserSession(userSession *dbmodels.UserSession) error {
 	session, collection := service.Connect(CollectionName)
 	defer session.Close()
 
-	if userSession.Id == "" {
-		userSession.Id = bson.NewObjectId()
+	if userSession.ID == "" {
+		userSession.ID = bson.NewObjectId()
 	}
 
 	err := collection.Insert(userSession)
@@ -26,11 +26,11 @@ func UpdateUserSession(userSession *dbmodels.UserSession) error {
 	session, collection := service.Connect(CollectionName)
 	defer session.Close()
 
-	if userSession.Id == "" {
+	if userSession.ID == "" {
 		return service.NoIdSpecifiedError
 	}
 
-	err := collection.UpdateId(userSession.Id, userSession)
+	err := collection.UpdateId(userSession.ID, userSession)
 
 	return err
 }

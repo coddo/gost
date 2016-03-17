@@ -35,9 +35,9 @@ func (transaction *Transaction) PopConstrains() {
 }
 
 func (transaction *Transaction) Expand(dbTransaction *dbmodels.Transaction) {
-	transaction.Id = dbTransaction.Id
-	transaction.Payer.Id = dbTransaction.PayerId
-	transaction.Receiver.Id = dbTransaction.ReceiverId
+	transaction.Id = dbTransaction.ID
+	transaction.Payer.Id = dbTransaction.PayerID
+	transaction.Receiver.Id = dbTransaction.ReceiverID
 	transaction.PaymentPortal = dbTransaction.PaymentPortal
 	transaction.PaymentToken = dbTransaction.PaymentToken
 	transaction.Type = dbTransaction.Type
@@ -50,9 +50,9 @@ func (transaction *Transaction) Expand(dbTransaction *dbmodels.Transaction) {
 
 func (transaction *Transaction) Collapse() *dbmodels.Transaction {
 	dbTransaction := dbmodels.Transaction{
-		Id:            transaction.Id,
-		PayerId:       transaction.Payer.Id,
-		ReceiverId:    transaction.Receiver.Id,
+		ID:            transaction.Id,
+		PayerID:       transaction.Payer.Id,
+		ReceiverID:    transaction.Receiver.Id,
 		PaymentPortal: transaction.PaymentPortal,
 		PaymentToken:  transaction.PaymentToken,
 		Type:          transaction.Type,

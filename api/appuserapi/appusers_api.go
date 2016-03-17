@@ -108,7 +108,7 @@ func (usersApi *ApplicationUsersAPI) Create(vars *api.Request) api.Response {
 	if err != nil {
 		return api.InternalServerError(api.ErrEntityProcess)
 	}
-	user.Id = dbUser.Id
+	user.Id = dbUser.ID
 
 	return api.SingleDataResponse(http.StatusCreated, user)
 }

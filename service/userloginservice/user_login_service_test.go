@@ -39,7 +39,7 @@ func setUpUserSessionsTest(t *testing.T) {
 }
 
 func tearDownUserSessionsTest(t *testing.T, userSession *dbmodels.UserSession) {
-	err := DeleteUserSession(userSession.Id)
+	err := DeleteUserSession(userSession.ID)
 
 	if err != nil {
 		t.Fatal("The user session document could not be deleted!")
@@ -48,7 +48,7 @@ func tearDownUserSessionsTest(t *testing.T, userSession *dbmodels.UserSession) {
 
 func testCreateUserSession(t *testing.T, userSession *dbmodels.UserSession) {
 	*userSession = dbmodels.UserSession{
-		UserId:     bson.NewObjectId(),
+		UserID:     bson.NewObjectId(),
 		Token:      "trh46rth46rth4r",
 		ExpireDate: time.Now().Local(),
 	}
@@ -61,7 +61,7 @@ func testCreateUserSession(t *testing.T, userSession *dbmodels.UserSession) {
 }
 
 func testChangeAndUpdateUserSession(t *testing.T, userSession *dbmodels.UserSession) {
-	userSession.UserId = bson.NewObjectId()
+	userSession.UserID = bson.NewObjectId()
 	userSession.Token = "a65g4as65as4g6as4ga"
 	userSession.ExpireDate = time.Date(2015, time.December, 12, 0, 0, 0, 0, time.UTC)
 
@@ -86,15 +86,15 @@ func testVerifyUserSessionCorresponds(t *testing.T, userSession *dbmodels.UserSe
 
 func testDeleteExpiredUserSessions(t *testing.T) {
 	userSession1 := &dbmodels.UserSession{
-		Id:         bson.NewObjectId(),
-		UserId:     bson.NewObjectId(),
+		ID:         bson.NewObjectId(),
+		UserID:     bson.NewObjectId(),
 		Token:      "as7f6as8faf5aasf6721rqf",
 		ExpireDate: time.Now().Local().Add(-time.Hour * 150),
 	}
 
 	userSession2 := &dbmodels.UserSession{
-		Id:         bson.NewObjectId(),
-		UserId:     userSession1.UserId,
+		ID:         bson.NewObjectId(),
+		UserID:     userSession1.UserID,
 		Token:      "a68f4asg6546sgafas4f6a",
 		ExpireDate: time.Now().Local().Add(-time.Hour * 300),
 	}
@@ -105,7 +105,7 @@ func testDeleteExpiredUserSessions(t *testing.T) {
 		t.Fatal("Error creating expired user sessions!")
 	}
 
-	DeleteExpiredSessionsForUser(userSession1.UserId)
+	DeleteExpiredSessionsForUser(userSession1.UserID)
 	_, err1 = GetUserSession(userSession1.Token)
 	_, err2 = GetUserSession(userSession2.Token)
 

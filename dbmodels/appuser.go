@@ -1,26 +1,29 @@
 package dbmodels
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"gost/util"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
-// Account type constants
 const (
-	NORMAL_USER_ACCOUNT_TYPE   = 0
-	ADMINISTRATOR_ACCOUNT_TYPE = 1
+	// NormalUserAccountType represents a ordinary application user
+	NormalUserAccountType = iota
+	// AdministratorAccountType represents an administrator
+	AdministratorAccountType = iota
 )
 
-// Account status constants
 const (
-	STATUS_ACCOUNT_ACTIVATED   = true
-	STATUS_ACCOUNT_DEACTIVATED = false
+	// StatusAccountActivated represents an account that is active in the system
+	StatusAccountActivated = true
+	// StatusAccountDeactivated represents an account that is inactive in the system
+	StatusAccountDeactivated = false
 )
 
-// Struct representing an user account. This is a database dbmodels
+// ApplicationUser contains information necessary for managing accounts
 type ApplicationUser struct {
-	Id bson.ObjectId `bson:"_id" json:"id"`
+	ID bson.ObjectId `bson:"_id" json:"id"`
 
 	Email                          string    `bson:"email,omitempty" json:"email"`
 	Password                       string    `bson:"password,omitempty" json:"password"`
@@ -32,14 +35,15 @@ type ApplicationUser struct {
 	Status                         bool      `bson:"status,omitempty" json:"status"`
 }
 
-func (user *ApplicationUser) Equal(obj Object) bool {
+// Equal compares two ApplicationUser objects. Implements the Objecter interface
+func (user *ApplicationUser) Equal(obj Objecter) bool {
 	otherUser, ok := obj.(*ApplicationUser)
 	if !ok {
 		return false
 	}
 
 	switch {
-	case user.Id != otherUser.Id:
+	case user.ID != otherUser.ID:
 		return false
 	case user.Email != otherUser.Email:
 		return false
