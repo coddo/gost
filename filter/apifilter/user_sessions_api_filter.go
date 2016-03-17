@@ -4,6 +4,7 @@ import (
 	"gost/models"
 )
 
+// CheckUserSessionIntegrity checks if an UserSession has all the compulsory fields populated
 func CheckUserSessionIntegrity(userSession *models.UserSession) bool {
 	switch {
 	case len(userSession.ApplicationUser.Id) == 0:

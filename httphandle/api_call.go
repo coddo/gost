@@ -110,7 +110,7 @@ func cacheResponse(resp *api.Response, endpoint string) {
 }
 
 func createApiVars(req *http.Request, rw http.ResponseWriter, route *config.Route) *api.Request {
-	err, statusCode := filter.CheckMethodAndParseContent(req)
+	statusCode, err := filter.CheckMethodAndParseContent(req)
 	if err != nil {
 		GiveApiMessage(statusCode, err.Error(), rw, req, route.Pattern)
 		return nil

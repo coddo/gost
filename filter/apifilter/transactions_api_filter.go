@@ -4,6 +4,7 @@ import (
 	"gost/models"
 )
 
+// CheckTransactionIntegrity checks if a Transaction has all the compulsory fields populated
 func CheckTransactionIntegrity(transaction *models.Transaction) bool {
 	switch {
 	case len(transaction.Payer.Id) == 0:
