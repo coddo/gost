@@ -27,7 +27,7 @@ func ApiHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	PerformApiCall(endpoint, rw, req, route)
+	PerformAPICall(endpoint, rw, req, route)
 }
 
 func findRoute(pattern string) *config.Route {

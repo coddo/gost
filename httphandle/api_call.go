@@ -19,47 +19,41 @@ func RegisterEndpoints(container interface{}) {
 	endpointsContainer = container
 }
 
-func PerformApiCall(endpoint string, rw http.ResponseWriter, req *http.Request, route *config.Route) {
+// PerformAPICall parses the data from a HTTP request, determines which mapped endpoind needs to be called
+// and forwards the request data to the found endpoint if it is valid.
+func PerformAPICall(endpoint string, rw http.ResponseWriter, req *http.Request, route *config.Route) {
 	// Prepare data vector for an api/endpoint call
 	inputs := make([]reflect.Value, 1)
 
 	// Create the variables containing request data
-	vars := createApiVars(req, rw, route)
+	vars := createAPIVars(req, rw, route)
 	if vars == nil {
 		return
 	}
 
 	// Try giving the response directly from the cache if available or invalidate it if necessary
-	if cache.Status == cache.StatusON {
-		if cachedData, err := cache.QueryByRequest(route.Pattern); err == nil {
-			if req.Method == api.GET {
-				GiveApiResponse(cachedData.StatusCode, cachedData.Data, rw, req, route.Pattern, cachedData.ContentType, cachedData.File)
-				return
-			} else { // Invalidate the cache if a modification, deletion or addition was made to this endpoint
-				cachedData.Invalidate()
-			}
-		}
+	if respondFromCache(rw, req, route) {
+		return
 	}
 
 	// Populate the data vector for the api call
 	inputs[0] = reflect.ValueOf(vars)
 
-	// Perform the call on the corresponding endpoint and function
-	// This is done by using reflection techniques
-	var respObjects []reflect.Value
+	// Find out the name of the method where the request will be forwarded,
+	// based on the registered endpoints
 	apiMethod := reflect.ValueOf(endpointsContainer).MethodByName(endpoint)
 
-	// Check for zero value
-	if apiMethod != *new(reflect.Value) {
-		respObjects = apiMethod.Call(inputs)
-	} else {
-		GiveApiStatus(http.StatusInternalServerError, rw, req, route.Pattern)
-
+	// Check if the searched method from the endpoint exists
+	if apiMethod == *new(reflect.Value) {
 		log.Println("The endpoint method is either inexistent or incorrectly mapped. Please check the server configuration files!")
+
+		GiveApiStatus(http.StatusInternalServerError, rw, req, route.Pattern)
 
 		return
 	}
 
+	// Call the mapped method from the corresponding endpoint, using the extracted and parsed data from the HTTP request
+	respObjects := apiMethod.Call(inputs)
 	if respObjects == nil {
 		GiveApiStatus(http.StatusInternalServerError, rw, req, route.Pattern)
 		return
@@ -70,6 +64,24 @@ func PerformApiCall(endpoint string, rw http.ResponseWriter, req *http.Request, 
 
 	// Give the response to the api client
 	respond(&resp, rw, req, route.Pattern)
+}
+
+func respondFromCache(rw http.ResponseWriter, req *http.Request, route *config.Route) bool {
+	if cache.Status == cache.StatusOFF {
+		return false
+	}
+
+	if cachedData, err := cache.QueryByRequest(route.Pattern); err == nil {
+		if req.Method == api.GET {
+			GiveApiResponse(cachedData.StatusCode, cachedData.Data, rw, req, route.Pattern, cachedData.ContentType, cachedData.File)
+			return true
+		}
+
+		// Invalidate the cache if a modification, deletion or addition was made to this endpoint
+		cachedData.Invalidate()
+	}
+
+	return false
 }
 
 func respond(resp *api.Response, rw http.ResponseWriter, req *http.Request, endpoint string) {
@@ -110,7 +122,7 @@ func cacheResponse(resp *api.Response, endpoint string) {
 	cacheEntity.Cache()
 }
 
-func createApiVars(req *http.Request, rw http.ResponseWriter, route *config.Route) *api.Request {
+func createAPIVars(req *http.Request, rw http.ResponseWriter, route *config.Route) *api.Request {
 	statusCode, err := filter.CheckMethodAndParseContent(req)
 	if err != nil {
 		GiveApiMessage(statusCode, err.Error(), rw, req, route.Pattern)
