@@ -57,7 +57,7 @@ func init() {
 	service.InitDbService()
 
 	// Register the API endpoints
-	httphandle.SetApiInterface(new(APIContainer))
+	httphandle.RegisterEndpoints(new(APIContainer))
 
 	// Start the caching system
 	cache.StartCachingSystem(cache.CacheExpireTime)

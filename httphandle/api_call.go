@@ -12,10 +12,11 @@ import (
 	"reflect"
 )
 
-var apiInterface interface{}
+var endpointsContainer interface{}
 
-func SetApiInterface(interf interface{}) {
-	apiInterface = interf
+// RegisterEndpoints registers all the endpoints that are going to be mapped in the application
+func RegisterEndpoints(container interface{}) {
+	endpointsContainer = container
 }
 
 func PerformApiCall(endpoint string, rw http.ResponseWriter, req *http.Request, route *config.Route) {
@@ -46,7 +47,7 @@ func PerformApiCall(endpoint string, rw http.ResponseWriter, req *http.Request, 
 	// Perform the call on the corresponding endpoint and function
 	// This is done by using reflection techniques
 	var respObjects []reflect.Value
-	apiMethod := reflect.ValueOf(apiInterface).MethodByName(endpoint)
+	apiMethod := reflect.ValueOf(endpointsContainer).MethodByName(endpoint)
 
 	// Check for zero value
 	if apiMethod != *new(reflect.Value) {

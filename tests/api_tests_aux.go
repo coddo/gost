@@ -55,7 +55,7 @@ func InitializeServerConfigurations(routeString string, apiInterface interface{}
 
 	service.InitDbService()
 
-	httphandle.SetApiInterface(apiInterface)
+	httphandle.RegisterEndpoints(apiInterface)
 
 	runtime.GOMAXPROCS(2)
 }
