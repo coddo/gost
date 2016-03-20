@@ -1,36 +1,33 @@
-//  Package which contains all the services necessary for interacting
-//  with all the collections(tables) in the database.
+// Package service contains all the services necessary for interacting
+// with all the collections(tables) in the database.
 //
 // Each service file should be written in it's own file and should represent only one dbmodels
 package service
 
 import (
 	"errors"
-	"gopkg.in/mgo.v2"
 	"gost/config"
 	"log"
+
+	"gopkg.in/mgo.v2"
 )
 
-type Service struct {
-	session *mgo.Session
-}
-
-var mongoDBService *Service = &Service{}
+var mongoDbSession *mgo.Session
 
 var (
-	NoIdSpecifiedError = errors.New("No Id was specified for the entity")
+	// ErrNoIDSpecified says that no ID was specified for a fetch operation
+	ErrNoIDSpecified = errors.New("No Id was specified for the entity")
 )
 
-// Initialize a main session to the
+// InitDbService initializes the connection (known as session) parameters to the database
 func InitDbService() {
-	url := config.DbConnectionString
-	if url == "" {
+	if config.DbConnectionString == "" {
 		log.Fatal("Database error: No connection string provided")
 	}
 
-	if mongoDBService.session == nil {
+	if mongoDbSession == nil {
 		var err error
-		mongoDBService.session, err = mgo.Dial(url)
+		mongoDbSession, err = mgo.Dial(config.DbConnectionString)
 
 		if err != nil {
 			log.Fatalf("Can't connect to mongo, go error: %v\n", err)
@@ -38,16 +35,13 @@ func InitDbService() {
 	}
 }
 
-// Close the mongodb service
+// CloseDbService closes the current mongodb session
 func CloseDbService() {
-	mongoDBService.session.Close()
+	mongoDbSession.Close()
 }
 
-// All connections should be stateless, so this method always
-// returns a pointer to a new session. After each session is used,
-// it should be closed in order to dump data from memory correctly.
-// To avoid forgetting to close the session, always write: *defer session.Close()*
-// right after getting it through this method
+// Connect creates the connection to the database.
+// To avoid forgetting to close the session, always write: *defer session.Close()* right after getting it through this method
 func Connect(collectionName string) (*mgo.Session, *mgo.Collection) {
-	return mongoDBService.session.Copy(), mongoDBService.session.DB(config.DbName).C(collectionName)
+	return mongoDbSession.Copy(), mongoDbSession.DB(config.DbName).C(collectionName)
 }

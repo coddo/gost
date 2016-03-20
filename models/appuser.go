@@ -1,14 +1,15 @@
 package models
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"gost/dbmodels"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
-// Struct representing an user account. This is a database dbmodels
+// ApplicationUser represents a basic user account
 type ApplicationUser struct {
-	Id bson.ObjectId `json:"id"`
+	ID bson.ObjectId `json:"id"`
 
 	Email                          string    `json:"email"`
 	Password                       string    `json:"password"`
@@ -20,12 +21,10 @@ type ApplicationUser struct {
 	Status                         bool      `json:"status"`
 }
 
-func (user *ApplicationUser) PopConstrains() {
-	// Nothing to do here for now
-}
-
+// Expand copies the dbmodels.ApplicationUser to a ApplicationUser expands all
+// the components by fetching them from the database
 func (user *ApplicationUser) Expand(dbUser *dbmodels.ApplicationUser) {
-	user.Id = dbUser.Id
+	user.ID = dbUser.ID
 	user.Email = dbUser.Email
 	user.Password = dbUser.Password
 	user.AccountType = dbUser.AccountType
@@ -34,13 +33,13 @@ func (user *ApplicationUser) Expand(dbUser *dbmodels.ApplicationUser) {
 	user.ActivateAccountToken = dbUser.ActivateAccountToken
 	user.ActivateAccountTokenExpireDate = dbUser.ActivateAccountTokenExpireDate
 	user.Status = dbUser.Status
-
-	user.PopConstrains()
 }
 
+// Collapse coppies the ApplicationUser to a dbmodels.Application user and
+// only keeps the unique identifiers from the inner components
 func (user *ApplicationUser) Collapse() *dbmodels.ApplicationUser {
 	dbUser := dbmodels.ApplicationUser{
-		Id:                             user.Id,
+		ID:                             user.ID,
 		Email:                          user.Email,
 		Password:                       user.Password,
 		AccountType:                    user.AccountType,

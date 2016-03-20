@@ -11,13 +11,10 @@ import (
 // Routes configuration file path
 var routesConfigFile = "config/routes.json"
 
-// Variable for storing all the routes that the api will have
+// Routes is a variable used for storing all the routes that the api will have
 var Routes []Route
 
-func InitTestsRoutes(routesString string) {
-	deserializeRoutes([]byte(routesString))
-}
-
+// InitRoutes initializes the routes based on a configuration file
 func InitRoutes(routesConfigPath string) {
 	if len(routesConfigPath) != 0 {
 		routesConfigFile = routesConfigPath
@@ -32,7 +29,7 @@ func InitRoutes(routesConfigPath string) {
 	deserializeRoutes(routesString)
 }
 
-// Save all the active routes (Routes slice) in json format
+// SaveRoutesConfiguration saves all the active routes (Routes slice) in json format
 // into the configuration file
 func SaveRoutesConfiguration() error {
 	if len(Routes) == 0 {
@@ -53,12 +50,12 @@ func SaveRoutesConfiguration() error {
 	return nil
 }
 
-// Add a new route and make it active
+// AddRoute adds a new route and makes it active
 func AddRoute(route *Route, saveChangesToConfigFile bool) error {
 	initialLength := len(Routes)
 
 	for _, r := range Routes {
-		if r.Id == route.Id {
+		if r.ID == route.ID {
 			return errors.New("Route already exists!")
 		}
 	}
@@ -70,13 +67,13 @@ func AddRoute(route *Route, saveChangesToConfigFile bool) error {
 	return saveChanges(err, saveChangesToConfigFile, SaveRoutesConfiguration)
 }
 
-// Disable and remove a certain route
-func RemoveRoute(routeId string, saveChangesToConfigFile bool) error {
+// RemoveRoute disables and removes a certain route
+func RemoveRoute(routeID string, saveChangesToConfigFile bool) error {
 	initialLength := len(Routes)
 	index := -1
 
 	for ind, route := range Routes {
-		if route.Id == routeId {
+		if route.ID == routeID {
 			index = ind
 			break
 		}
@@ -94,10 +91,10 @@ func RemoveRoute(routeId string, saveChangesToConfigFile bool) error {
 	return saveChanges(err, saveChangesToConfigFile, SaveRoutesConfiguration)
 }
 
-// Modify the state and information of a certain route
-func ModifyRoute(routeId string, newRouteData Route, saveChangesToConfigFile bool) error {
+// ModifyRoute modifies the state and information of a certain route
+func ModifyRoute(routeID string, newRouteData Route, saveChangesToConfigFile bool) error {
 	for i := 0; i < len(Routes); i++ {
-		if Routes[i].Id == routeId {
+		if Routes[i].ID == routeID {
 			Routes[i] = newRouteData
 
 			return saveChanges(nil, saveChangesToConfigFile, SaveRoutesConfiguration)
@@ -107,10 +104,10 @@ func ModifyRoute(routeId string, newRouteData Route, saveChangesToConfigFile boo
 	return errors.New("Route was not found for modification!")
 }
 
-// Get a Route entity from the active routes list, base on its ID
-func GetRoute(routeId string) *Route {
+// GetRoute fetches a Route entity from the active routes list, base on its ID
+func GetRoute(routeID string) *Route {
 	for _, route := range Routes {
-		if route.Id == routeId {
+		if route.ID == routeID {
 			return &route
 		}
 	}

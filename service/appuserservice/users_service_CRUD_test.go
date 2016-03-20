@@ -1,12 +1,13 @@
 package appuserservice
 
 import (
-	"gopkg.in/mgo.v2/bson"
-	"gost/config"
 	"gost/dbmodels"
 	"gost/service"
+	testconfig "gost/tests/config"
 	"testing"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 func TestUserCRUD(t *testing.T) {
@@ -25,7 +26,7 @@ func TestUserCRUD(t *testing.T) {
 }
 
 func setUpUsersTest(t *testing.T) {
-	config.InitTestsDatabase()
+	testconfig.InitTestsDatabase()
 	service.InitDbService()
 
 	if recover() != nil {
@@ -34,7 +35,7 @@ func setUpUsersTest(t *testing.T) {
 }
 
 func tearDownUsersTest(t *testing.T, user *dbmodels.ApplicationUser) {
-	err := DeleteUser(user.Id)
+	err := deleteUser(user.ID)
 
 	if err != nil {
 		t.Fatal("The user document could not be deleted!")
@@ -43,13 +44,13 @@ func tearDownUsersTest(t *testing.T, user *dbmodels.ApplicationUser) {
 
 func createUser(t *testing.T, user *dbmodels.ApplicationUser) {
 	*user = dbmodels.ApplicationUser{
-		Id:                           bson.NewObjectId(),
+		ID:                           bson.NewObjectId(),
 		Password:                     "CoddoPass",
-		AccountType:                  dbmodels.ADMINISTRATOR_ACCOUNT_TYPE,
+		AccountType:                  dbmodels.AdministratorAccountType,
 		Email:                        "test@tests.com",
 		ResetPasswordToken:           "as7f6as8faf5aasf6721rqf",
 		ResetPasswordTokenExpireDate: time.Now(),
-		Status: dbmodels.ACCOUNT_ACTIVATED,
+		Status: dbmodels.StatusAccountActivated,
 	}
 
 	err := CreateUser(user)
@@ -62,7 +63,8 @@ func createUser(t *testing.T, user *dbmodels.ApplicationUser) {
 func changeAndUpdateUser(t *testing.T, user *dbmodels.ApplicationUser) {
 	user.Email = "testEmailCHanged@email.go"
 	user.Password = "ChangedPassword"
-	user.AccountType = dbmodels.NORMAL_USER_ACCOUNT_TYPE
+	user.AccountType = dbmodels.NormalUserAccountType
+	user.Status = dbmodels.StatusAccountDeactivated
 
 	err := UpdateUser(user)
 
@@ -72,7 +74,7 @@ func changeAndUpdateUser(t *testing.T, user *dbmodels.ApplicationUser) {
 }
 
 func verifyUserCorresponds(t *testing.T, user *dbmodels.ApplicationUser) {
-	dbuser, err := GetUser(user.Id)
+	dbuser, err := GetUser(user.ID)
 
 	if err != nil || dbuser == nil {
 		t.Error("Could not fetch the user document from the database!")
@@ -81,4 +83,13 @@ func verifyUserCorresponds(t *testing.T, user *dbmodels.ApplicationUser) {
 	if !dbuser.Equal(user) {
 		t.Error("The user document doesn't correspond with the document extracted from the database!")
 	}
+}
+
+func deleteUser(userID bson.ObjectId) error {
+	session, collection := service.Connect(collectionName)
+	defer session.Close()
+
+	err := collection.RemoveId(userID)
+
+	return err
 }

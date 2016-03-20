@@ -6,6 +6,7 @@ import (
 	"gost/httphandle"
 	"gost/models"
 	"gost/service"
+	testconfig "gost/tests/config"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -14,8 +15,9 @@ import (
 	"testing"
 )
 
-func PerformApiTestCall(route, endpoint, method string, expectedStatusCode int, urlParams url.Values, object interface{}, t *testing.T) *httptest.ResponseRecorder {
-	Url, err := generateApiUrl(route, endpoint, urlParams)
+// PerformTestRequest does a HTTP request with test data on a specified endpoint
+func PerformTestRequest(route, endpoint, method string, expectedStatusCode int, urlParams url.Values, object interface{}, t *testing.T) *httptest.ResponseRecorder {
+	generatedURL, err := generateEndpointURL(route, endpoint, urlParams)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -24,20 +26,20 @@ func PerformApiTestCall(route, endpoint, method string, expectedStatusCode int, 
 	// Do nothing if no object is specified
 	var jsonData []byte
 	if object != nil {
-		jsonData, err = models.SerializeJson(object)
+		jsonData, err = models.SerializeJSON(object)
 
 		if err != nil {
 			t.Fatal(err.Error())
 		}
 	}
 
-	req, err := http.NewRequest(method, Url.String(), bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest(method, generatedURL.String(), bytes.NewBuffer(jsonData))
 	if err != nil {
 		t.Fatal(err.Error())
 	}
 
 	rw := httptest.NewRecorder()
-	httphandle.ApiHandler(rw, req)
+	httphandle.RequestHandler(rw, req)
 
 	if rw.Code != expectedStatusCode {
 		t.Fatal("Response assertion failed! Needed:", expectedStatusCode, "Got:", rw.Code, "Message:", rw.Body.String())
@@ -46,27 +48,29 @@ func PerformApiTestCall(route, endpoint, method string, expectedStatusCode int, 
 	return rw
 }
 
+// InitializeServerConfigurations initializes the HTTP/HTTPS server used for unit testing
 func InitializeServerConfigurations(routeString string, apiInterface interface{}) {
-	config.InitTestsApp()
-	config.InitTestsDatabase()
-	config.InitTestsRoutes(routeString)
+	testconfig.InitTestsApp()
+
+	testconfig.InitTestsDatabase()
+	testconfig.InitTestsRoutes(routeString)
 
 	service.InitDbService()
 
-	httphandle.SetApiInterface(apiInterface)
+	httphandle.RegisterEndpoints(apiInterface)
 
 	runtime.GOMAXPROCS(2)
 }
 
-func generateApiUrl(route, endpoint string, params url.Values) (*url.URL, error) {
+func generateEndpointURL(route, endpoint string, params url.Values) (*url.URL, error) {
 	buffer := &bytes.Buffer{}
 
-	if !strings.Contains(config.HttpServerAddress, "http://") {
+	if !strings.Contains(config.HTTPServerAddress, "http://") {
 		buffer.WriteString("http://")
 	}
 
-	buffer.WriteString(config.HttpServerAddress)
-	buffer.WriteString(config.ApiInstance[0 : len(config.ApiInstance)-1])
+	buffer.WriteString(config.HTTPServerAddress)
+	buffer.WriteString(config.APIInstance[0 : len(config.APIInstance)-1])
 	buffer.WriteString(route)
 	buffer.WriteRune('/')
 	buffer.WriteString(endpoint)
@@ -75,10 +79,10 @@ func generateApiUrl(route, endpoint string, params url.Values) (*url.URL, error)
 	bufferString = strings.Replace(bufferString, "[", "", 1)
 	bufferString = strings.Replace(bufferString, "]", "", 1)
 
-	Url, err := url.Parse(bufferString)
-	if Url != nil && params != nil {
-		Url.RawQuery = params.Encode()
+	parsedURL, err := url.Parse(bufferString)
+	if parsedURL != nil && params != nil {
+		parsedURL.RawQuery = params.Encode()
 	}
 
-	return Url, err
+	return parsedURL, err
 }

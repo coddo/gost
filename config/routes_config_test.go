@@ -11,9 +11,9 @@ func TestRoutesConfig(t *testing.T) {
 
 	route := addRoute(t)
 
-	r := modifyRoute(t, route.Id)
+	r := modifyRoute(t, route.ID)
 
-	removeRoute(t, r.Id)
+	removeRoute(t, r.ID)
 }
 
 func configRoutes(t *testing.T) {
@@ -32,13 +32,13 @@ func configRoutes(t *testing.T) {
 
 func addRoute(t *testing.T) Route {
 	route := Route{
-		Id:      "TestRoute",
+		ID:      "TestRoute",
 		Pattern: "/test/pattern/{testVar}",
 		Handlers: map[string]string{
-			GET_HTTP_METHOD:    "Api.GetTest",
-			POST_HTTP_METHOD:   "Api.PostTest",
-			PUT_HTTP_METHOD:    "Api.PutTest",
-			DELETE_HTTP_METHOD: "Api.DeleteTest",
+			GetHTTPMethod:    "Api.GetTest",
+			PostHTTPMethod:   "Api.PostTest",
+			PutHTTPMethod:    "Api.PutTest",
+			DeleteHTTPMethod: "Api.DeleteTest",
 		},
 	}
 
@@ -50,21 +50,21 @@ func addRoute(t *testing.T) Route {
 	return route
 }
 
-func modifyRoute(t *testing.T, routeId string) Route {
-	r := GetRoute(routeId)
+func modifyRoute(t *testing.T, routeID string) Route {
+	r := GetRoute(routeID)
 	if r == nil {
 		t.Fatal("Route fetching failed!")
 	}
 
-	r.Id = "TestRouteModified"
+	r.ID = "TestRouteModified"
 	r.Pattern = "/test/patternModified"
 
-	err := ModifyRoute(routeId, *r, true)
+	err := ModifyRoute(routeID, *r, true)
 	if err != nil {
 		t.Fatal("Route modification failed!")
 	}
 
-	r2 := GetRoute(r.Id)
+	r2 := GetRoute(r.ID)
 	if r2 == nil {
 		t.Fatal("Modified route fetching failed!")
 	}
@@ -76,13 +76,13 @@ func modifyRoute(t *testing.T, routeId string) Route {
 	return *r2
 }
 
-func removeRoute(t *testing.T, routeId string) {
-	err := RemoveRoute(routeId, true)
+func removeRoute(t *testing.T, routeID string) {
+	err := RemoveRoute(routeID, true)
 	if err != nil {
 		t.Fatal("Removal of routes failed!")
 	}
 
-	route := GetRoute(routeId)
+	route := GetRoute(routeID)
 	if route != nil {
 		t.Fatal("Route hasn't been successfully removed from the collection!")
 	}

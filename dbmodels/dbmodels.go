@@ -1,7 +1,6 @@
 package dbmodels
 
-// Interface for defining the models as Objects which
-// Object if it can be compared with other objects
-type Object interface {
-	Equal(obj Object) bool
+// Objecter is an interface for defining a method for comparing two entities
+type Objecter interface {
+	Equal(obj Objecter) bool
 }

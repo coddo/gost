@@ -1,19 +1,21 @@
 package appuserservice
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"gost/dbmodels"
 	"gost/service"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
-const CollectionName = "users"
+const collectionName = "appusers"
 
+// CreateUser adds a new ApplicationUser to the database
 func CreateUser(user *dbmodels.ApplicationUser) error {
-	session, collection := service.Connect(CollectionName)
+	session, collection := service.Connect(collectionName)
 	defer session.Close()
 
-	if user.Id == "" {
-		user.Id = bson.NewObjectId()
+	if user.ID == "" {
+		user.ID = bson.NewObjectId()
 	}
 
 	err := collection.Insert(user)
@@ -21,40 +23,34 @@ func CreateUser(user *dbmodels.ApplicationUser) error {
 	return err
 }
 
+// UpdateUser updates an existing ApplicationUser in the database
 func UpdateUser(user *dbmodels.ApplicationUser) error {
-	session, collection := service.Connect(CollectionName)
+	session, collection := service.Connect(collectionName)
 	defer session.Close()
 
-	if user.Id == "" {
-		return service.NoIdSpecifiedError
+	if user.ID == "" {
+		return service.ErrNoIDSpecified
 	}
 
-	err := collection.UpdateId(user.Id, user)
+	err := collection.UpdateId(user.ID, user)
 
 	return err
 }
 
-func DeleteUser(userId bson.ObjectId) error {
-	session, collection := service.Connect(CollectionName)
-	defer session.Close()
-
-	err := collection.RemoveId(userId)
-
-	return err
-}
-
-func GetUser(userId bson.ObjectId) (*dbmodels.ApplicationUser, error) {
-	session, collection := service.Connect(CollectionName)
+// GetUser retrieves an ApplicationUser from the database, based on its ID
+func GetUser(userID bson.ObjectId) (*dbmodels.ApplicationUser, error) {
+	session, collection := service.Connect(collectionName)
 	defer session.Close()
 
 	user := dbmodels.ApplicationUser{}
-	err := collection.FindId(userId).One(&user)
+	err := collection.FindId(userID).One(&user)
 
 	return &user, err
 }
 
+// GetAllUsers retrieves all the existing ApplicationUser entities in the database
 func GetAllUsers() ([]dbmodels.ApplicationUser, error) {
-	session, collection := service.Connect(CollectionName)
+	session, collection := service.Connect(collectionName)
 	defer session.Close()
 
 	var users []dbmodels.ApplicationUser
@@ -63,8 +59,9 @@ func GetAllUsers() ([]dbmodels.ApplicationUser, error) {
 	return users, err
 }
 
+// GetAllUsersLimited retrieves the first X ApplicationUser entities from the database, where X is the specified limit
 func GetAllUsersLimited(limit int) ([]dbmodels.ApplicationUser, error) {
-	session, collection := service.Connect(CollectionName)
+	session, collection := service.Connect(collectionName)
 	defer session.Close()
 
 	var users []dbmodels.ApplicationUser

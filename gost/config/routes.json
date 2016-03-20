@@ -3,29 +3,28 @@
     "id": "ApplicationUsersRoute",
     "pattern": "/appusers",
     "handlers": {
-      "DeleteUser": "DELETE",
-      "GetUser": "GET",
-      "PostUser": "POST",
-      "PutUser": "PUT"
+      "Create": "POST",
+      "Get": "GET",
+      "GetAll": "GET",
+      "Update": "PUT"
     }
   },
   {
     "id": "UserSessionsRoute",
     "pattern": "/users/login",
     "handlers": {
-      "DeleteUserSession": "DELETE",
-      "GetUserSession": "GET",
-      "PostUserSession": "POST",
-      "PutUserSession": "PUT"
+      "Create": "POST",
+      "Delete": "DELETE",
+      "Get": "GET"
     }
   },
   {
     "id": "TransactionsRoute",
     "pattern": "/transactions",
     "handlers": {
-      "DeleteTransaction": "DELETE",
-      "GetTransaction": "GET",
-      "PostTransaction": "POST"
+      "Create": "POST",
+      "Delete": "DELETE",
+      "Get": "GET"
     }
   }
 ]

@@ -4,6 +4,7 @@ import (
 	"gost/models"
 )
 
+// CheckUserIntegrity checks if an ApplicationUser has all the compulsory fields populated
 func CheckUserIntegrity(user *models.ApplicationUser) bool {
 	switch {
 	case len(user.Email) == 0:

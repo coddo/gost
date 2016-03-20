@@ -1,7 +1,7 @@
 package userloginapi
 
 import (
-	"gopkg.in/mgo.v2/bson"
+	"fmt"
 	"gost/api"
 	"gost/models"
 	"gost/service/userloginservice"
@@ -10,15 +10,19 @@ import (
 	"net/url"
 	"testing"
 	"time"
-)
 
-const userSessionsRoute = "[{\"id\": \"UserSessionsRoute\", \"pattern\": \"/users/login\", \"handlers\": {\"DeleteUserSession\": \"DELETE\", \"GetUserSession\": \"GET\", \"PostUserSession\": \"POST\", \"PutUserSession\": \"PUT\"}}]"
-const apiPath = "/users/login"
+	"gopkg.in/mgo.v2/bson"
+)
 
 const (
-	GET  = "GetUserSession"
-	POST = "PostUserSession"
+	GET    = "Get"
+	CREATE = "Create"
 )
+
+const apiPath = "/users/login"
+
+var userSessionsRoute = fmt.Sprintf(`[{"id": "UserSessionsRoute", "pattern": "/users/login", 
+    "handlers": {"%s": "GET", "%s": "POST"}}]`, GET, CREATE)
 
 type dummyUserSession struct {
 	BadField string
@@ -27,28 +31,28 @@ type dummyUserSession struct {
 func (userSession *dummyUserSession) PopConstrains() {}
 
 func TestUserSessionsApi(t *testing.T) {
-	tests.InitializeServerConfigurations(userSessionsRoute, new(UserSessionsApi))
+	tests.InitializeServerConfigurations(userSessionsRoute, new(UserSessionsAPI))
 
-	testPostUserSessionInBadFormat(t)
-	sessionId, token := testPostUserSessionInGoodFormat(t)
+	testCreateUserSessionInBadFormat(t)
+	sessionID, token := testCreateUserSessionInGoodFormat(t)
 	testGetUserSessionWithInexistentTokenInDB(t)
-	testGetUserSessionWithGoodIdParam(t, token)
+	testGetUserSessionWithGoodIDParam(t, token)
 
-	userloginservice.DeleteUserSession(sessionId)
+	userloginservice.DeleteUserSession(sessionID)
 }
 
 func testGetUserSessionWithInexistentTokenInDB(t *testing.T) {
 	params := url.Values{}
 	params.Add("token", "asagasgsaga7615651")
 
-	tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusNotFound, params, nil, t)
+	tests.PerformTestRequest(apiPath, GET, api.GET, http.StatusNotFound, params, nil, t)
 }
 
-func testGetUserSessionWithGoodIdParam(t *testing.T, token string) {
+func testGetUserSessionWithGoodIDParam(t *testing.T, token string) {
 	params := url.Values{}
 	params.Add("token", token)
 
-	rw := tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusOK, params, nil, t)
+	rw := tests.PerformTestRequest(apiPath, GET, api.GET, http.StatusOK, params, nil, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -57,28 +61,28 @@ func testGetUserSessionWithGoodIdParam(t *testing.T, token string) {
 
 }
 
-func testPostUserSessionInBadFormat(t *testing.T) {
+func testCreateUserSessionInBadFormat(t *testing.T) {
 	dUserSession := &dummyUserSession{
 		BadField: "bad value",
 	}
 
-	tests.PerformApiTestCall(apiPath, POST, api.POST, http.StatusBadRequest, nil, dUserSession, t)
+	tests.PerformTestRequest(apiPath, CREATE, api.POST, http.StatusBadRequest, nil, dUserSession, t)
 }
 
-func testPostUserSessionInGoodFormat(t *testing.T) (bson.ObjectId, string) {
+func testCreateUserSessionInGoodFormat(t *testing.T) (bson.ObjectId, string) {
 	userSession := &models.UserSession{
-		Id:              bson.NewObjectId(),
-		ApplicationUser: models.ApplicationUser{Id: bson.NewObjectId()},
+		ID:              bson.NewObjectId(),
+		ApplicationUser: models.ApplicationUser{ID: bson.NewObjectId()},
 		Token:           "as7f6as8faf5aasf6721rqf",
 		ExpireDate:      time.Now().Local(),
 	}
 
-	rw := tests.PerformApiTestCall(apiPath, POST, api.POST, http.StatusCreated, nil, userSession, t)
+	rw := tests.PerformTestRequest(apiPath, CREATE, api.POST, http.StatusCreated, nil, userSession, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
 		t.Error("Response body is empty or in deteriorated format:", body)
 	}
 
-	return userSession.Id, userSession.Token
+	return userSession.ID, userSession.Token
 }

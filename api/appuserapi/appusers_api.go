@@ -1,7 +1,7 @@
 package appuserapi
 
 import (
-	"gopkg.in/mgo.v2/bson"
+	"errors"
 	"gost/api"
 	"gost/dbmodels"
 	"gost/filter/apifilter"
@@ -11,116 +11,61 @@ import (
 	"strings"
 )
 
-type ApplicationUsersApi int
+// ApplicationUsersAPI defines the API endpoint for application user management
+type ApplicationUsersAPI int
 
-const ApiName = "applicationUsers"
+var (
+	errLimitParam = errors.New("The limit cannot be 0. Use the value -1 for retrieving all the entities")
+)
 
-func (usersApi *ApplicationUsersApi) GetUser(vars *api.ApiVar) api.ApiResponse {
-	userId, err, found := apifilter.GetIdFromParams(vars.RequestForm)
-	if found {
-		if err != nil {
-			return api.BadRequest(err)
+// Get endpoint fetches an application user based on a provided ID
+func (usersApi *ApplicationUsersAPI) Get(vars *api.Request) api.Response {
+	userID, found, err := apifilter.GetIDFromParams(vars.Form)
+
+	if err != nil {
+		return api.BadRequest(err)
+	}
+
+	if !found {
+		return api.NotFound(err)
+	}
+
+	dbUser, err := appuserservice.GetUser(userID)
+
+	if err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "found") {
+			return api.NotFound(err)
 		}
 
-		return getUser(vars, userId)
+		return api.InternalServerError(err)
 	}
 
-	limit, err, found := apifilter.GetIntValueFromParams("limit", vars.RequestForm)
-	if found {
-		if err != nil {
-			return api.BadRequest(err)
-		}
-
-		return getAllUsers(vars, limit)
-	}
-
-	return getAllUsers(vars, -1)
-
-}
-
-func (usersApi *ApplicationUsersApi) PostUser(vars *api.ApiVar) api.ApiResponse {
-	user := &models.ApplicationUser{}
-
-	err := models.DeserializeJson(vars.RequestBody, user)
-	if err != nil {
-		return api.BadRequest(api.EntityFormatError)
-	}
-
-	if !apifilter.CheckUserIntegrity(user) {
-		return api.BadRequest(api.EntityIntegrityError)
-	}
-
-	dbUser := user.Collapse()
 	if dbUser == nil {
-		return api.InternalServerError(api.EntityProcessError)
+		return api.NotFound(api.ErrEntityNotFound)
 	}
 
-	err = appuserservice.CreateUser(dbUser)
-	if err != nil {
-		return api.InternalServerError(api.EntityProcessError)
-	}
-	user.Id = dbUser.Id
-
-	return api.SingleDataResponse(http.StatusCreated, user)
-}
-
-func (usersApi *ApplicationUsersApi) PutUser(vars *api.ApiVar) api.ApiResponse {
 	user := &models.ApplicationUser{}
-	err := models.DeserializeJson(vars.RequestBody, user)
-
-	if err != nil {
-		return api.BadRequest(api.EntityFormatError)
-	}
-
-	if user.Id == "" {
-		return api.BadRequest(api.IdParamNotSpecifiedError)
-	}
-
-	if !apifilter.CheckUserIntegrity(user) {
-		return api.BadRequest(api.EntityIntegrityError)
-	}
-
-	dbUser := user.Collapse()
-	if dbUser == nil {
-		return api.InternalServerError(api.EntityProcessError)
-	}
-
-	err = appuserservice.UpdateUser(dbUser)
-	if err != nil {
-		return api.NotFound(api.EntityNotFoundError)
-	}
+	user.Expand(dbUser)
 
 	return api.SingleDataResponse(http.StatusOK, user)
 }
 
-func (usersApi *ApplicationUsersApi) DeleteUser(vars *api.ApiVar) api.ApiResponse {
-	userId, err, found := apifilter.GetIdFromParams(vars.RequestForm)
+// GetAll endpoint fetches all the existing users in the application.
+// The number of returned entities can be limited using a "limit" request parameter
+func (usersApi *ApplicationUsersAPI) GetAll(vars *api.Request) api.Response {
+	limit, isLimitSpecified, err := apifilter.GetIntValueFromParams("limit", vars.Form)
 
-	if found {
-		if err != nil {
-			return api.BadRequest(err)
-		}
-
-		err = appuserservice.DeleteUser(userId)
-		if err != nil {
-			return api.NotFound(err)
-		}
-
-		return api.StatusResponse(http.StatusOK)
+	if err != nil {
+		return api.BadRequest(err)
 	}
 
-	return api.BadRequest(err)
-}
-
-func getAllUsers(vars *api.ApiVar, limit int) api.ApiResponse {
 	var dbUsers []dbmodels.ApplicationUser
-	var err error
 
-	if limit == 0 {
-		return api.BadRequest(api.LimitParamError)
-	}
+	if isLimitSpecified {
+		if limit == 0 {
+			return api.BadRequest(errLimitParam)
+		}
 
-	if limit != -1 {
 		dbUsers, err = appuserservice.GetAllUsersLimited(limit)
 	} else {
 		dbUsers, err = appuserservice.GetAllUsers()
@@ -130,7 +75,7 @@ func getAllUsers(vars *api.ApiVar, limit int) api.ApiResponse {
 		return api.InternalServerError(err)
 	}
 
-	users := make([]models.Modeler, len(dbUsers))
+	users := make([]*models.ApplicationUser, len(dbUsers))
 	for i := 0; i < len(dbUsers); i++ {
 		user := &models.ApplicationUser{}
 		user.Expand(&dbUsers[i])
@@ -141,23 +86,59 @@ func getAllUsers(vars *api.ApiVar, limit int) api.ApiResponse {
 	return api.MultipleDataResponse(http.StatusOK, users)
 }
 
-func getUser(vars *api.ApiVar, userId bson.ObjectId) api.ApiResponse {
-	dbUser, err := appuserservice.GetUser(userId)
+// Create endpoint creates a new application user
+func (usersApi *ApplicationUsersAPI) Create(vars *api.Request) api.Response {
+	user := &models.ApplicationUser{}
+
+	err := models.DeserializeJSON(vars.Body, user)
+	if err != nil {
+		return api.BadRequest(api.ErrEntityFormat)
+	}
+
+	if !apifilter.CheckUserIntegrity(user) {
+		return api.BadRequest(api.ErrEntityIntegrity)
+	}
+
+	dbUser := user.Collapse()
+	if dbUser == nil {
+		return api.InternalServerError(api.ErrEntityProcess)
+	}
+
+	err = appuserservice.CreateUser(dbUser)
+	if err != nil {
+		return api.InternalServerError(api.ErrEntityProcess)
+	}
+	user.ID = dbUser.ID
+
+	return api.SingleDataResponse(http.StatusCreated, user)
+}
+
+// Update endpoint updates an existing application user
+func (usersApi *ApplicationUsersAPI) Update(vars *api.Request) api.Response {
+	user := &models.ApplicationUser{}
+	err := models.DeserializeJSON(vars.Body, user)
 
 	if err != nil {
-		if strings.Contains(strings.ToLower(err.Error()), "found") {
-			return api.NotFound(err)
-		} else {
-			return api.InternalServerError(err)
-		}
+		return api.BadRequest(api.ErrEntityFormat)
 	}
 
+	if user.ID == "" {
+		return api.BadRequest(api.ErrIDParamNotSpecified)
+	}
+
+	if !apifilter.CheckUserIntegrity(user) {
+		return api.BadRequest(api.ErrEntityIntegrity)
+	}
+
+	dbUser := user.Collapse()
 	if dbUser == nil {
-		return api.NotFound(api.EntityNotFoundError)
+		return api.InternalServerError(api.ErrEntityProcess)
 	}
 
-	user := &models.ApplicationUser{}
-	user.Expand(dbUser)
+	err = appuserservice.UpdateUser(dbUser)
+	if err != nil {
+		return api.NotFound(api.ErrEntityNotFound)
+	}
 
 	return api.SingleDataResponse(http.StatusOK, user)
 }

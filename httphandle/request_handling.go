@@ -7,27 +7,28 @@ import (
 	"strings"
 )
 
-func ApiHandler(rw http.ResponseWriter, req *http.Request) {
+// RequestHandler receives, parses and validates a HTTP request, which is then routed to the corresponding endpoint
+func RequestHandler(rw http.ResponseWriter, req *http.Request) {
 	pattern, endpoint, parseSuccessful := parseRequestURL(req.URL)
 
 	if !parseSuccessful {
-		GiveApiMessage(http.StatusBadRequest, "The format of the request URL is invalid", rw, req, pattern)
+		sendMessageResponse(http.StatusBadRequest, "The format of the request URL is invalid", rw, req, pattern)
 		return
 	}
 
 	route := findRoute(pattern)
 
 	if route == nil {
-		GiveApiMessage(http.StatusNotFound, "404 - The requested page cannot be found", rw, req, pattern)
+		sendMessageResponse(http.StatusNotFound, "404 - The requested page cannot be found", rw, req, pattern)
 		return
 	}
 
 	if !validateEndpoint(endpoint, route) {
-		GiveApiMessage(http.StatusUnauthorized, "The requested endpoint is either not implemented, or not allowed", rw, req, pattern)
+		sendMessageResponse(http.StatusUnauthorized, "The requested endpoint is either not implemented, or not allowed", rw, req, pattern)
 		return
 	}
 
-	PerformApiCall(endpoint, rw, req, route)
+	RouteRequest(endpoint, rw, req, route)
 }
 
 func findRoute(pattern string) *config.Route {
@@ -57,7 +58,7 @@ func parseRequestURL(u *url.URL) (string, string, bool) {
 		}
 	}()
 
-	fullPath := u.Path[len(config.ApiInstance)-1:]
+	fullPath := u.Path[len(config.APIInstance)-1:]
 
 	// Cut off any URL parameters and the last '/' character if present
 	if paramCharIndex := strings.Index(fullPath, "?"); paramCharIndex != -1 {

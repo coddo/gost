@@ -1,37 +1,36 @@
-// Package used for application configuration
+// Package config is used for application configuration management
 package config
 
 import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
-	"os"
-)
-
-const (
-	ENV_APPLICATION_NAME    = "GOST_TESTAPP_NAME"
-	ENV_API_INSTANCE        = "GOST_TESTAPP_INSTANCE"
-	ENV_HTTP_SERVER_ADDRESS = "GOST_TESTAPP_HTTP"
 )
 
 // Application configuration file path
 var appConfigFile = "config/app.json"
 
-// Application descriptive variables
 var (
-	ApplicationName   string
-	ApiInstance       string
-	HttpServerAddress string
+	// ApplicationName represents the name of the application
+	ApplicationName string
+
+	// APIInstance represents the current instance (version, server, signature etc) of the api
+	APIInstance string
+
+	// HTTPServerAddress represents the address at which the HTTP server is started and listening
+	HTTPServerAddress string
 )
 
 // Struct with the sole purpose of easier serialization
 // and deserialization of configuration data
 type appConfigHolder struct {
 	ApplicationName   string `json:"applicationName"`
-	ApiInstance       string `json:"apiInstance"`
-	HttpServerAddress string `json:"httpServerAddress"`
+	APIInstance       string `json:"apiInstance"`
+	HTTPServerAddress string `json:"httpServerAddress"`
 }
 
+// InitApp initializes the application by reading the functional parameters
+// from the configuration file
 func InitApp(appConfigPath string) {
 	if len(appConfigPath) != 0 {
 		appConfigFile = appConfigPath
@@ -52,12 +51,6 @@ func InitApp(appConfigPath string) {
 	}
 
 	ApplicationName = configData.ApplicationName
-	ApiInstance = configData.ApiInstance
-	HttpServerAddress = configData.HttpServerAddress
-}
-
-func InitTestsApp() {
-	ApplicationName = os.Getenv(ENV_APPLICATION_NAME)
-	ApiInstance = os.Getenv(ENV_API_INSTANCE)
-	HttpServerAddress = os.Getenv(ENV_HTTP_SERVER_ADDRESS)
+	APIInstance = configData.APIInstance
+	HTTPServerAddress = configData.HTTPServerAddress
 }

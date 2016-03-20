@@ -1,21 +1,18 @@
 package dbmodels
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"gost/util"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
-const (
-	CASH_TRANSACTION_TYPE = 0
-	CARD_TRANSACTION_TYPE = 1
-)
-
+// Transaction is a struct representing transactions between users
 type Transaction struct {
-	Id bson.ObjectId `bson:"_id,omitempty" json:"id"`
+	ID bson.ObjectId `bson:"_id,omitempty" json:"id"`
 
-	PayerId    bson.ObjectId `bson:"payerId,omitempty" json:"payerId"`
-	ReceiverId bson.ObjectId `bson:"receiverId,omitempty" json:"receiverId"`
+	PayerID    bson.ObjectId `bson:"payerId,omitempty" json:"payerId"`
+	ReceiverID bson.ObjectId `bson:"receiverId,omitempty" json:"receiverId"`
 
 	PaymentPortal string `bson:"paymentPortal,omitempty" json:"paymentPortal"`
 	PaymentToken  string `bson:"paymentToken,omitempty" json:"paymentToken"`
@@ -26,18 +23,19 @@ type Transaction struct {
 	Date     time.Time `bson:"date,omitempty" json:"date"`
 }
 
-func (transaction *Transaction) Equal(obj Object) bool {
+// Equal compares two Transaction objects. Implements the Objecter interface
+func (transaction *Transaction) Equal(obj Objecter) bool {
 	otherTransaction, ok := obj.(*Transaction)
 	if !ok {
 		return false
 	}
 
 	switch {
-	case transaction.Id != otherTransaction.Id:
+	case transaction.ID != otherTransaction.ID:
 		return false
-	case transaction.PayerId != otherTransaction.PayerId:
+	case transaction.PayerID != otherTransaction.PayerID:
 		return false
-	case transaction.ReceiverId != otherTransaction.ReceiverId:
+	case transaction.ReceiverID != otherTransaction.ReceiverID:
 		return false
 	case transaction.Type != otherTransaction.Type:
 		return false

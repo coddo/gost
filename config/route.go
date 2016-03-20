@@ -2,22 +2,23 @@ package config
 
 // Http methods
 const (
-	GET_HTTP_METHOD    = "GET"
-	POST_HTTP_METHOD   = "POST"
-	PUT_HTTP_METHOD    = "PUT"
-	DELETE_HTTP_METHOD = "DELETE"
+	GetHTTPMethod    = "GET"
+	PostHTTPMethod   = "POST"
+	PutHTTPMethod    = "PUT"
+	DeleteHTTPMethod = "DELETE"
 )
 
 // Route entity
 type Route struct {
-	Id       string            `json:"id"`
+	ID       string            `json:"id"`
 	Pattern  string            `json:"pattern"`
 	Handlers map[string]string `json:"handlers"`
 }
 
+// Equal determines if the current Route is equal to another route
 func (route *Route) Equal(otherRoute Route) bool {
 	switch {
-	case route.Id != otherRoute.Id:
+	case route.ID != otherRoute.ID:
 		return false
 	case route.Pattern != otherRoute.Pattern:
 		return false
