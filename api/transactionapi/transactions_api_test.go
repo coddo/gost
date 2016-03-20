@@ -79,7 +79,7 @@ func testPostTransactionInBadFormat(t *testing.T) {
 
 func testPostTransactionNotIntegral(t *testing.T) {
 	transaction := &models.Transaction{
-		Id:       bson.NewObjectId(),
+		ID:       bson.NewObjectId(),
 		Payer:    models.ApplicationUser{ID: bson.NewObjectId()},
 		Currency: "USD",
 	}
@@ -89,7 +89,7 @@ func testPostTransactionNotIntegral(t *testing.T) {
 
 func testPostTransactionInGoodFormat(t *testing.T) bson.ObjectId {
 	transaction := &models.Transaction{
-		Id:       bson.NewObjectId(),
+		ID:       bson.NewObjectId(),
 		Payer:    models.ApplicationUser{ID: bson.NewObjectId()},
 		Receiver: models.ApplicationUser{ID: bson.NewObjectId()},
 		Type:     models.CashTransactionType,
@@ -104,5 +104,5 @@ func testPostTransactionInGoodFormat(t *testing.T) bson.ObjectId {
 		t.Error("Response body is empty or in deteriorated format:", body)
 	}
 
-	return transaction.Id
+	return transaction.ID
 }

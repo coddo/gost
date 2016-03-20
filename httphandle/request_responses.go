@@ -63,7 +63,6 @@ func serveRawData(statusCode int, message []byte, rw http.ResponseWriter) {
 	} else {
 		rw.WriteHeader(http.StatusNoContent)
 	}
-
 }
 
 func serveFile(rw http.ResponseWriter, req *http.Request, file string) {

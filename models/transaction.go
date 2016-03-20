@@ -17,7 +17,7 @@ const (
 
 // Transaction is a struct representing transactions between users
 type Transaction struct {
-	Id bson.ObjectId `json:"id"`
+	ID bson.ObjectId `json:"id"`
 
 	Payer    ApplicationUser `json:"payer"`
 	Receiver ApplicationUser `json:"receiver"`
@@ -47,7 +47,7 @@ func (transaction *Transaction) PopConstrains() {
 // Expand copies the dbmodels.Transaction to a Transaction expands all
 // the components by fetching them from the database
 func (transaction *Transaction) Expand(dbTransaction *dbmodels.Transaction) {
-	transaction.Id = dbTransaction.ID
+	transaction.ID = dbTransaction.ID
 	transaction.Payer.ID = dbTransaction.PayerID
 	transaction.Receiver.ID = dbTransaction.ReceiverID
 	transaction.PaymentPortal = dbTransaction.PaymentPortal
@@ -64,7 +64,7 @@ func (transaction *Transaction) Expand(dbTransaction *dbmodels.Transaction) {
 // only keeps the unique identifiers from the inner components
 func (transaction *Transaction) Collapse() *dbmodels.Transaction {
 	dbTransaction := dbmodels.Transaction{
-		ID:            transaction.Id,
+		ID:            transaction.ID,
 		PayerID:       transaction.Payer.ID,
 		ReceiverID:    transaction.Receiver.ID,
 		PaymentPortal: transaction.PaymentPortal,

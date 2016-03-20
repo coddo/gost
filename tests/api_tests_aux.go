@@ -17,7 +17,7 @@ import (
 
 // PerformTestRequest does a HTTP request with test data on a specified endpoint
 func PerformTestRequest(route, endpoint, method string, expectedStatusCode int, urlParams url.Values, object interface{}, t *testing.T) *httptest.ResponseRecorder {
-	Url, err := generateEndpointURL(route, endpoint, urlParams)
+	generatedURL, err := generateEndpointURL(route, endpoint, urlParams)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -33,7 +33,7 @@ func PerformTestRequest(route, endpoint, method string, expectedStatusCode int, 
 		}
 	}
 
-	req, err := http.NewRequest(method, Url.String(), bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest(method, generatedURL.String(), bytes.NewBuffer(jsonData))
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -79,10 +79,10 @@ func generateEndpointURL(route, endpoint string, params url.Values) (*url.URL, e
 	bufferString = strings.Replace(bufferString, "[", "", 1)
 	bufferString = strings.Replace(bufferString, "]", "", 1)
 
-	Url, err := url.Parse(bufferString)
-	if Url != nil && params != nil {
-		Url.RawQuery = params.Encode()
+	parsedURL, err := url.Parse(bufferString)
+	if parsedURL != nil && params != nil {
+		parsedURL.RawQuery = params.Encode()
 	}
 
-	return Url, err
+	return parsedURL, err
 }

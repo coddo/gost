@@ -56,7 +56,7 @@ func (t *TransactionsAPI) Create(vars *api.Request) api.Response {
 	if err != nil {
 		return api.InternalServerError(api.ErrEntityProcess)
 	}
-	transaction.Id = dbTransaction.ID
+	transaction.ID = dbTransaction.ID
 
 	return api.SingleDataResponse(http.StatusCreated, transaction)
 }
