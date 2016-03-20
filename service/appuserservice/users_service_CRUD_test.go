@@ -85,11 +85,11 @@ func verifyUserCorresponds(t *testing.T, user *dbmodels.ApplicationUser) {
 	}
 }
 
-func deleteUser(userId bson.ObjectId) error {
-	session, collection := service.Connect(CollectionName)
+func deleteUser(userID bson.ObjectId) error {
+	session, collection := service.Connect(collectionName)
 	defer session.Close()
 
-	err := collection.RemoveId(userId)
+	err := collection.RemoveId(userID)
 
 	return err
 }
