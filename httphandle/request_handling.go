@@ -12,19 +12,19 @@ func RequestHandler(rw http.ResponseWriter, req *http.Request) {
 	pattern, endpoint, parseSuccessful := parseRequestURL(req.URL)
 
 	if !parseSuccessful {
-		GiveApiMessage(http.StatusBadRequest, "The format of the request URL is invalid", rw, req, pattern)
+		sendMessageResponse(http.StatusBadRequest, "The format of the request URL is invalid", rw, req, pattern)
 		return
 	}
 
 	route := findRoute(pattern)
 
 	if route == nil {
-		GiveApiMessage(http.StatusNotFound, "404 - The requested page cannot be found", rw, req, pattern)
+		sendMessageResponse(http.StatusNotFound, "404 - The requested page cannot be found", rw, req, pattern)
 		return
 	}
 
 	if !validateEndpoint(endpoint, route) {
-		GiveApiMessage(http.StatusUnauthorized, "The requested endpoint is either not implemented, or not allowed", rw, req, pattern)
+		sendMessageResponse(http.StatusUnauthorized, "The requested endpoint is either not implemented, or not allowed", rw, req, pattern)
 		return
 	}
 

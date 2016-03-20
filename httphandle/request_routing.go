@@ -26,7 +26,7 @@ func RouteRequest(endpoint string, rw http.ResponseWriter, req *http.Request, ro
 	inputs := make([]reflect.Value, 1)
 
 	// Create the variables containing request data
-	vars := createAPIVars(req, rw, route)
+	vars := generateRequestData(req, rw, route)
 	if vars == nil {
 		return
 	}
@@ -47,7 +47,7 @@ func RouteRequest(endpoint string, rw http.ResponseWriter, req *http.Request, ro
 	if apiMethod == *new(reflect.Value) {
 		log.Println("The endpoint method is either inexistent or incorrectly mapped. Please check the server configuration files!")
 
-		GiveApiStatus(http.StatusInternalServerError, rw, req, route.Pattern)
+		sendStatusResponse(http.StatusInternalServerError, rw, req, route.Pattern)
 
 		return
 	}
@@ -55,7 +55,7 @@ func RouteRequest(endpoint string, rw http.ResponseWriter, req *http.Request, ro
 	// Call the mapped method from the corresponding endpoint, using the extracted and parsed data from the HTTP request
 	respObjects := apiMethod.Call(inputs)
 	if respObjects == nil {
-		GiveApiStatus(http.StatusInternalServerError, rw, req, route.Pattern)
+		sendStatusResponse(http.StatusInternalServerError, rw, req, route.Pattern)
 		return
 	}
 
@@ -73,7 +73,7 @@ func respondFromCache(rw http.ResponseWriter, req *http.Request, route *config.R
 
 	if cachedData, err := cache.QueryByRequest(route.Pattern); err == nil {
 		if req.Method == api.GET {
-			GiveApiResponse(cachedData.StatusCode, cachedData.Data, rw, req, route.Pattern, cachedData.ContentType, cachedData.File)
+			sendResponse(cachedData.StatusCode, cachedData.Data, rw, req, route.Pattern, cachedData.ContentType, cachedData.File)
 			return true
 		}
 
@@ -87,15 +87,15 @@ func respondFromCache(rw http.ResponseWriter, req *http.Request, route *config.R
 func respond(resp *api.Response, rw http.ResponseWriter, req *http.Request, endpoint string) {
 	if resp.StatusCode == 0 {
 		resp.StatusCode = http.StatusInternalServerError
-		GiveApiMessage(resp.StatusCode, http.StatusText(resp.StatusCode), rw, req, endpoint)
+		sendMessageResponse(resp.StatusCode, http.StatusText(resp.StatusCode), rw, req, endpoint)
 	} else if len(resp.ErrorMessage) > 0 {
-		GiveApiMessage(resp.StatusCode, resp.ErrorMessage, rw, req, endpoint)
+		sendMessageResponse(resp.StatusCode, resp.ErrorMessage, rw, req, endpoint)
 	} else {
 		if len(resp.ContentType) == 0 {
-			resp.ContentType = CONTENT_JSON
+			resp.ContentType = api.ContentJSON
 		}
 
-		GiveApiResponse(resp.StatusCode, resp.Message, rw, req, endpoint, resp.ContentType, resp.File)
+		sendResponse(resp.StatusCode, resp.Message, rw, req, endpoint, resp.ContentType, resp.File)
 
 		// Try caching the data only if a GET request was made
 		go func(resp *api.Response, req *http.Request, endpoint string) {
@@ -122,16 +122,16 @@ func cacheResponse(resp *api.Response, endpoint string) {
 	cacheEntity.Cache()
 }
 
-func createAPIVars(req *http.Request, rw http.ResponseWriter, route *config.Route) *api.Request {
+func generateRequestData(req *http.Request, rw http.ResponseWriter, route *config.Route) *api.Request {
 	statusCode, err := filter.CheckMethodAndParseContent(req)
 	if err != nil {
-		GiveApiMessage(statusCode, err.Error(), rw, req, route.Pattern)
+		sendMessageResponse(statusCode, err.Error(), rw, req, route.Pattern)
 		return nil
 	}
 
 	body, err := convertBodyToReadableFormat(req.Body)
 	if err != nil {
-		GiveApiMessage(http.StatusBadRequest, err.Error(), rw, req, route.Pattern)
+		sendMessageResponse(http.StatusBadRequest, err.Error(), rw, req, route.Pattern)
 		return nil
 	}
 
