@@ -7,13 +7,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const (
-	// CashTransactionType represents a transaction made using cash, directly between two persons
-	CashTransactionType = iota
-	// CardTransactionType represents a transaction made by card, either offline (i.e. POS) or online (i.e. internet)
-	CardTransactionType = iota
-)
-
 // Transaction is a struct representing transactions between users
 type Transaction struct {
 	ID bson.ObjectId `bson:"_id,omitempty" json:"id"`

@@ -3,7 +3,6 @@ package transactionapi
 import (
 	"fmt"
 	"gost/api"
-	"gost/dbmodels"
 	"gost/models"
 	"gost/service/transactionservice"
 	"gost/tests"
@@ -93,7 +92,7 @@ func testPostTransactionInGoodFormat(t *testing.T) bson.ObjectId {
 		Id:       bson.NewObjectId(),
 		Payer:    models.ApplicationUser{ID: bson.NewObjectId()},
 		Receiver: models.ApplicationUser{ID: bson.NewObjectId()},
-		Type:     dbmodels.CashTransactionType,
+		Type:     models.CashTransactionType,
 		Ammount:  216.365,
 		Currency: "USD",
 	}

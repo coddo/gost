@@ -2,6 +2,7 @@ package transactionservice
 
 import (
 	"gost/dbmodels"
+	"gost/models"
 	"gost/service"
 	testconfig "gost/tests/config"
 	"testing"
@@ -47,7 +48,7 @@ func createTransaction(t *testing.T, transaction *dbmodels.Transaction) {
 		ID:         bson.NewObjectId(),
 		PayerID:    bson.NewObjectId(),
 		ReceiverID: bson.NewObjectId(),
-		Type:       dbmodels.CashTransactionType,
+		Type:       models.CashTransactionType,
 		Ammount:    6469.1264,
 		Currency:   "RON",
 		Date:       time.Now().Local(),
@@ -63,7 +64,7 @@ func createTransaction(t *testing.T, transaction *dbmodels.Transaction) {
 func changeAndUpdateTransaction(t *testing.T, transaction *dbmodels.Transaction) {
 	transaction.PayerID = bson.NewObjectId()
 	transaction.ReceiverID = bson.NewObjectId()
-	transaction.Type = dbmodels.CardTransactionType
+	transaction.Type = models.CardTransactionType
 	transaction.Currency = "USD"
 
 	err := UpdateTransaction(transaction)

@@ -21,10 +21,8 @@ type ApplicationUser struct {
 	Status                         bool      `json:"status"`
 }
 
-func (user *ApplicationUser) PopConstrains() {
-	// Nothing to do here for now
-}
-
+// Expand copies the dbmodels.ApplicationUser to a ApplicationUser expands all
+// the components by fetching them from the database
 func (user *ApplicationUser) Expand(dbUser *dbmodels.ApplicationUser) {
 	user.ID = dbUser.ID
 	user.Email = dbUser.Email
@@ -35,10 +33,10 @@ func (user *ApplicationUser) Expand(dbUser *dbmodels.ApplicationUser) {
 	user.ActivateAccountToken = dbUser.ActivateAccountToken
 	user.ActivateAccountTokenExpireDate = dbUser.ActivateAccountTokenExpireDate
 	user.Status = dbUser.Status
-
-	user.PopConstrains()
 }
 
+// Collapse coppies the ApplicationUser to a dbmodels.Application user and
+// only keeps the unique identifiers from the inner components
 func (user *ApplicationUser) Collapse() *dbmodels.ApplicationUser {
 	dbUser := dbmodels.ApplicationUser{
 		ID:                             user.ID,

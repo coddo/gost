@@ -79,7 +79,7 @@ func (userSessionsApi *UserSessionsAPI) Create(vars *api.Request) api.Response {
 	if err != nil {
 		return api.InternalServerError(api.ErrEntityProcess)
 	}
-	userSession.Id = dbUserSession.ID
+	userSession.ID = dbUserSession.ID
 
 	userloginservice.DeleteExpiredSessionsForUser(dbUserSession.UserID)
 	return api.SingleDataResponse(http.StatusCreated, userSession)

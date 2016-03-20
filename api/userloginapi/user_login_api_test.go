@@ -71,7 +71,7 @@ func testCreateUserSessionInBadFormat(t *testing.T) {
 
 func testCreateUserSessionInGoodFormat(t *testing.T) (bson.ObjectId, string) {
 	userSession := &models.UserSession{
-		Id:              bson.NewObjectId(),
+		ID:              bson.NewObjectId(),
 		ApplicationUser: models.ApplicationUser{ID: bson.NewObjectId()},
 		Token:           "as7f6as8faf5aasf6721rqf",
 		ExpireDate:      time.Now().Local(),
@@ -84,5 +84,5 @@ func testCreateUserSessionInGoodFormat(t *testing.T) (bson.ObjectId, string) {
 		t.Error("Response body is empty or in deteriorated format:", body)
 	}
 
-	return userSession.Id, userSession.Token
+	return userSession.ID, userSession.Token
 }

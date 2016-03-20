@@ -1,12 +1,21 @@
 package models
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"gost/dbmodels"
 	"gost/service/appuserservice"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
+const (
+	// CashTransactionType represents a transaction made using cash, directly between two persons
+	CashTransactionType = iota
+	// CardTransactionType represents a transaction made by card, either offline (i.e. POS) or online (i.e. internet)
+	CardTransactionType = iota
+)
+
+// Transaction is a struct representing transactions between users
 type Transaction struct {
 	Id bson.ObjectId `json:"id"`
 
@@ -22,6 +31,7 @@ type Transaction struct {
 	Date     time.Time `json:"date"`
 }
 
+// PopConstrains fetches all the components from the database, based on their unique identifiers
 func (transaction *Transaction) PopConstrains() {
 	dbPayer, err := appuserservice.GetUser(transaction.Payer.ID)
 	if err != nil {
@@ -34,6 +44,8 @@ func (transaction *Transaction) PopConstrains() {
 	}
 }
 
+// Expand copies the dbmodels.Transaction to a Transaction expands all
+// the components by fetching them from the database
 func (transaction *Transaction) Expand(dbTransaction *dbmodels.Transaction) {
 	transaction.Id = dbTransaction.ID
 	transaction.Payer.ID = dbTransaction.PayerID
@@ -48,6 +60,8 @@ func (transaction *Transaction) Expand(dbTransaction *dbmodels.Transaction) {
 	transaction.PopConstrains()
 }
 
+// Collapse coppies the Transaction to a dbmodels.Transaction user and
+// only keeps the unique identifiers from the inner components
 func (transaction *Transaction) Collapse() *dbmodels.Transaction {
 	dbTransaction := dbmodels.Transaction{
 		ID:            transaction.Id,
