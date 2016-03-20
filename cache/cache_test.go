@@ -14,7 +14,7 @@ type cacheTest struct {
 }
 
 func TestCache(t *testing.T) {
-	const cacheExpireTime = 500 * time.Millisecond
+	const cacheExpireTime = 700 * time.Millisecond
 
 	var cacheKeys = []string{
 		MapKey("/testKey1"),
@@ -46,7 +46,7 @@ func testExpiringItem(t *testing.T, expiringItem *Cache, cacheExpireTime time.Du
 
 	expiringKey := expiringItem.Key
 
-	time.Sleep(1000 * time.Millisecond)
+	time.Sleep(cacheExpireTime * 2)
 
 	_, err := QueryByKey(expiringKey)
 
