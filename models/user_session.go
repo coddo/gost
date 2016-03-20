@@ -16,7 +16,7 @@ type UserSession struct {
 }
 
 func (userSession *UserSession) PopConstrains() {
-	dbUser, err := appuserservice.GetUser(userSession.ApplicationUser.Id)
+	dbUser, err := appuserservice.GetUser(userSession.ApplicationUser.ID)
 	if err == nil {
 		userSession.ApplicationUser.Expand(dbUser)
 	}
@@ -24,7 +24,7 @@ func (userSession *UserSession) PopConstrains() {
 
 func (userSession *UserSession) Expand(dbUserSession *dbmodels.UserSession) {
 	userSession.Id = dbUserSession.ID
-	userSession.ApplicationUser.Id = dbUserSession.UserID
+	userSession.ApplicationUser.ID = dbUserSession.UserID
 	userSession.Token = dbUserSession.Token
 	userSession.ExpireDate = dbUserSession.ExpireDate
 
@@ -34,7 +34,7 @@ func (userSession *UserSession) Expand(dbUserSession *dbmodels.UserSession) {
 func (userSession *UserSession) Collapse() *dbmodels.UserSession {
 	dbUserSession := dbmodels.UserSession{
 		ID:         userSession.Id,
-		UserID:     userSession.ApplicationUser.Id,
+		UserID:     userSession.ApplicationUser.ID,
 		Token:      userSession.Token,
 		ExpireDate: userSession.ExpireDate,
 	}

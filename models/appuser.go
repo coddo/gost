@@ -1,14 +1,15 @@
 package models
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"gost/dbmodels"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
-// Struct representing an user account. This is a database dbmodels
+// ApplicationUser represents a basic user account
 type ApplicationUser struct {
-	Id bson.ObjectId `json:"id"`
+	ID bson.ObjectId `json:"id"`
 
 	Email                          string    `json:"email"`
 	Password                       string    `json:"password"`
@@ -25,7 +26,7 @@ func (user *ApplicationUser) PopConstrains() {
 }
 
 func (user *ApplicationUser) Expand(dbUser *dbmodels.ApplicationUser) {
-	user.Id = dbUser.ID
+	user.ID = dbUser.ID
 	user.Email = dbUser.Email
 	user.Password = dbUser.Password
 	user.AccountType = dbUser.AccountType
@@ -40,7 +41,7 @@ func (user *ApplicationUser) Expand(dbUser *dbmodels.ApplicationUser) {
 
 func (user *ApplicationUser) Collapse() *dbmodels.ApplicationUser {
 	dbUser := dbmodels.ApplicationUser{
-		ID:                             user.Id,
+		ID:                             user.ID,
 		Email:                          user.Email,
 		Password:                       user.Password,
 		AccountType:                    user.AccountType,

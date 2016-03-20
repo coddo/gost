@@ -25,7 +25,7 @@ func PerformApiTestCall(route, endpoint, method string, expectedStatusCode int, 
 	// Do nothing if no object is specified
 	var jsonData []byte
 	if object != nil {
-		jsonData, err = models.SerializeJson(object)
+		jsonData, err = models.SerializeJSON(object)
 
 		if err != nil {
 			t.Fatal(err.Error())

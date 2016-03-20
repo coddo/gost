@@ -38,7 +38,7 @@ func (t *TransactionsAPI) Get(vars *api.Request) api.Response {
 func (t *TransactionsAPI) Create(vars *api.Request) api.Response {
 	transaction := &models.Transaction{}
 
-	err := models.DeserializeJson(vars.Body, transaction)
+	err := models.DeserializeJSON(vars.Body, transaction)
 	if err != nil {
 		return api.BadRequest(api.ErrEntityFormat)
 	}

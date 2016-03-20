@@ -120,7 +120,7 @@ func testCreateUserInBadFormat(t *testing.T) {
 
 func testCreateUserInGoodFormat(t *testing.T) bson.ObjectId {
 	user := &models.ApplicationUser{
-		Id:                 bson.NewObjectId(),
+		ID:                 bson.NewObjectId(),
 		Password:           "CoddoPass",
 		AccountType:        dbmodels.AdministratorAccountType,
 		Email:              "test@tests.com",
@@ -134,12 +134,12 @@ func testCreateUserInGoodFormat(t *testing.T) bson.ObjectId {
 		t.Error("Response body is empty or in deteriorated format:", body)
 	}
 
-	return user.Id
+	return user.ID
 }
 
 func testUpdateUserInBadFormat(t *testing.T) {
 	user := &models.ApplicationUser{
-		Id:                 "507f191e810c19729de860ea",
+		ID:                 "507f191e810c19729de860ea",
 		ResetPasswordToken: "asg1a89wqg4a5s",
 	}
 
@@ -158,7 +158,7 @@ func testUpdateUserWithoutID(t *testing.T) {
 
 func testUpdateUserWithNoExistentIDInDb(t *testing.T) {
 	user := &models.ApplicationUser{
-		Id:                 bson.NewObjectId(),
+		ID:                 bson.NewObjectId(),
 		Email:              "ceva@ceva.com",
 		Password:           "CoddoPass",
 		ResetPasswordToken: "fsa4fas564g6g4s6ag",
@@ -169,7 +169,7 @@ func testUpdateUserWithNoExistentIDInDb(t *testing.T) {
 
 func testUpdateUserWithGoodRequestDetails(t *testing.T, id bson.ObjectId) {
 	user := &models.ApplicationUser{
-		Id:                 id,
+		ID:                 id,
 		Email:              "ceva@ceva.com",
 		Password:           "CoddoPass",
 		ResetPasswordToken: "fsa4fas564g6g4s6ag",

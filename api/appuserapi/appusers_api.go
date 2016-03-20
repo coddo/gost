@@ -75,7 +75,7 @@ func (usersApi *ApplicationUsersAPI) GetAll(vars *api.Request) api.Response {
 		return api.InternalServerError(err)
 	}
 
-	users := make([]models.Modeler, len(dbUsers))
+	users := make([]*models.ApplicationUser, len(dbUsers))
 	for i := 0; i < len(dbUsers); i++ {
 		user := &models.ApplicationUser{}
 		user.Expand(&dbUsers[i])
@@ -90,7 +90,7 @@ func (usersApi *ApplicationUsersAPI) GetAll(vars *api.Request) api.Response {
 func (usersApi *ApplicationUsersAPI) Create(vars *api.Request) api.Response {
 	user := &models.ApplicationUser{}
 
-	err := models.DeserializeJson(vars.Body, user)
+	err := models.DeserializeJSON(vars.Body, user)
 	if err != nil {
 		return api.BadRequest(api.ErrEntityFormat)
 	}
@@ -108,7 +108,7 @@ func (usersApi *ApplicationUsersAPI) Create(vars *api.Request) api.Response {
 	if err != nil {
 		return api.InternalServerError(api.ErrEntityProcess)
 	}
-	user.Id = dbUser.ID
+	user.ID = dbUser.ID
 
 	return api.SingleDataResponse(http.StatusCreated, user)
 }
@@ -116,13 +116,13 @@ func (usersApi *ApplicationUsersAPI) Create(vars *api.Request) api.Response {
 // Update endpoint updates an existing application user
 func (usersApi *ApplicationUsersAPI) Update(vars *api.Request) api.Response {
 	user := &models.ApplicationUser{}
-	err := models.DeserializeJson(vars.Body, user)
+	err := models.DeserializeJSON(vars.Body, user)
 
 	if err != nil {
 		return api.BadRequest(api.ErrEntityFormat)
 	}
 
-	if user.Id == "" {
+	if user.ID == "" {
 		return api.BadRequest(api.ErrIDParamNotSpecified)
 	}
 

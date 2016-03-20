@@ -23,12 +23,12 @@ type Transaction struct {
 }
 
 func (transaction *Transaction) PopConstrains() {
-	dbPayer, err := appuserservice.GetUser(transaction.Payer.Id)
+	dbPayer, err := appuserservice.GetUser(transaction.Payer.ID)
 	if err != nil {
 		transaction.Payer.Expand(dbPayer)
 	}
 
-	dbReceiver, err := appuserservice.GetUser(transaction.Receiver.Id)
+	dbReceiver, err := appuserservice.GetUser(transaction.Receiver.ID)
 	if err != nil {
 		transaction.Receiver.Expand(dbReceiver)
 	}
@@ -36,8 +36,8 @@ func (transaction *Transaction) PopConstrains() {
 
 func (transaction *Transaction) Expand(dbTransaction *dbmodels.Transaction) {
 	transaction.Id = dbTransaction.ID
-	transaction.Payer.Id = dbTransaction.PayerID
-	transaction.Receiver.Id = dbTransaction.ReceiverID
+	transaction.Payer.ID = dbTransaction.PayerID
+	transaction.Receiver.ID = dbTransaction.ReceiverID
 	transaction.PaymentPortal = dbTransaction.PaymentPortal
 	transaction.PaymentToken = dbTransaction.PaymentToken
 	transaction.Type = dbTransaction.Type
@@ -51,8 +51,8 @@ func (transaction *Transaction) Expand(dbTransaction *dbmodels.Transaction) {
 func (transaction *Transaction) Collapse() *dbmodels.Transaction {
 	dbTransaction := dbmodels.Transaction{
 		ID:            transaction.Id,
-		PayerID:       transaction.Payer.Id,
-		ReceiverID:    transaction.Receiver.Id,
+		PayerID:       transaction.Payer.ID,
+		ReceiverID:    transaction.Receiver.ID,
 		PaymentPortal: transaction.PaymentPortal,
 		PaymentToken:  transaction.PaymentToken,
 		Type:          transaction.Type,

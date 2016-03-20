@@ -7,7 +7,7 @@ import (
 // CheckUserSessionIntegrity checks if an UserSession has all the compulsory fields populated
 func CheckUserSessionIntegrity(userSession *models.UserSession) bool {
 	switch {
-	case len(userSession.ApplicationUser.Id) == 0:
+	case len(userSession.ApplicationUser.ID) == 0:
 		return false
 	case len(userSession.Token) == 0:
 		return false

@@ -72,7 +72,7 @@ func testCreateUserSessionInBadFormat(t *testing.T) {
 func testCreateUserSessionInGoodFormat(t *testing.T) (bson.ObjectId, string) {
 	userSession := &models.UserSession{
 		Id:              bson.NewObjectId(),
-		ApplicationUser: models.ApplicationUser{Id: bson.NewObjectId()},
+		ApplicationUser: models.ApplicationUser{ID: bson.NewObjectId()},
 		Token:           "as7f6as8faf5aasf6721rqf",
 		ExpireDate:      time.Now().Local(),
 	}

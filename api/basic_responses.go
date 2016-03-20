@@ -6,8 +6,8 @@ import (
 )
 
 // SingleDataResponse creates a Response from the api, containing a single entity encoded as JSON
-func SingleDataResponse(statusCode int, data models.Modeler) Response {
-	jsonData, err := models.SerializeJson(data)
+func SingleDataResponse(statusCode int, data interface{}) Response {
+	jsonData, err := models.SerializeJSON(data)
 	if err != nil {
 		return InternalServerError(err)
 	}
@@ -19,8 +19,8 @@ func SingleDataResponse(statusCode int, data models.Modeler) Response {
 }
 
 // MultipleDataResponse creates a Response from the api, containing an array of entities encoded as JSON
-func MultipleDataResponse(statusCode int, data []models.Modeler) Response {
-	jsonData, err := models.SerializeJson(data)
+func MultipleDataResponse(statusCode int, data interface{}) Response {
+	jsonData, err := models.SerializeJSON(data)
 	if err != nil {
 		return InternalServerError(err)
 	}

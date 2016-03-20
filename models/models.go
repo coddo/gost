@@ -10,16 +10,12 @@ const (
 	jsonIndent = "  "
 )
 
-type Modeler interface {
-	PopConstrains()
-}
-
-// Create the JSON representation of a model
-func SerializeJson(target interface{}) ([]byte, error) {
+// SerializeJSON creates the JSON representation of a model
+func SerializeJSON(target interface{}) ([]byte, error) {
 	return json.MarshalIndent(target, jsonPrefix, jsonIndent)
 }
 
-// Deserialize a JSON representation into a model
-func DeserializeJson(jsonData []byte, target interface{}) error {
+// DeserializeJSON deserializes a JSON representation into a model
+func DeserializeJSON(jsonData []byte, target interface{}) error {
 	return json.Unmarshal(jsonData, target)
 }

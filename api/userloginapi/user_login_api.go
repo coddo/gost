@@ -59,7 +59,7 @@ func (userSessionsApi *UserSessionsAPI) Get(vars *api.Request) api.Response {
 func (userSessionsApi *UserSessionsAPI) Create(vars *api.Request) api.Response {
 	userSession := &models.UserSession{}
 
-	err := models.DeserializeJson(vars.Body, userSession)
+	err := models.DeserializeJSON(vars.Body, userSession)
 	if err != nil {
 		return api.BadRequest(api.ErrEntityFormat)
 	}
