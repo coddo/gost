@@ -14,7 +14,7 @@ const (
 )
 
 func StartHTTPServer() {
-	http.HandleFunc(config.APIInstance, httphandle.ApiHandler)
+	http.HandleFunc(config.APIInstance, httphandle.RequestHandler)
 
 	server := &http.Server{
 		Addr:           config.HTTPServerAddress,
@@ -28,7 +28,7 @@ func StartHTTPServer() {
 }
 
 func StartHTTPSServer() {
-	http.HandleFunc(config.APIInstance, httphandle.ApiHandler)
+	http.HandleFunc(config.APIInstance, httphandle.RequestHandler)
 
 	server := &http.Server{
 		Addr:           config.HTTPServerAddress,

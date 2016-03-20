@@ -7,7 +7,8 @@ import (
 	"strings"
 )
 
-func ApiHandler(rw http.ResponseWriter, req *http.Request) {
+// RequestHandler receives, parses and validates a HTTP request, which is then routed to the corresponding endpoint
+func RequestHandler(rw http.ResponseWriter, req *http.Request) {
 	pattern, endpoint, parseSuccessful := parseRequestURL(req.URL)
 
 	if !parseSuccessful {
@@ -27,7 +28,7 @@ func ApiHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	PerformAPICall(endpoint, rw, req, route)
+	RouteRequest(endpoint, rw, req, route)
 }
 
 func findRoute(pattern string) *config.Route {

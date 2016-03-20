@@ -19,9 +19,9 @@ func RegisterEndpoints(container interface{}) {
 	endpointsContainer = container
 }
 
-// PerformAPICall parses the data from a HTTP request, determines which mapped endpoind needs to be called
+// RouteRequest parses the data from a HTTP request, determines which mapped endpoind needs to be called
 // and forwards the request data to the found endpoint if it is valid.
-func PerformAPICall(endpoint string, rw http.ResponseWriter, req *http.Request, route *config.Route) {
+func RouteRequest(endpoint string, rw http.ResponseWriter, req *http.Request, route *config.Route) {
 	// Prepare data vector for an api/endpoint call
 	inputs := make([]reflect.Value, 1)
 

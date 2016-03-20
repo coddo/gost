@@ -38,7 +38,7 @@ func PerformApiTestCall(route, endpoint, method string, expectedStatusCode int, 
 	}
 
 	rw := httptest.NewRecorder()
-	httphandle.ApiHandler(rw, req)
+	httphandle.RequestHandler(rw, req)
 
 	if rw.Code != expectedStatusCode {
 		t.Fatal("Response assertion failed! Needed:", expectedStatusCode, "Got:", rw.Code, "Message:", rw.Body.String())
