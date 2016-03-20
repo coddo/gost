@@ -53,21 +53,21 @@ func testGetUserWithInexistentIDInDatabase(t *testing.T) {
 	params := url.Values{}
 	params.Add("id", bson.NewObjectId().Hex())
 
-	tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusNotFound, params, nil, t)
+	tests.PerformTestRequest(apiPath, GET, api.GET, http.StatusNotFound, params, nil, t)
 }
 
 func testGetUserWithBadIDParam(t *testing.T) {
 	params := url.Values{}
 	params.Add("id", "2as456fas4")
 
-	tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusBadRequest, params, nil, t)
+	tests.PerformTestRequest(apiPath, GET, api.GET, http.StatusBadRequest, params, nil, t)
 }
 
 func testGetUserWithGoodIDParam(t *testing.T, id bson.ObjectId) {
 	params := url.Values{}
 	params.Add("id", id.Hex())
 
-	rw := tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusOK, params, nil, t)
+	rw := tests.PerformTestRequest(apiPath, GET, api.GET, http.StatusOK, params, nil, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -76,7 +76,7 @@ func testGetUserWithGoodIDParam(t *testing.T, id bson.ObjectId) {
 }
 
 func testGetAllUsersWithoutLimit(t *testing.T) {
-	rw := tests.PerformApiTestCall(apiPath, GETALL, api.GET, http.StatusOK, nil, nil, t)
+	rw := tests.PerformTestRequest(apiPath, GETALL, api.GET, http.StatusOK, nil, nil, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -88,21 +88,21 @@ func testGetAllUsersWithBadLimitParam(t *testing.T) {
 	params := url.Values{}
 	params.Add("limit", "asfsa")
 
-	tests.PerformApiTestCall(apiPath, GETALL, api.GET, http.StatusBadRequest, params, nil, t)
+	tests.PerformTestRequest(apiPath, GETALL, api.GET, http.StatusBadRequest, params, nil, t)
 }
 
 func testGetAllUsersWithZeroLimitParam(t *testing.T) {
 	params := url.Values{}
 	params.Add("limit", "0")
 
-	tests.PerformApiTestCall(apiPath, GETALL, api.GET, http.StatusBadRequest, params, nil, t)
+	tests.PerformTestRequest(apiPath, GETALL, api.GET, http.StatusBadRequest, params, nil, t)
 }
 
 func testGetAllUsersWithGoodLimitParam(t *testing.T) {
 	params := url.Values{}
 	params.Add("limit", "20")
 
-	rw := tests.PerformApiTestCall(apiPath, GETALL, api.GET, http.StatusOK, params, nil, t)
+	rw := tests.PerformTestRequest(apiPath, GETALL, api.GET, http.StatusOK, params, nil, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -115,7 +115,7 @@ func testCreateUserInBadFormat(t *testing.T) {
 		BadField: "bad value",
 	}
 
-	tests.PerformApiTestCall(apiPath, CREATE, api.POST, http.StatusBadRequest, nil, dUser, t)
+	tests.PerformTestRequest(apiPath, CREATE, api.POST, http.StatusBadRequest, nil, dUser, t)
 }
 
 func testCreateUserInGoodFormat(t *testing.T) bson.ObjectId {
@@ -127,7 +127,7 @@ func testCreateUserInGoodFormat(t *testing.T) bson.ObjectId {
 		ResetPasswordToken: "as7f6as8faf5aasf6721rqf",
 	}
 
-	rw := tests.PerformApiTestCall(apiPath, CREATE, api.POST, http.StatusCreated, nil, user, t)
+	rw := tests.PerformTestRequest(apiPath, CREATE, api.POST, http.StatusCreated, nil, user, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -143,7 +143,7 @@ func testUpdateUserInBadFormat(t *testing.T) {
 		ResetPasswordToken: "asg1a89wqg4a5s",
 	}
 
-	tests.PerformApiTestCall(apiPath, UPDATE, api.PUT, http.StatusBadRequest, nil, user, t)
+	tests.PerformTestRequest(apiPath, UPDATE, api.PUT, http.StatusBadRequest, nil, user, t)
 }
 
 func testUpdateUserWithoutID(t *testing.T) {
@@ -153,7 +153,7 @@ func testUpdateUserWithoutID(t *testing.T) {
 		ResetPasswordToken: "fsa4fas564g6g4s6ag",
 	}
 
-	tests.PerformApiTestCall(apiPath, UPDATE, api.PUT, http.StatusBadRequest, nil, user, t)
+	tests.PerformTestRequest(apiPath, UPDATE, api.PUT, http.StatusBadRequest, nil, user, t)
 }
 
 func testUpdateUserWithNoExistentIDInDb(t *testing.T) {
@@ -164,7 +164,7 @@ func testUpdateUserWithNoExistentIDInDb(t *testing.T) {
 		ResetPasswordToken: "fsa4fas564g6g4s6ag",
 	}
 
-	tests.PerformApiTestCall(apiPath, UPDATE, api.PUT, http.StatusNotFound, nil, user, t)
+	tests.PerformTestRequest(apiPath, UPDATE, api.PUT, http.StatusNotFound, nil, user, t)
 }
 
 func testUpdateUserWithGoodRequestDetails(t *testing.T, id bson.ObjectId) {
@@ -175,7 +175,7 @@ func testUpdateUserWithGoodRequestDetails(t *testing.T, id bson.ObjectId) {
 		ResetPasswordToken: "fsa4fas564g6g4s6ag",
 	}
 
-	rw := tests.PerformApiTestCall(apiPath, UPDATE, api.PUT, http.StatusOK, nil, user, t)
+	rw := tests.PerformTestRequest(apiPath, UPDATE, api.PUT, http.StatusOK, nil, user, t)
 	body := rw.Body.String()
 
 	if len(body) == 0 {

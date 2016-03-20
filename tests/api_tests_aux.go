@@ -15,8 +15,9 @@ import (
 	"testing"
 )
 
-func PerformApiTestCall(route, endpoint, method string, expectedStatusCode int, urlParams url.Values, object interface{}, t *testing.T) *httptest.ResponseRecorder {
-	Url, err := generateApiUrl(route, endpoint, urlParams)
+// PerformTestRequest does a HTTP request with test data on a specified endpoint
+func PerformTestRequest(route, endpoint, method string, expectedStatusCode int, urlParams url.Values, object interface{}, t *testing.T) *httptest.ResponseRecorder {
+	Url, err := generateEndpointURL(route, endpoint, urlParams)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -47,6 +48,7 @@ func PerformApiTestCall(route, endpoint, method string, expectedStatusCode int, 
 	return rw
 }
 
+// InitializeServerConfigurations initializes the HTTP/HTTPS server used for unit testing
 func InitializeServerConfigurations(routeString string, apiInterface interface{}) {
 	testconfig.InitTestsApp()
 
@@ -60,7 +62,7 @@ func InitializeServerConfigurations(routeString string, apiInterface interface{}
 	runtime.GOMAXPROCS(2)
 }
 
-func generateApiUrl(route, endpoint string, params url.Values) (*url.URL, error) {
+func generateEndpointURL(route, endpoint string, params url.Values) (*url.URL, error) {
 	buffer := &bytes.Buffer{}
 
 	if !strings.Contains(config.HTTPServerAddress, "http://") {

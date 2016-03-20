@@ -47,21 +47,21 @@ func testGetTransactionWithInexistentIDInDB(t *testing.T) {
 	params := url.Values{}
 	params.Add("id", bson.NewObjectId().Hex())
 
-	tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusNotFound, params, nil, t)
+	tests.PerformTestRequest(apiPath, GET, api.GET, http.StatusNotFound, params, nil, t)
 }
 
 func testGetTransactionWithBadIDParam(t *testing.T) {
 	params := url.Values{}
 	params.Add("id", "2as456fas4")
 
-	tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusBadRequest, params, nil, t)
+	tests.PerformTestRequest(apiPath, GET, api.GET, http.StatusBadRequest, params, nil, t)
 }
 
 func testGetTransactionWithGoodIDParam(t *testing.T, id bson.ObjectId) {
 	params := url.Values{}
 	params.Add("id", id.Hex())
 
-	rw := tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusOK, params, nil, t)
+	rw := tests.PerformTestRequest(apiPath, GET, api.GET, http.StatusOK, params, nil, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -74,7 +74,7 @@ func testPostTransactionInBadFormat(t *testing.T) {
 		BadField: "bad value",
 	}
 
-	tests.PerformApiTestCall(apiPath, CREATE, api.POST, http.StatusBadRequest, nil, dTransaction, t)
+	tests.PerformTestRequest(apiPath, CREATE, api.POST, http.StatusBadRequest, nil, dTransaction, t)
 }
 
 func testPostTransactionNotIntegral(t *testing.T) {
@@ -84,7 +84,7 @@ func testPostTransactionNotIntegral(t *testing.T) {
 		Currency: "USD",
 	}
 
-	tests.PerformApiTestCall(apiPath, CREATE, api.POST, http.StatusBadRequest, nil, transaction, t)
+	tests.PerformTestRequest(apiPath, CREATE, api.POST, http.StatusBadRequest, nil, transaction, t)
 }
 
 func testPostTransactionInGoodFormat(t *testing.T) bson.ObjectId {
@@ -97,7 +97,7 @@ func testPostTransactionInGoodFormat(t *testing.T) bson.ObjectId {
 		Currency: "USD",
 	}
 
-	rw := tests.PerformApiTestCall(apiPath, CREATE, api.POST, http.StatusCreated, nil, transaction, t)
+	rw := tests.PerformTestRequest(apiPath, CREATE, api.POST, http.StatusCreated, nil, transaction, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {

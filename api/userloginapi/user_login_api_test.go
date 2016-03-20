@@ -45,14 +45,14 @@ func testGetUserSessionWithInexistentTokenInDB(t *testing.T) {
 	params := url.Values{}
 	params.Add("token", "asagasgsaga7615651")
 
-	tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusNotFound, params, nil, t)
+	tests.PerformTestRequest(apiPath, GET, api.GET, http.StatusNotFound, params, nil, t)
 }
 
 func testGetUserSessionWithGoodIDParam(t *testing.T, token string) {
 	params := url.Values{}
 	params.Add("token", token)
 
-	rw := tests.PerformApiTestCall(apiPath, GET, api.GET, http.StatusOK, params, nil, t)
+	rw := tests.PerformTestRequest(apiPath, GET, api.GET, http.StatusOK, params, nil, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -66,7 +66,7 @@ func testCreateUserSessionInBadFormat(t *testing.T) {
 		BadField: "bad value",
 	}
 
-	tests.PerformApiTestCall(apiPath, CREATE, api.POST, http.StatusBadRequest, nil, dUserSession, t)
+	tests.PerformTestRequest(apiPath, CREATE, api.POST, http.StatusBadRequest, nil, dUserSession, t)
 }
 
 func testCreateUserSessionInGoodFormat(t *testing.T) (bson.ObjectId, string) {
@@ -77,7 +77,7 @@ func testCreateUserSessionInGoodFormat(t *testing.T) (bson.ObjectId, string) {
 		ExpireDate:      time.Now().Local(),
 	}
 
-	rw := tests.PerformApiTestCall(apiPath, CREATE, api.POST, http.StatusCreated, nil, userSession, t)
+	rw := tests.PerformTestRequest(apiPath, CREATE, api.POST, http.StatusCreated, nil, userSession, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {

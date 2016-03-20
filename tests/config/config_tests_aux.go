@@ -15,12 +15,14 @@ const (
 	envDatabaseConnection = "GOST_TESTAPP_DB_CONN"
 )
 
+// InitTestsApp initializes the application used for testing
 func InitTestsApp() {
 	config.ApplicationName = os.Getenv(envApplicationName)
 	config.APIInstance = os.Getenv(envAPIInstance)
 	config.HTTPServerAddress = os.Getenv(envHTTPServerAddress)
 }
 
+// InitTestsDatabase initializes the connection parameters to the database used for testing
 func InitTestsDatabase() {
 	dbName := os.Getenv(envDatabaseName)
 	dbConn := os.Getenv(envDatabaseConnection)
@@ -33,6 +35,7 @@ func InitTestsDatabase() {
 	config.DbConnectionString = dbConn
 }
 
+// InitTestsRoutes initializes the endpoints that will be active for a unit testing session
 func InitTestsRoutes(routesString string) {
 	deserializeRoutes([]byte(routesString))
 }

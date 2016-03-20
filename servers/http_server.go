@@ -9,10 +9,11 @@ import (
 )
 
 const (
-	CERT_FILE = "gost.crt"
-	KEY_FILE  = "gost.key"
+	httpsCertFile = "gost.crt"
+	httpsKeyFile  = "gost.key"
 )
 
+// StartHTTPServer starts a HTTP server that listens for requests
 func StartHTTPServer() {
 	http.HandleFunc(config.APIInstance, httphandle.RequestHandler)
 
@@ -27,6 +28,7 @@ func StartHTTPServer() {
 	log.Fatal(server.ListenAndServe())
 }
 
+// StartHTTPSServer starts a HTTPS server that listens for requests
 func StartHTTPSServer() {
 	http.HandleFunc(config.APIInstance, httphandle.RequestHandler)
 
@@ -38,5 +40,5 @@ func StartHTTPSServer() {
 	}
 
 	log.Println("HTTPS Server STARTED! Listening at:", config.HTTPServerAddress+config.APIInstance)
-	log.Fatal(server.ListenAndServeTLS(CERT_FILE, KEY_FILE))
+	log.Fatal(server.ListenAndServeTLS(httpsCertFile, httpsKeyFile))
 }
