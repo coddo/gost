@@ -34,16 +34,16 @@ func IsValidUUID(s string) bool {
 }
 
 // GenerateUUID creates a new UUID string
-func GenerateUUID() string {
+func GenerateUUID() (string, error) {
 	u := new(UUID)
 
 	// Set all bits to randomly (or pseudo-randomly) chosen values.
 	_, err := rand.Read(u[:])
 	if err != nil {
-		return ""
+		return "", err
 	}
 
 	u[8] = (u[8] | 0x40) & 0x7F
 
-	return fmt.Sprintf("%x-%x-%x-%x-%x", u[0:4], u[4:6], u[6:8], u[8:10], u[10:])
+	return fmt.Sprintf("%x-%x-%x-%x-%x", u[0:4], u[4:6], u[6:8], u[8:10], u[10:]), nil
 }
