@@ -1,13 +1,13 @@
 package api
 
 import (
-	"gost/models"
+	"gost/util"
 	"io/ioutil"
 )
 
 // SingleDataResponse creates a Response from the api, containing a single entity encoded as JSON
 func SingleDataResponse(statusCode int, data interface{}) Response {
-	jsonData, err := models.SerializeJSON(data)
+	jsonData, err := util.SerializeJSON(data)
 	if err != nil {
 		return InternalServerError(err)
 	}
@@ -20,7 +20,7 @@ func SingleDataResponse(statusCode int, data interface{}) Response {
 
 // MultipleDataResponse creates a Response from the api, containing an array of entities encoded as JSON
 func MultipleDataResponse(statusCode int, data interface{}) Response {
-	jsonData, err := models.SerializeJSON(data)
+	jsonData, err := util.SerializeJSON(data)
 	if err != nil {
 		return InternalServerError(err)
 	}

@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"gost/config"
 	"gost/httphandle"
-	"gost/models"
 	"gost/service"
 	testconfig "gost/tests/config"
+	"gost/util"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -26,7 +26,7 @@ func PerformTestRequest(route, endpoint, method string, expectedStatusCode int, 
 	// Do nothing if no object is specified
 	var jsonData []byte
 	if object != nil {
-		jsonData, err = models.SerializeJSON(object)
+		jsonData, err = util.SerializeJSON(object)
 
 		if err != nil {
 			t.Fatal(err.Error())

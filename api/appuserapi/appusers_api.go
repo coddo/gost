@@ -6,6 +6,7 @@ import (
 	"gost/bll"
 	"gost/filter/apifilter"
 	"gost/models"
+	"gost/util"
 )
 
 // ApplicationUsersAPI defines the API endpoint for application user management
@@ -54,7 +55,7 @@ func (usersApi *ApplicationUsersAPI) GetAll(vars *api.Request) api.Response {
 func (usersApi *ApplicationUsersAPI) Create(vars *api.Request) api.Response {
 	user := &models.ApplicationUser{}
 
-	err := models.DeserializeJSON(vars.Body, user)
+	err := util.DeserializeJSON(vars.Body, user)
 	if err != nil {
 		return api.BadRequest(api.ErrEntityFormat)
 	}
@@ -66,7 +67,7 @@ func (usersApi *ApplicationUsersAPI) Create(vars *api.Request) api.Response {
 func (usersApi *ApplicationUsersAPI) Update(vars *api.Request) api.Response {
 	user := &models.ApplicationUser{}
 
-	err := models.DeserializeJSON(vars.Body, user)
+	err := util.DeserializeJSON(vars.Body, user)
 	if err != nil {
 		return api.BadRequest(api.ErrEntityFormat)
 	}

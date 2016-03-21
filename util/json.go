@@ -1,8 +1,6 @@
-package models
+package util
 
-import (
-	"encoding/json"
-)
+import "encoding/json"
 
 // Constants used for JSON serializations
 const (
