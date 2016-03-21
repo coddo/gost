@@ -3,12 +3,9 @@ package appuserapi
 import (
 	"errors"
 	"gost/api"
-	"gost/dbmodels"
+	"gost/bll"
 	"gost/filter/apifilter"
 	"gost/models"
-	"gost/service/appuserservice"
-	"net/http"
-	"strings"
 )
 
 // ApplicationUsersAPI defines the API endpoint for application user management
@@ -30,24 +27,7 @@ func (usersApi *ApplicationUsersAPI) Get(vars *api.Request) api.Response {
 		return api.NotFound(err)
 	}
 
-	dbUser, err := appuserservice.GetUser(userID)
-
-	if err != nil {
-		if strings.Contains(strings.ToLower(err.Error()), "found") {
-			return api.NotFound(err)
-		}
-
-		return api.InternalServerError(err)
-	}
-
-	if dbUser == nil {
-		return api.NotFound(api.ErrEntityNotFound)
-	}
-
-	user := &models.ApplicationUser{}
-	user.Expand(dbUser)
-
-	return api.SingleDataResponse(http.StatusOK, user)
+	return bll.GetApplicationUser(userID)
 }
 
 // GetAll endpoint fetches all the existing users in the application.
@@ -59,31 +39,15 @@ func (usersApi *ApplicationUsersAPI) GetAll(vars *api.Request) api.Response {
 		return api.BadRequest(err)
 	}
 
-	var dbUsers []dbmodels.ApplicationUser
-
-	if isLimitSpecified {
-		if limit == 0 {
-			return api.BadRequest(errLimitParam)
-		}
-
-		dbUsers, err = appuserservice.GetAllUsersLimited(limit)
-	} else {
-		dbUsers, err = appuserservice.GetAllUsers()
+	if !isLimitSpecified {
+		return bll.GetAllApplicationUsers()
 	}
 
-	if err != nil {
-		return api.InternalServerError(err)
+	if limit == 0 {
+		return api.BadRequest(errLimitParam)
 	}
 
-	users := make([]*models.ApplicationUser, len(dbUsers))
-	for i := 0; i < len(dbUsers); i++ {
-		user := &models.ApplicationUser{}
-		user.Expand(&dbUsers[i])
-
-		users[i] = user
-	}
-
-	return api.MultipleDataResponse(http.StatusOK, users)
+	return bll.GetAllApplicationUsersLimited(limit)
 }
 
 // Create endpoint creates a new application user
@@ -95,29 +59,14 @@ func (usersApi *ApplicationUsersAPI) Create(vars *api.Request) api.Response {
 		return api.BadRequest(api.ErrEntityFormat)
 	}
 
-	if !apifilter.CheckUserIntegrity(user) {
-		return api.BadRequest(api.ErrEntityIntegrity)
-	}
-
-	dbUser := user.Collapse()
-	if dbUser == nil {
-		return api.InternalServerError(api.ErrEntityProcess)
-	}
-
-	err = appuserservice.CreateUser(dbUser)
-	if err != nil {
-		return api.InternalServerError(api.ErrEntityProcess)
-	}
-	user.ID = dbUser.ID
-
-	return api.SingleDataResponse(http.StatusCreated, user)
+	return bll.CreateApplicationUser(user)
 }
 
 // Update endpoint updates an existing application user
 func (usersApi *ApplicationUsersAPI) Update(vars *api.Request) api.Response {
 	user := &models.ApplicationUser{}
-	err := models.DeserializeJSON(vars.Body, user)
 
+	err := models.DeserializeJSON(vars.Body, user)
 	if err != nil {
 		return api.BadRequest(api.ErrEntityFormat)
 	}
@@ -126,19 +75,5 @@ func (usersApi *ApplicationUsersAPI) Update(vars *api.Request) api.Response {
 		return api.BadRequest(api.ErrIDParamNotSpecified)
 	}
 
-	if !apifilter.CheckUserIntegrity(user) {
-		return api.BadRequest(api.ErrEntityIntegrity)
-	}
-
-	dbUser := user.Collapse()
-	if dbUser == nil {
-		return api.InternalServerError(api.ErrEntityProcess)
-	}
-
-	err = appuserservice.UpdateUser(dbUser)
-	if err != nil {
-		return api.NotFound(api.ErrEntityNotFound)
-	}
-
-	return api.SingleDataResponse(http.StatusOK, user)
+	return bll.UpdateApplicationUser(user)
 }
