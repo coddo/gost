@@ -1,11 +1,8 @@
-package auth
+package sessions
 
 import (
-	"bytes"
 	"errors"
 	"gost/util"
-	"io/ioutil"
-	"os"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
@@ -13,7 +10,6 @@ import (
 
 const (
 	defaultTokenExpireTime = 24 * 7 * time.Hour
-	cookieStoreLocation    = "cookies/"
 )
 
 var (
@@ -40,17 +36,12 @@ func (session *Session) Save() error {
 		return err
 	}
 
-	encodedData := util.Encode(jsonData)
-	fileName := getCoockieLocation(session.Token)
-
-	return ioutil.WriteFile(fileName, encodedData, os.ModeDevice)
+	return cookieStore.WriteCookie(session.Token, jsonData)
 }
 
 // Delete deletes the session from the cookie store
 func (session *Session) Delete() error {
-	fileName := getCoockieLocation(session.Token)
-
-	return os.Remove(fileName)
+	return cookieStore.DeleteCookie(session.Token)
 }
 
 // IsExpired returns true if the session has expired
@@ -85,13 +76,7 @@ func NewSession(userID bson.ObjectId) (*Session, error) {
 
 // GetSession retrieves a session from the cookie store
 func GetSession(token string) (*Session, error) {
-	fileName := getCoockieLocation(token)
-	encodedData, err := ioutil.ReadFile(fileName)
-	if err != nil {
-		return nil, err
-	}
-
-	jsonData, err := util.Decode(encodedData)
+	jsonData, err := cookieStore.ReadCookie(token)
 	if err != nil {
 		return nil, err
 	}
@@ -113,13 +98,4 @@ func GetSession(token string) (*Session, error) {
 // SetTokenExpireTime is used to change the default cofiguration of token expiration times
 func SetTokenExpireTime(expireTime time.Duration) {
 	tokenExpireTime = expireTime
-}
-
-func getCoockieLocation(token string) string {
-	var buffer bytes.Buffer
-
-	buffer.WriteString(cookieStoreLocation)
-	buffer.WriteString(token)
-
-	return buffer.String()
 }
