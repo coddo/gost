@@ -1,6 +1,7 @@
 package httphandle
 
 import (
+	"fmt"
 	"gost/api"
 	"gost/cache"
 	"gost/config"
@@ -22,6 +23,9 @@ func RegisterEndpoints(container interface{}) {
 // RouteRequest parses the data from a HTTP request, determines which mapped endpoind needs to be called
 // and forwards the request data to the found endpoint if it is valid.
 func RouteRequest(endpoint string, rw http.ResponseWriter, req *http.Request, route *config.Route) {
+	// Prepare recover mechanism in case of panic
+	defer recoverFromError(rw, req, route.Pattern)
+
 	// Prepare data vector for an api/endpoint call
 	inputs := make([]reflect.Value, 1)
 
@@ -64,6 +68,13 @@ func RouteRequest(endpoint string, rw http.ResponseWriter, req *http.Request, ro
 
 	// Give the response to the api client
 	respond(&resp, rw, req, route.Pattern)
+}
+
+func recoverFromError(rw http.ResponseWriter, req *http.Request, pattern string) {
+	if err := recover(); err != nil {
+		message := fmt.Sprintf("%s", err)
+		sendMessageResponse(http.StatusInternalServerError, message, rw, req, pattern)
+	}
 }
 
 func respondFromCache(rw http.ResponseWriter, req *http.Request, route *config.Route) bool {
