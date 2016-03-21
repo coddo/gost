@@ -10,6 +10,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// GetTransaction retrieves an existing Transaction based on its ID
 func GetTransaction(transactionID bson.ObjectId) api.Response {
 	dbTransaction, err := transactionservice.GetTransaction(transactionID)
 	if err != nil || dbTransaction == nil {
@@ -22,6 +23,7 @@ func GetTransaction(transactionID bson.ObjectId) api.Response {
 	return api.SingleDataResponse(http.StatusOK, transaction)
 }
 
+// CreateTransaction creates a new Transaction
 func CreateTransaction(transaction *models.Transaction) api.Response {
 	if !apifilter.CheckTransactionIntegrity(transaction) {
 		return api.BadRequest(api.ErrEntityIntegrity)
