@@ -106,7 +106,7 @@ func respond(resp *api.Response, rw http.ResponseWriter, req *http.Request, endp
 			resp.ContentType = api.ContentJSON
 		}
 
-		sendResponse(resp.StatusCode, resp.Message, rw, req, endpoint, resp.ContentType, resp.File)
+		sendResponse(resp.StatusCode, resp.Content, rw, req, endpoint, resp.ContentType, resp.File)
 
 		// Try caching the data only if a GET request was made
 		go func(resp *api.Response, req *http.Request, endpoint string) {
@@ -118,13 +118,13 @@ func respond(resp *api.Response, rw http.ResponseWriter, req *http.Request, endp
 }
 
 func cacheResponse(resp *api.Response, endpoint string) {
-	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) || len(resp.Message) == 0 {
+	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) || len(resp.Content) == 0 {
 		return
 	}
 
 	cacheEntity := &cache.Cache{
 		Key:         cache.MapKey(endpoint),
-		Data:        resp.Message,
+		Data:        resp.Content,
 		StatusCode:  resp.StatusCode,
 		ContentType: resp.ContentType,
 		File:        resp.File,

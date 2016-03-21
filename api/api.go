@@ -59,7 +59,7 @@ type Request struct {
 // A Response contains the information that will be sent back to the user
 // through a HTTP response
 type Response struct {
-	Message      []byte
+	Content      []byte
 	StatusCode   int
 	ErrorMessage string
 	ContentType  string

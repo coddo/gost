@@ -14,7 +14,7 @@ func SingleDataResponse(statusCode int, data interface{}) Response {
 
 	return Response{
 		StatusCode: statusCode,
-		Message:    jsonData,
+		Content:    jsonData,
 	}
 }
 
@@ -27,7 +27,7 @@ func MultipleDataResponse(statusCode int, data interface{}) Response {
 
 	return Response{
 		StatusCode: statusCode,
-		Message:    jsonData,
+		Content:    jsonData,
 	}
 }
 
@@ -40,7 +40,7 @@ func StatusResponse(statusCode int) Response {
 func ByteResponse(statusCode int, data []byte) Response {
 	return Response{
 		StatusCode: statusCode,
-		Message:    data,
+		Content:    data,
 	}
 }
 
