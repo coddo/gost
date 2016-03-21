@@ -43,10 +43,10 @@ func ServiceUnavailable(err error) Response {
 
 // MethodNotAllowed returns a status and message that signals the API client
 // that the used HTTP Method is not allowed on this endpoint
-func MethodNotAllowed(err error) Response {
+func MethodNotAllowed() Response {
 	return Response{
 		StatusCode:   http.StatusMethodNotAllowed,
-		ErrorMessage: err.Error(),
+		ErrorMessage: http.StatusText(http.StatusMethodNotAllowed),
 	}
 }
 

@@ -2,8 +2,8 @@ package main
 
 import (
 	"gost/api/appuserapi"
+	"gost/api/authapi"
 	"gost/api/transactionapi"
-	"gost/api/userloginapi"
 	"gost/cache"
 	"gost/config"
 	"gost/httphandle"
@@ -22,7 +22,7 @@ var numberOfProcessors = runtime.NumCPU()
 type APIContainer struct {
 	appuserapi.ApplicationUsersAPI
 	transactionapi.TransactionsAPI
-	userloginapi.UserSessionsAPI
+	authapi.AuthAPI
 }
 
 // Application entry point - sets the behavior for the app
