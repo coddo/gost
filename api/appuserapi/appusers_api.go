@@ -24,7 +24,7 @@ func (usersApi *ApplicationUsersAPI) Get(vars *api.Request) api.Response {
 	}
 
 	if !found {
-		return api.NotFound(err)
+		api.BadRequest(api.ErrIDParamNotSpecified)
 	}
 
 	return bll.GetApplicationUser(userID)

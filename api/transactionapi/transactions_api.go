@@ -2,10 +2,9 @@ package transactionapi
 
 import (
 	"gost/api"
+	"gost/bll"
 	"gost/filter/apifilter"
 	"gost/models"
-	"gost/service/transactionservice"
-	"net/http"
 )
 
 // TransactionsAPI defines the API endpoint for application transactions of any kind
@@ -15,23 +14,15 @@ type TransactionsAPI int
 func (t *TransactionsAPI) Get(vars *api.Request) api.Response {
 	transactionID, found, err := apifilter.GetIDFromParams(vars.Form)
 
-	if found {
-		if err != nil {
-			return api.BadRequest(err)
-		}
-
-		dbTransaction, err := transactionservice.GetTransaction(transactionID)
-		if err != nil || dbTransaction == nil {
-			return api.NotFound(api.ErrEntityNotFound)
-		}
-
-		transaction := &models.Transaction{}
-		transaction.Expand(dbTransaction)
-
-		return api.SingleDataResponse(http.StatusOK, transaction)
+	if err != nil {
+		return api.BadRequest(err)
 	}
 
-	return api.BadRequest(api.ErrIDParamNotSpecified)
+	if !found {
+		return api.NotFound(err)
+	}
+
+	return bll.GetTransaction(transactionID)
 }
 
 // Create endpoint creates a new transaction with the valid transfer tokens and data
@@ -43,20 +34,5 @@ func (t *TransactionsAPI) Create(vars *api.Request) api.Response {
 		return api.BadRequest(api.ErrEntityFormat)
 	}
 
-	if !apifilter.CheckTransactionIntegrity(transaction) {
-		return api.BadRequest(api.ErrEntityIntegrity)
-	}
-
-	dbTransaction := transaction.Collapse()
-	if dbTransaction == nil {
-		return api.InternalServerError(api.ErrEntityProcess)
-	}
-
-	err = transactionservice.CreateTransaction(dbTransaction)
-	if err != nil {
-		return api.InternalServerError(api.ErrEntityProcess)
-	}
-	transaction.ID = dbTransaction.ID
-
-	return api.SingleDataResponse(http.StatusCreated, transaction)
+	return bll.CreateTransaction(transaction)
 }
