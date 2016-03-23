@@ -27,11 +27,11 @@ func RouteRequest(endpoint string, rw http.ResponseWriter, req *http.Request, ro
 	defer recoverFromError(rw, req, route.Pattern)
 
 	// Prepare data vector for an api/endpoint call
-	inputs := make([]reflect.Value, 1)
+	endpointParameters := make([]reflect.Value, 1)
 
 	// Create the variables containing request data
-	vars := generateRequestData(req, rw, route)
-	if vars == nil {
+	request := generateRequest(req, rw, route)
+	if request == nil {
 		return
 	}
 
@@ -41,7 +41,7 @@ func RouteRequest(endpoint string, rw http.ResponseWriter, req *http.Request, ro
 	}
 
 	// Populate the data vector for the api call
-	inputs[0] = reflect.ValueOf(vars)
+	endpointParameters[0] = reflect.ValueOf(request)
 
 	// Find out the name of the method where the request will be forwarded,
 	// based on the registered endpoints
@@ -57,7 +57,7 @@ func RouteRequest(endpoint string, rw http.ResponseWriter, req *http.Request, ro
 	}
 
 	// Call the mapped method from the corresponding endpoint, using the extracted and parsed data from the HTTP request
-	respObjects := apiMethod.Call(inputs)
+	respObjects := apiMethod.Call(endpointParameters)
 	if respObjects == nil {
 		sendStatusResponse(http.StatusInternalServerError, rw, req, route.Pattern)
 		return
@@ -133,7 +133,7 @@ func cacheResponse(resp *api.Response, endpoint string) {
 	cacheEntity.Cache()
 }
 
-func generateRequestData(req *http.Request, rw http.ResponseWriter, route *config.Route) *api.Request {
+func generateRequest(req *http.Request, rw http.ResponseWriter, route *config.Route) *api.Request {
 	statusCode, err := filter.CheckMethodAndParseContent(req)
 	if err != nil {
 		sendMessageResponse(statusCode, err.Error(), rw, req, route.Pattern)
@@ -146,14 +146,14 @@ func generateRequestData(req *http.Request, rw http.ResponseWriter, route *confi
 		return nil
 	}
 
-	vars := &api.Request{
+	request := &api.Request{
 		Header:        req.Header,
 		Form:          req.Form,
 		ContentLength: req.ContentLength,
 		Body:          body,
 	}
 
-	return vars
+	return request
 }
 
 func convertBodyToReadableFormat(data io.ReadCloser) ([]byte, error) {

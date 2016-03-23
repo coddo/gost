@@ -7,20 +7,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const (
-	// NormalUserAccountType represents a ordinary application user
-	NormalUserAccountType = iota
-	// AdministratorAccountType represents an administrator
-	AdministratorAccountType = iota
-)
-
-const (
-	// StatusAccountActivated represents an account that is active in the system
-	StatusAccountActivated = true
-	// StatusAccountDeactivated represents an account that is inactive in the system
-	StatusAccountDeactivated = false
-)
-
 // ApplicationUser contains information necessary for managing accounts
 type ApplicationUser struct {
 	ID bson.ObjectId `bson:"_id" json:"id"`
@@ -32,7 +18,7 @@ type ApplicationUser struct {
 	ResetPasswordTokenExpireDate   time.Time `bson:"resetPasswordTokenExpireDate,omitempty" json:"resetPasswordTokenExpireDate"`
 	ActivateAccountToken           string    `bson:"activateAccountToken" json:"activateAccountToken"`
 	ActivateAccountTokenExpireDate time.Time `bson:"activateAccountTokenExpireDate,omitempty" json:"activateAccountTokenExpireDate"`
-	Status                         bool      `bson:"status,omitempty" json:"status"`
+	AccountStatus                  bool      `bson:"status,omitempty" json:"status"`
 }
 
 // Equal compares two ApplicationUser objects. Implements the Objecter interface
@@ -59,7 +45,7 @@ func (user *ApplicationUser) Equal(obj Objecter) bool {
 		return false
 	case !util.CompareDates(user.ActivateAccountTokenExpireDate, otherUser.ActivateAccountTokenExpireDate):
 		return false
-	case user.Status != otherUser.Status:
+	case user.AccountStatus != otherUser.AccountStatus:
 		return false
 	}
 

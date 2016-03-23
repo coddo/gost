@@ -1,6 +1,7 @@
 package appuserservice
 
 import (
+	"gost/orm"
 	"gost/orm/dbmodels"
 	"gost/service"
 	testconfig "gost/tests/config"
@@ -46,11 +47,11 @@ func createUser(t *testing.T, user *dbmodels.ApplicationUser) {
 	*user = dbmodels.ApplicationUser{
 		ID:                           bson.NewObjectId(),
 		Password:                     "CoddoPass",
-		AccountType:                  dbmodels.AdministratorAccountType,
+		AccountType:                  orm.AccountTypeAdministrator,
 		Email:                        "test@tests.com",
 		ResetPasswordToken:           "as7f6as8faf5aasf6721rqf",
 		ResetPasswordTokenExpireDate: time.Now(),
-		Status: dbmodels.StatusAccountActivated,
+		AccountStatus:                orm.AccountStatusActivated,
 	}
 
 	err := CreateUser(user)
@@ -63,8 +64,8 @@ func createUser(t *testing.T, user *dbmodels.ApplicationUser) {
 func changeAndUpdateUser(t *testing.T, user *dbmodels.ApplicationUser) {
 	user.Email = "testEmailCHanged@email.go"
 	user.Password = "ChangedPassword"
-	user.AccountType = dbmodels.NormalUserAccountType
-	user.Status = dbmodels.StatusAccountDeactivated
+	user.AccountType = orm.AccountTypeNormalUser
+	user.AccountStatus = orm.AccountStatusDeactivated
 
 	err := UpdateUser(user)
 

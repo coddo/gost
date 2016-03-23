@@ -18,7 +18,7 @@ type ApplicationUser struct {
 	ResetPasswordTokenExpireDate   time.Time `json:"resetPasswordTokenExpireDate"`
 	ActivateAccountToken           string    `json:"activateAccountToken"`
 	ActivateAccountTokenExpireDate time.Time `json:"activateAccountTokenExpireDate"`
-	Status                         bool      `json:"status"`
+	AccountStatus                  bool      `json:"status"`
 }
 
 // Expand copies the dbmodels.ApplicationUser to a ApplicationUser expands all
@@ -32,7 +32,7 @@ func (user *ApplicationUser) Expand(dbUser *dbmodels.ApplicationUser) {
 	user.ResetPasswordTokenExpireDate = dbUser.ResetPasswordTokenExpireDate
 	user.ActivateAccountToken = dbUser.ActivateAccountToken
 	user.ActivateAccountTokenExpireDate = dbUser.ActivateAccountTokenExpireDate
-	user.Status = dbUser.Status
+	user.AccountStatus = dbUser.AccountStatus
 }
 
 // Collapse coppies the ApplicationUser to a dbmodels.Application user and
@@ -47,7 +47,7 @@ func (user *ApplicationUser) Collapse() *dbmodels.ApplicationUser {
 		ResetPasswordTokenExpireDate:   user.ResetPasswordTokenExpireDate,
 		ActivateAccountToken:           user.ActivateAccountToken,
 		ActivateAccountTokenExpireDate: user.ActivateAccountTokenExpireDate,
-		Status: user.Status,
+		AccountStatus:                  user.AccountStatus,
 	}
 
 	return &dbUser

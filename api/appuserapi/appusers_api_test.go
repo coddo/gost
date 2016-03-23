@@ -3,7 +3,7 @@ package appuserapi
 import (
 	"fmt"
 	"gost/api"
-	"gost/orm/dbmodels"
+	"gost/orm"
 	"gost/orm/models"
 	"gost/tests"
 	"net/http"
@@ -122,7 +122,7 @@ func testCreateUserInGoodFormat(t *testing.T) bson.ObjectId {
 	user := &models.ApplicationUser{
 		ID:                 bson.NewObjectId(),
 		Password:           "CoddoPass",
-		AccountType:        dbmodels.AdministratorAccountType,
+		AccountType:        orm.AccountTypeAdministrator,
 		Email:              "test@tests.com",
 		ResetPasswordToken: "as7f6as8faf5aasf6721rqf",
 	}
