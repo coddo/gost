@@ -88,7 +88,7 @@ func GetSession(token string) (*Session, error) {
 	return session, nil
 }
 
-// SetTokenExpireTime is used to change the default cofiguration of token expiration times
-func SetTokenExpireTime(expireTime time.Duration) {
+// ConfigureTokenExpireTime is used to change the default cofiguration of token expiration times
+func ConfigureTokenExpireTime(expireTime time.Duration) {
 	tokenExpireTime = expireTime
 }
