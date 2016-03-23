@@ -1,6 +1,6 @@
-// Package sessions uses the DatabaseCookieStore type as its default cookie store
+// Package cookies uses the DatabaseCookieStore type as its default cookie store
 // for managing user sessions
-package sessions
+package cookies
 
 import "errors"
 

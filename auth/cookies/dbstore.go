@@ -1,4 +1,4 @@
-package sessions
+package cookies
 
 import (
 	"gost/service"
