@@ -1,8 +1,8 @@
 package transactionservice
 
 import (
-	"gost/dbmodels"
-	"gost/models"
+	"gost/orm/dbmodels"
+	"gost/orm/models"
 	"gost/service"
 	testconfig "gost/tests/config"
 	"testing"

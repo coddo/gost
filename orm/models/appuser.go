@@ -1,7 +1,7 @@
 package models
 
 import (
-	"gost/dbmodels"
+	"gost/orm/dbmodels"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"

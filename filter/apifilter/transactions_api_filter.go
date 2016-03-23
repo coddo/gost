@@ -1,7 +1,7 @@
 package apifilter
 
 import (
-	"gost/models"
+	"gost/orm/models"
 )
 
 // CheckTransactionIntegrity checks if a Transaction has all the compulsory fields populated

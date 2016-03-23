@@ -1,7 +1,7 @@
 package apifilter
 
 import (
-	"gost/models"
+	"gost/orm/models"
 )
 
 // CheckUserIntegrity checks if an ApplicationUser has all the compulsory fields populated

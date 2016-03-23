@@ -1,7 +1,7 @@
 package appuserservice
 
 import (
-	"gost/dbmodels"
+	"gost/orm/dbmodels"
 	"gost/service"
 	testconfig "gost/tests/config"
 	"testing"

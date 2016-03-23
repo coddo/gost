@@ -3,7 +3,7 @@ package transactionapi
 import (
 	"fmt"
 	"gost/api"
-	"gost/models"
+	"gost/orm/models"
 	"gost/service/transactionservice"
 	"gost/tests"
 	"net/http"

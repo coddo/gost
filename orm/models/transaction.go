@@ -1,7 +1,7 @@
 package models
 
 import (
-	"gost/dbmodels"
+	"gost/orm/dbmodels"
 	"gost/service/appuserservice"
 	"time"
 

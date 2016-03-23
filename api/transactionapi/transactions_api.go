@@ -4,7 +4,7 @@ import (
 	"gost/api"
 	"gost/bll"
 	"gost/filter/apifilter"
-	"gost/models"
+	"gost/orm/models"
 	"gost/util"
 )
 

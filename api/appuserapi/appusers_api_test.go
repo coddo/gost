@@ -3,8 +3,8 @@ package appuserapi
 import (
 	"fmt"
 	"gost/api"
-	"gost/dbmodels"
-	"gost/models"
+	"gost/orm/dbmodels"
+	"gost/orm/models"
 	"gost/tests"
 	"net/http"
 	"net/url"
