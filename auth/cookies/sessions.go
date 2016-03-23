@@ -24,9 +24,10 @@ var (
 // Session is a struct representing the session that a user has.
 // Sessions are active since login until they expire or the user disconnects
 type Session struct {
-	UserID     bson.ObjectId `bson:"userId,omitempty" json:"userId"`
-	Token      string        `bson:"token,omitempty" json:"token"`
-	ExpireTime time.Time     `bson:"expireTime,omitempty" json:"expireTime"`
+	UserID      bson.ObjectId `bson:"userId,omitempty" json:"userId"`
+	Token       string        `bson:"token,omitempty" json:"token"`
+	AccountType int           `bson:"accountType,omitempty" json:"accountType"`
+	ExpireTime  time.Time     `bson:"expireTime,omitempty" json:"expireTime"`
 }
 
 // Save saves the session in the cookie store
@@ -54,16 +55,17 @@ func (session *Session) ResetExpireTime() error {
 
 // NewSession generates a new Session pointer that contains the given userID and
 // a unique token used as an identifier
-func NewSession(userID bson.ObjectId) (*Session, error) {
+func NewSession(userID bson.ObjectId, accountType int) (*Session, error) {
 	token, err := util.GenerateUUID()
 	if err != nil {
 		return nil, err
 	}
 
 	session := &Session{
-		UserID:     userID,
-		Token:      token,
-		ExpireTime: util.NextDateFromNow(tokenExpireTime),
+		UserID:      userID,
+		Token:       token,
+		AccountType: accountType,
+		ExpireTime:  util.NextDateFromNow(tokenExpireTime),
 	}
 
 	return session, nil
