@@ -77,11 +77,15 @@ func GetSession(token string) (*Session, error) {
 	}
 
 	if session.IsExpired() {
-		session.Delete()
+		err = session.Delete()
+		if err == nil {
+			err = ErrTokenExpired
+		}
+
 		return nil, ErrTokenExpired
 	}
 
-	return session, session.ResetExpireTime()
+	return session, nil
 }
 
 // SetTokenExpireTime is used to change the default cofiguration of token expiration times
