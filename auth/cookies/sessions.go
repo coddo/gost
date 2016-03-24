@@ -2,6 +2,7 @@ package cookies
 
 import (
 	"errors"
+	"gost/orm/models"
 	"gost/util"
 	"time"
 
@@ -28,6 +29,19 @@ type Session struct {
 	Token       string        `bson:"token,omitempty" json:"token"`
 	AccountType int           `bson:"accountType,omitempty" json:"accountType"`
 	ExpireTime  time.Time     `bson:"expireTime,omitempty" json:"expireTime"`
+	Client      *Client       `bson:"client,omitempty" json:"client"`
+}
+
+// Client struct contains information regarding the client that has made the http request
+type Client struct {
+	IPAddress string  `bson:"ipAddress,omitempty" json:"ipAddress"`
+	Browser   string  `bson:"browser,omitempty" json:"browser"`
+	OS        string  `bson:"os,omitempty" json:"os"`
+	Country   string  `bson:"country,omitempty" json:"country"`
+	State     string  `bson:"state,omitempty" json:"state"`
+	City      string  `bson:"city,omitempty" json:"city"`
+	Latitude  float64 `bson:"latitude,omitempty" json:"latitude"`
+	Longitude float64 `bson:"longitude,omitempty" json:"longitude"`
 }
 
 // Save saves the session in the cookie store
@@ -45,9 +59,15 @@ func (session *Session) IsExpired() bool {
 	return util.IsDateExpiredFromNow(session.ExpireTime)
 }
 
-// ResetExpireTime resets the expire time target of the session.
+// ResetToken generates a new token and resets the expire time target of the session
 // This also triggers a Save() action, to update the cookie store
-func (session *Session) ResetExpireTime() error {
+func (session *Session) ResetToken() error {
+	token, err := util.GenerateUUID()
+	if err != nil {
+		return err
+	}
+
+	session.Token = token
 	session.ExpireTime = util.NextDateFromNow(tokenExpireTime)
 
 	return session.Save()
@@ -55,17 +75,18 @@ func (session *Session) ResetExpireTime() error {
 
 // NewSession generates a new Session pointer that contains the given userID and
 // a unique token used as an identifier
-func NewSession(userID bson.ObjectId, accountType int) (*Session, error) {
+func NewSession(user *models.ApplicationUser, client *Client) (*Session, error) {
 	token, err := util.GenerateUUID()
 	if err != nil {
 		return nil, err
 	}
 
 	session := &Session{
-		UserID:      userID,
+		UserID:      user.ID,
 		Token:       token,
-		AccountType: accountType,
+		AccountType: user.AccountType,
 		ExpireTime:  util.NextDateFromNow(tokenExpireTime),
+		Client:      client,
 	}
 
 	return session, nil
