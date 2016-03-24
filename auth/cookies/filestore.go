@@ -15,12 +15,12 @@ type FileCookieStore struct {
 // ReadCookie fetches a cookie from the cookie store
 func (store *FileCookieStore) ReadCookie(key string) (*Session, error) {
 	fileName := store.fileLocation(key)
-	encodedData, err := ioutil.ReadFile(fileName)
+	encryptedData, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		return nil, err
 	}
 
-	jsonData, err := util.Decode(encodedData)
+	jsonData, err := util.Decrypt(encryptedData)
 	if err != nil {
 		return nil, err
 	}
@@ -40,9 +40,12 @@ func (store *FileCookieStore) WriteCookie(cookie *Session) error {
 		return err
 	}
 
-	encodedData := util.Encode(jsonData)
+	encryptedData, err := util.Encrypt(jsonData)
+	if err != nil {
+		return err
+	}
 
-	return ioutil.WriteFile(fileName, encodedData, os.ModeDevice)
+	return ioutil.WriteFile(fileName, encryptedData, os.ModeDevice)
 }
 
 // DeleteCookie deletes a cookie from the cookie storage
