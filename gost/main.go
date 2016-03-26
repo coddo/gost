@@ -4,6 +4,7 @@ import (
 	"gost/api/appuserapi"
 	"gost/api/authapi"
 	"gost/api/transactionapi"
+	"gost/auth/cookies"
 	"gost/cache"
 	"gost/config"
 	"gost/httphandle"
@@ -61,6 +62,9 @@ func init() {
 
 	// Start the caching system
 	cache.StartCachingSystem(cache.CacheExpireTime)
+
+	// Initialize the cookie store in the auth module
+	cookies.InitCookieStore()
 
 	// Set the app to use all the available processors
 	runtime.GOMAXPROCS(numberOfProcessors)
