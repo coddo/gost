@@ -48,7 +48,7 @@ func createTransaction(t *testing.T, transaction *dbmodels.Transaction) {
 		ID:         bson.NewObjectId(),
 		PayerID:    bson.NewObjectId(),
 		ReceiverID: bson.NewObjectId(),
-		Type:       models.CashTransactionType,
+		Type:       models.TransactionTypeCash,
 		Ammount:    6469.1264,
 		Currency:   "RON",
 		Date:       time.Now().Local(),
@@ -64,7 +64,7 @@ func createTransaction(t *testing.T, transaction *dbmodels.Transaction) {
 func changeAndUpdateTransaction(t *testing.T, transaction *dbmodels.Transaction) {
 	transaction.PayerID = bson.NewObjectId()
 	transaction.ReceiverID = bson.NewObjectId()
-	transaction.Type = models.CardTransactionType
+	transaction.Type = models.TransactionTypeCard
 	transaction.Currency = "USD"
 
 	err := UpdateTransaction(transaction)

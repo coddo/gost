@@ -3,10 +3,11 @@ package auth
 import (
 	"errors"
 	"gost/auth/cookies"
-	"gost/orm/models"
 	"gost/util"
 	"net/http"
 	"strings"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 // The keys that are used in the request header to authorize the user
@@ -24,12 +25,12 @@ var (
 )
 
 // CreateToken generates a new gost-token, saves it in the database and returns it to the client
-func CreateToken(user *models.ApplicationUser, client *cookies.Client) (string, error) {
+func CreateToken(userID bson.ObjectId, client *cookies.Client) (string, error) {
 	if client == nil {
 		return ErrInexistentClientDetails.Error(), ErrInexistentClientDetails
 	}
 
-	session, err := cookies.NewSession(user, client)
+	session, err := cookies.NewSession(userID, client)
 	if err != nil {
 		return err.Error(), err
 	}

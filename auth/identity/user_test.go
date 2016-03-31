@@ -1,10 +1,9 @@
-package appuserservice
+package identity
 
 import (
-	"gost/orm"
-	"gost/orm/dbmodels"
 	"gost/service"
 	testconfig "gost/tests/config"
+	"gost/util"
 	"testing"
 	"time"
 
@@ -12,7 +11,7 @@ import (
 )
 
 func TestUserCRUD(t *testing.T) {
-	user := &dbmodels.ApplicationUser{}
+	user := &ApplicationUser{}
 
 	setUpUsersTest(t)
 	defer tearDownUsersTest(t, user)
@@ -35,7 +34,7 @@ func setUpUsersTest(t *testing.T) {
 	}
 }
 
-func tearDownUsersTest(t *testing.T, user *dbmodels.ApplicationUser) {
+func tearDownUsersTest(t *testing.T, user *ApplicationUser) {
 	err := deleteUser(user.ID)
 
 	if err != nil {
@@ -43,15 +42,15 @@ func tearDownUsersTest(t *testing.T, user *dbmodels.ApplicationUser) {
 	}
 }
 
-func createUser(t *testing.T, user *dbmodels.ApplicationUser) {
-	*user = dbmodels.ApplicationUser{
+func createUser(t *testing.T, user *ApplicationUser) {
+	*user = ApplicationUser{
 		ID:                           bson.NewObjectId(),
 		Password:                     "CoddoPass",
-		AccountType:                  orm.AccountTypeAdministrator,
+		AccountType:                  AccountTypeAdministrator,
 		Email:                        "test@tests.com",
 		ResetPasswordToken:           "as7f6as8faf5aasf6721rqf",
 		ResetPasswordTokenExpireDate: time.Now(),
-		AccountStatus:                orm.AccountStatusActivated,
+		AccountStatus:                AccountStatusActivated,
 	}
 
 	err := CreateUser(user)
@@ -61,11 +60,11 @@ func createUser(t *testing.T, user *dbmodels.ApplicationUser) {
 	}
 }
 
-func changeAndUpdateUser(t *testing.T, user *dbmodels.ApplicationUser) {
+func changeAndUpdateUser(t *testing.T, user *ApplicationUser) {
 	user.Email = "testEmailCHanged@email.go"
 	user.Password = "ChangedPassword"
-	user.AccountType = orm.AccountTypeNormalUser
-	user.AccountStatus = orm.AccountStatusDeactivated
+	user.AccountType = AccountTypeNormalUser
+	user.AccountStatus = AccountStatusDeactivated
 
 	err := UpdateUser(user)
 
@@ -74,14 +73,20 @@ func changeAndUpdateUser(t *testing.T, user *dbmodels.ApplicationUser) {
 	}
 }
 
-func verifyUserCorresponds(t *testing.T, user *dbmodels.ApplicationUser) {
+func verifyUserCorresponds(t *testing.T, user *ApplicationUser) {
 	dbuser, err := GetUser(user.ID)
 
 	if err != nil || dbuser == nil {
 		t.Error("Could not fetch the user document from the database!")
 	}
 
-	if !dbuser.Equal(user) {
+	if user.AccountStatus != dbuser.AccountStatus || user.AccountType != dbuser.AccountType ||
+		user.ActivateAccountToken != dbuser.ActivateAccountToken ||
+		!util.CompareDates(user.ActivateAccountTokenExpireDate, dbuser.ActivateAccountTokenExpireDate) ||
+		user.Email != dbuser.Email || user.Password != dbuser.Password ||
+		user.ResetPasswordToken != dbuser.ResetPasswordToken ||
+		!util.CompareDates(user.ResetPasswordTokenExpireDate, dbuser.ResetPasswordTokenExpireDate) {
+
 		t.Error("The user document doesn't correspond with the document extracted from the database!")
 	}
 }

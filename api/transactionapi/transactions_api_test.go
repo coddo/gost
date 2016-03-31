@@ -3,6 +3,7 @@ package transactionapi
 import (
 	"fmt"
 	"gost/api"
+	"gost/auth/identity"
 	"gost/orm/models"
 	"gost/service/transactionservice"
 	"gost/tests"
@@ -80,7 +81,7 @@ func testPostTransactionInBadFormat(t *testing.T) {
 func testPostTransactionNotIntegral(t *testing.T) {
 	transaction := &models.Transaction{
 		ID:       bson.NewObjectId(),
-		Payer:    models.ApplicationUser{ID: bson.NewObjectId()},
+		Payer:    &identity.ApplicationUser{ID: bson.NewObjectId()},
 		Currency: "USD",
 	}
 
@@ -90,9 +91,9 @@ func testPostTransactionNotIntegral(t *testing.T) {
 func testPostTransactionInGoodFormat(t *testing.T) bson.ObjectId {
 	transaction := &models.Transaction{
 		ID:       bson.NewObjectId(),
-		Payer:    models.ApplicationUser{ID: bson.NewObjectId()},
-		Receiver: models.ApplicationUser{ID: bson.NewObjectId()},
-		Type:     models.CashTransactionType,
+		Payer:    &identity.ApplicationUser{ID: bson.NewObjectId()},
+		Receiver: &identity.ApplicationUser{ID: bson.NewObjectId()},
+		Type:     models.TransactionTypeCash,
 		Ammount:  216.365,
 		Currency: "USD",
 	}

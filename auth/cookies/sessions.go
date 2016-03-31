@@ -2,7 +2,6 @@ package cookies
 
 import (
 	"errors"
-	"gost/orm/models"
 	"gost/util"
 	"time"
 
@@ -59,6 +58,11 @@ func (session *Session) IsExpired() bool {
 	return util.IsDateExpiredFromNow(session.ExpireTime)
 }
 
+// IsUserInRole verifies if the user with the current session has a specific role
+func (session *Session) IsUserInRole(role int) bool {
+	return session.AccountType == role
+}
+
 // ResetToken generates a new token and resets the expire time target of the session
 // This also triggers a Save() action, to update the cookie store
 func (session *Session) ResetToken() error {
@@ -73,25 +77,19 @@ func (session *Session) ResetToken() error {
 	return session.Save()
 }
 
-// IsInRole verifies if the user with the current session has a specific role
-func (session *Session) IsInRole(role int) bool {
-	return session.AccountType == role
-}
-
 // NewSession generates a new Session pointer that contains the given userID and
 // a unique token used as an identifier
-func NewSession(user *models.ApplicationUser, client *Client) (*Session, error) {
+func NewSession(userID bson.ObjectId, client *Client) (*Session, error) {
 	token, err := util.GenerateUUID()
 	if err != nil {
 		return nil, err
 	}
 
 	session := &Session{
-		UserID:      user.ID,
-		Token:       token,
-		AccountType: user.AccountType,
-		ExpireTime:  util.NextDateFromNow(tokenExpireTime),
-		Client:      client,
+		UserID:     userID,
+		Token:      token,
+		ExpireTime: util.NextDateFromNow(tokenExpireTime),
+		Client:     client,
 	}
 
 	return session, nil

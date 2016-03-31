@@ -3,6 +3,7 @@ package httphandle
 import (
 	"fmt"
 	"gost/api"
+	"gost/auth/cookies"
 	"gost/cache"
 	"gost/config"
 	"gost/filter"
@@ -151,7 +152,7 @@ func generateRequest(req *http.Request, rw http.ResponseWriter, route *config.Ro
 		Form:          req.Form,
 		ContentLength: req.ContentLength,
 		Body:          body,
-		Session:       nil,
+		Session:       &cookies.Session{},
 	}
 
 	return request
