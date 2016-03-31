@@ -151,6 +151,7 @@ func generateRequest(req *http.Request, rw http.ResponseWriter, route *config.Ro
 		Form:          req.Form,
 		ContentLength: req.ContentLength,
 		Body:          body,
+		Session:       nil,
 	}
 
 	return request

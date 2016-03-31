@@ -1,8 +1,6 @@
 package main
 
 import (
-	"gost/api/appuserapi"
-	"gost/api/authapi"
 	"gost/api/transactionapi"
 	"gost/auth/cookies"
 	"gost/cache"
@@ -21,9 +19,7 @@ var numberOfProcessors = runtime.NumCPU()
 // APIContainer is a struct used for boxing all the existing api endpoints. It is used for mapping requests to functions.
 // Add all the existing endpoints as part of this container
 type APIContainer struct {
-	appuserapi.ApplicationUsersAPI
 	transactionapi.TransactionsAPI
-	authapi.AuthAPI
 }
 
 // Application entry point - sets the behavior for the app

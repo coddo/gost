@@ -73,6 +73,11 @@ func (session *Session) ResetToken() error {
 	return session.Save()
 }
 
+// IsInRole verifies if the user with the current session has a specific role
+func (session *Session) IsInRole(role int) bool {
+	return session.AccountType == role
+}
+
 // NewSession generates a new Session pointer that contains the given userID and
 // a unique token used as an identifier
 func NewSession(user *models.ApplicationUser, client *Client) (*Session, error) {

@@ -3,7 +3,7 @@ package transactionapi
 import (
 	"gost/api"
 	"gost/bll"
-	"gost/filter/apifilter"
+	"gost/filter"
 	"gost/orm/models"
 	"gost/util"
 )
@@ -13,7 +13,7 @@ type TransactionsAPI int
 
 // Get endpoint retrieves a certain transaction based on its Id
 func (t *TransactionsAPI) Get(vars *api.Request) api.Response {
-	transactionID, found, err := apifilter.GetIDFromParams(vars.Form)
+	transactionID, found, err := filter.GetIDFromParams(vars.Form)
 
 	if err != nil {
 		return api.BadRequest(err)

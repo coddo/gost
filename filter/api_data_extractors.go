@@ -1,4 +1,4 @@
-package apifilter
+package filter
 
 import (
 	"errors"

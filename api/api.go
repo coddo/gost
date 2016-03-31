@@ -7,6 +7,7 @@ package api
 
 import (
 	"errors"
+	"gost/auth/cookies"
 	"net/http"
 	"net/url"
 )
@@ -54,6 +55,7 @@ type Request struct {
 	Form          url.Values
 	ContentLength int64
 	Body          []byte
+	Session       *cookies.Session
 }
 
 // A Response contains the information that will be sent back to the user
