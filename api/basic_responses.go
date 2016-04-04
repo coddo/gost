@@ -36,8 +36,8 @@ func StatusResponse(statusCode int) Response {
 	return Response{StatusCode: statusCode}
 }
 
-// ByteResponse creates a Response from the api, containing a status code and a message in the form of a byte array
-func ByteResponse(statusCode int, data []byte) Response {
+// ByteMsgResponse creates a Response from the api, containing a status code and a message in the form of a byte array
+func ByteMsgResponse(statusCode int, data []byte) Response {
 	return Response{
 		StatusCode: statusCode,
 		Content:    data,

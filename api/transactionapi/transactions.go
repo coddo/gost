@@ -13,8 +13,8 @@ import (
 type TransactionsAPI int
 
 // Get endpoint retrieves a certain transaction based on its Id
-func (t *TransactionsAPI) Get(vars *api.Request) api.Response {
-	transactionID, found, err := filter.GetIDFromParams(vars.Form)
+func (t *TransactionsAPI) Get(params *api.Request) api.Response {
+	transactionID, found, err := filter.GetIDFromParams(params.Form)
 
 	if err != nil {
 		return api.BadRequest(err)
@@ -28,10 +28,10 @@ func (t *TransactionsAPI) Get(vars *api.Request) api.Response {
 }
 
 // Create endpoint creates a new transaction with the valid transfer tokens and data
-func (t *TransactionsAPI) Create(vars *api.Request) api.Response {
+func (t *TransactionsAPI) Create(params *api.Request) api.Response {
 	transaction := &models.Transaction{}
 
-	err := util.DeserializeJSON(vars.Body, transaction)
+	err := util.DeserializeJSON(params.Body, transaction)
 	if err != nil || !apifilter.CheckTransactionIntegrity(transaction) {
 		return api.BadRequest(api.ErrEntityFormat)
 	}

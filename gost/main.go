@@ -2,6 +2,7 @@ package main
 
 import (
 	"gost/api/transactionapi"
+	"gost/api/valuesapi"
 	"gost/auth/cookies"
 	"gost/cache"
 	"gost/config"
@@ -20,6 +21,13 @@ var numberOfProcessors = runtime.NumCPU()
 // Add all the existing endpoints as part of this container
 type APIContainer struct {
 	transactionapi.TransactionsAPI
+}
+
+// DevAPIContainer is used only for development purposes.
+// Register all the necessary api endpoints in the APIContainer type as this one just inherits it
+type DevAPIContainer struct {
+	APIContainer
+	valuesapi.ValuesAPI
 }
 
 // Application entry point - sets the behavior for the app
@@ -54,7 +62,8 @@ func init() {
 	service.InitDbService()
 
 	// Register the API endpoints
-	httphandle.RegisterEndpoints(new(APIContainer))
+	httphandle.RegisterEndpoints(new(DevAPIContainer))
+	// httphandle.RegisterEndpoints(new(APIContainer))   ----- Use this API container when deploying in PRODUCTION
 
 	// Start the caching system
 	cache.StartCachingSystem(cache.CacheExpireTime)

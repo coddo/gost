@@ -32,7 +32,7 @@ func GenerateUserAuth(userID bson.ObjectId, client *cookies.Client) (string, err
 		return ErrInexistentClientDetails.Error(), ErrInexistentClientDetails
 	}
 
-	if !identity.Exists(userID) {
+	if !identity.IsUserExistent(userID) {
 		return ErrInvalidUser.Error(), ErrInvalidUser
 	}
 

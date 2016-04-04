@@ -53,9 +53,9 @@ func MethodNotAllowed() Response {
 // Unauthorized returns a status and message that signals the API client
 // that the login failed or that the client isn't
 // logged in and therefore not authorized to use the endpoint
-func Unauthorized(err error) Response {
+func Unauthorized(message string) Response {
 	return Response{
 		StatusCode:   http.StatusUnauthorized,
-		ErrorMessage: err.Error(),
+		ErrorMessage: message,
 	}
 }
