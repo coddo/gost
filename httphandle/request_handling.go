@@ -1,39 +1,67 @@
 package httphandle
 
 import (
+	"gost/auth"
+	"gost/auth/identity"
 	"gost/config"
 	"net/http"
 	"net/url"
 	"strings"
 )
 
-// RequestHandler receives, parses and validates a HTTP request, which is then routed to the corresponding endpoint
-func RequestHandler(rw http.ResponseWriter, req *http.Request) {
-	pattern, endpoint, parseSuccessful := parseRequestURL(req.URL)
+// Authorization encompasses the identity provided by the auth package
+type Authorization struct {
+	Identity *identity.Identity
+	Error    error
+}
 
-	if !parseSuccessful {
-		sendMessageResponse(http.StatusBadRequest, "The format of the request URL is invalid", rw, req, pattern)
+// RequestHandler receives, parses and validates a HTTP request, which is then routed to the corresponding endpoint and method
+func RequestHandler(rw http.ResponseWriter, req *http.Request) {
+	authChan := make(chan *Authorization)
+	go authorize(req, authChan)
+
+	endpoint, endpointAction, isParseSuccessful := parseRequestURL(req.URL)
+
+	if !isParseSuccessful {
+		close(authChan)
+		sendMessageResponse(http.StatusBadRequest, "The format of the request URL is invalid", rw, req, endpoint, endpointAction)
 		return
 	}
 
-	route := findRoute(pattern)
+	route := findRoute(endpoint)
 
 	if route == nil {
-		sendMessageResponse(http.StatusNotFound, "404 - The requested page cannot be found", rw, req, pattern)
+		close(authChan)
+		sendMessageResponse(http.StatusNotFound, "404 - The requested page cannot be found", rw, req, endpoint, endpointAction)
 		return
 	}
 
-	if !validateEndpoint(endpoint, route) {
-		sendMessageResponse(http.StatusUnauthorized, "The requested endpoint is either not implemented, or not allowed", rw, req, pattern)
+	if !validateEndpoint(endpointAction, route) {
+		close(authChan)
+		sendMessageResponse(http.StatusUnauthorized, "The requested endpoint is either not implemented, or not allowed", rw, req, endpoint, endpointAction)
 		return
 	}
 
-	RouteRequest(endpoint, rw, req, route)
+	RouteRequest(rw, req, route, endpointAction, authChan)
+}
+
+func authorize(req *http.Request, authChan chan *Authorization) {
+	// Recover in case the authorization channel was closed before the writing is done
+	defer func() {
+		recover()
+	}()
+
+	identity, err := auth.Authorize(req.Header)
+
+	authChan <- &Authorization{
+		Identity: identity,
+		Error:    err,
+	}
 }
 
 func findRoute(pattern string) *config.Route {
 	for _, route := range config.Routes {
-		if route.Pattern == pattern {
+		if route.Endpoint == pattern {
 			return &route
 		}
 	}
@@ -42,7 +70,7 @@ func findRoute(pattern string) *config.Route {
 }
 
 func validateEndpoint(endpoint string, route *config.Route) bool {
-	if _, found := route.Handlers[endpoint]; found {
+	if _, found := route.Actions[endpoint]; found {
 		return true
 	}
 
@@ -76,10 +104,10 @@ func parseRequestURL(u *url.URL) (string, string, bool) {
 	}
 
 	// Get the endpoint name
-	endpoint := fullPath[lastSeparatorIndex+1:]
+	endpoint := fullPath[:lastSeparatorIndex]
 
-	// Get the pattern of the route
-	pattern := fullPath[:lastSeparatorIndex]
+	// Get the endpoint's action name
+	action := fullPath[lastSeparatorIndex+1:]
 
-	return pattern, endpoint, successfulParse
+	return endpoint, action, successfulParse
 }

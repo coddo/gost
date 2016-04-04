@@ -1,8 +1,8 @@
 [
   {
     "id": "ApplicationUsersRoute",
-    "pattern": "/appusers",
-    "handlers": {
+    "endpoint": "/appusers",
+    "actions": {
       "Create": "POST",
       "Get": "GET",
       "GetAll": "GET",
@@ -11,8 +11,8 @@
   },
   {
     "id": "UserSessionsRoute",
-    "pattern": "/users/login",
-    "handlers": {
+    "endpoint": "/users/login",
+    "actions": {
       "Create": "POST",
       "Delete": "DELETE",
       "Get": "GET"
@@ -20,8 +20,8 @@
   },
   {
     "id": "TransactionsRoute",
-    "pattern": "/transactions",
-    "handlers": {
+    "endpoint": "/transactions",
+    "actions": {
       "Create": "POST",
       "Delete": "DELETE",
       "Get": "GET"

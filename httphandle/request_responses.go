@@ -1,13 +1,14 @@
 package httphandle
 
 import (
+	"bytes"
 	"gost/api"
 	"gost/filter"
 	"log"
 	"net/http"
 )
 
-func sendResponse(statusCode int, message []byte, rw http.ResponseWriter, req *http.Request, pattern, contentType, file string) {
+func sendResponse(statusCode int, message []byte, rw http.ResponseWriter, req *http.Request, endpoint, endpointAction, contentType, filePath string) {
 	// Handle redirect
 	if statusCode == http.StatusTemporaryRedirect {
 		http.Redirect(rw, req, string(message), statusCode)
@@ -19,40 +20,45 @@ func sendResponse(statusCode int, message []byte, rw http.ResponseWriter, req *h
 		}
 
 		// Handle response type
-		if len(file) > 0 {
-			serveFile(rw, req, file)
+		if len(filePath) > 0 {
+			serveFile(rw, req, filePath)
 		} else {
 			serveRawData(statusCode, message, rw)
 		}
 	}
 
 	// Log event
-	logRequest(statusCode, message, req.Method, pattern)
+	go logRequest(statusCode, message, req.Method, endpoint, endpointAction)
 }
 
-func sendMessageResponse(statusCode int, message string, rw http.ResponseWriter, req *http.Request, pattern string) {
+func sendMessageResponse(statusCode int, message string, rw http.ResponseWriter, req *http.Request, endpoint, endpointAction string) {
 	msg := []byte(message)
 
-	sendResponse(statusCode, msg, rw, req, pattern, api.ContentTextPlain, "")
+	sendResponse(statusCode, msg, rw, req, endpoint, endpointAction, api.ContentTextPlain, "")
 }
 
-func sendStatusResponse(statusCode int, rw http.ResponseWriter, req *http.Request, pattern string) string {
+func sendStatusResponse(statusCode int, rw http.ResponseWriter, req *http.Request, endpoint, endpointAction string) string {
 	msg := http.StatusText(statusCode)
 
 	if len(msg) == 0 {
 		msg = StatusText(statusCode)
 	}
 
-	sendMessageResponse(statusCode, msg, rw, req, pattern)
+	sendMessageResponse(statusCode, msg, rw, req, endpoint, endpointAction)
 
 	return msg
 }
 
-func logRequest(statusCode int, message []byte, method, pattern string) {
+func logRequest(statusCode int, message []byte, httpMethod, endpoint, endpointAction string) {
+	var requestPath bytes.Buffer
+	requestPath.WriteString(endpoint)
+	requestPath.WriteRune('/')
+	requestPath.WriteString(endpointAction)
+
 	if statusCode >= 400 {
-		log.Println(method, pattern, statusCode, string(message))
+		log.Println(httpMethod, requestPath.String(), statusCode, string(message))
 	} else {
-		log.Println(method, pattern, statusCode)
+		log.Println(httpMethod, requestPath.String(), statusCode)
 	}
 }
 

@@ -73,3 +73,10 @@ func GetUser(userID bson.ObjectId) (*ApplicationUser, error) {
 
 	return &user, err
 }
+
+// Exists verifies if an user with the given id exists
+func Exists(userID bson.ObjectId) bool {
+	user, err := GetUser(userID)
+
+	return err == nil && user != nil
+}

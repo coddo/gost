@@ -3,6 +3,7 @@ package auth
 import (
 	"errors"
 	"gost/auth/cookies"
+	"gost/auth/identity"
 	"gost/util"
 	"net/http"
 	"strings"
@@ -20,14 +21,19 @@ const (
 var (
 	ErrInvalidScheme           = errors.New("The used authorization scheme is invalid or not supported")
 	ErrInvalidToken            = errors.New("The given token is expired or invalid")
+	ErrInvalidUser             = errors.New("There is no application user with the given ID")
 	ErrAnonymousUser           = errors.New("The user has no identity")
 	ErrInexistentClientDetails = errors.New("Missing client details. Cannot create authorization for anonymous client")
 )
 
-// CreateToken generates a new gost-token, saves it in the database and returns it to the client
-func CreateToken(userID bson.ObjectId, client *cookies.Client) (string, error) {
+// GenerateUserAuth generates a new gost-token, saves it in the database and returns it to the client
+func GenerateUserAuth(userID bson.ObjectId, client *cookies.Client) (string, error) {
 	if client == nil {
 		return ErrInexistentClientDetails.Error(), ErrInexistentClientDetails
+	}
+
+	if !identity.Exists(userID) {
+		return ErrInvalidUser.Error(), ErrInvalidUser
 	}
 
 	session, err := cookies.NewSession(userID, client)
@@ -39,39 +45,44 @@ func CreateToken(userID bson.ObjectId, client *cookies.Client) (string, error) {
 }
 
 // Authorize tries to authorize an existing gostToken
-func Authorize(httpHeader http.Header) (string, error) {
+func Authorize(httpHeader http.Header) (*identity.Identity, error) {
 	gostToken, err := extractGostToken(httpHeader)
 	if err != nil {
-		return err.Error(), err
+		if err == ErrAnonymousUser {
+			return identity.NewAnonymous(), nil
+		}
+
+		return nil, err
 	}
 
 	encryptedToken, err := util.Decode([]byte(gostToken))
 	if err != nil {
-		return err.Error(), err
+		return nil, err
 	}
 
 	jsonToken, err := util.Decrypt(encryptedToken)
 	if err != nil {
-		return err.Error(), err
+		return nil, err
 	}
 
 	var cookie *cookies.Session
 	err = util.DeserializeJSON(jsonToken, cookie)
 	if err != nil {
-		return err.Error(), err
+		return nil, err
 	}
 
 	if cookie.IsExpired() {
-		return err.Error(), cookies.ErrTokenExpired
+		return nil, cookies.ErrTokenExpired
 	}
 
 	dbCookie, err := cookies.GetSession(cookie.Token)
 	if err != nil || dbCookie == nil {
-		return err.Error(), ErrInvalidToken
+		return nil, ErrInvalidToken
 	}
 
 	cookie.ResetToken()
-	return encodeToken(cookie)
+
+	return identity.New(cookie), nil
 }
 
 func extractGostToken(httpHeader http.Header) (string, error) {

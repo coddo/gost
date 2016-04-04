@@ -32,9 +32,9 @@ func configRoutes(t *testing.T) {
 
 func addRoute(t *testing.T) Route {
 	route := Route{
-		ID:      "TestRoute",
-		Pattern: "/test/pattern/{testVar}",
-		Handlers: map[string]string{
+		ID:       "TestRoute",
+		Endpoint: "/test/pattern/{testVar}",
+		Actions: map[string]string{
 			GetHTTPMethod:    "Api.GetTest",
 			PostHTTPMethod:   "Api.PostTest",
 			PutHTTPMethod:    "Api.PutTest",
@@ -57,7 +57,7 @@ func modifyRoute(t *testing.T, routeID string) Route {
 	}
 
 	r.ID = "TestRouteModified"
-	r.Pattern = "/test/patternModified"
+	r.Endpoint = "/test/patternModified"
 
 	err := ModifyRoute(routeID, *r, true)
 	if err != nil {
