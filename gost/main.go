@@ -8,6 +8,7 @@ import (
 	"gost/cache"
 	"gost/config"
 	"gost/httphandle"
+	"gost/security"
 	"gost/servers"
 	"gost/service"
 	"log"
@@ -68,13 +69,17 @@ func init() {
 	// httphandle.RegisterEndpoints(new(APIContainer))   ----- Use this API container when deploying in PRODUCTION
 
 	// Start the caching system
-	cache.StartCachingSystem(cache.CacheExpireTime)
+	//cache.StartCachingSystem(cache.CacheExpireTime)
 
 	// Initialize the cookie store in the auth module
 	cookies.InitCookieStore()
 
+	// Initialize the encryption module
+	security.InitCipherModule()
+
 	// Set the app to use all the available processors
-	runtime.GOMAXPROCS(numberOfProcessors)
+	// runtime.GOMAXPROCS(numberOfProcessors)
+	runtime.GOMAXPROCS(100) // ---- EXPERIMENTAL!
 }
 
 func listenForInterruptSignal() {

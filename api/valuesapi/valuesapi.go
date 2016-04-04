@@ -17,7 +17,7 @@ func (v *ValuesAPI) Get(params *api.Request) api.Response {
 		return api.Unauthorized("You must be authorized to use this endpoint action")
 	}
 
-	message.WriteString("You are currently authorized.\nYour role is:")
+	message.WriteString("You are currently authorized.\nYour role is: ")
 	if params.Identity.IsAdmin() {
 		message.WriteString("ADMIN")
 	} else {
@@ -35,7 +35,7 @@ func (v *ValuesAPI) GetAnonymous(params *api.Request) api.Response {
 	message.WriteString("You have accessed an endpoint action available for anonymous users.\n")
 
 	if params.Identity.IsAuthorized() {
-		message.WriteString("BTW, you are an authorized user")
+		message.WriteString("BTW, You are an authorized user")
 	} else if !params.Identity.IsAnonymous() {
 		message.WriteString("Cannot verify your authorization status, something is wrong")
 		status = http.StatusForbidden

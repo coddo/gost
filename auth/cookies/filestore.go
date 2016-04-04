@@ -2,6 +2,7 @@ package cookies
 
 import (
 	"bytes"
+	"gost/security"
 	"gost/util"
 	"io/ioutil"
 	"os"
@@ -20,7 +21,7 @@ func (store *FileCookieStore) ReadCookie(key string) (*Session, error) {
 		return nil, err
 	}
 
-	jsonData, err := util.Decrypt(encryptedData)
+	jsonData, err := security.Decrypt(encryptedData)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +41,7 @@ func (store *FileCookieStore) WriteCookie(cookie *Session) error {
 		return err
 	}
 
-	encryptedData, err := util.Encrypt(jsonData)
+	encryptedData, err := security.Encrypt(jsonData)
 	if err != nil {
 		return err
 	}

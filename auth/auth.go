@@ -4,8 +4,8 @@ import (
 	"errors"
 	"gost/auth/cookies"
 	"gost/auth/identity"
+	"gost/security"
 	"gost/util"
-	"log"
 	"net/http"
 	"strings"
 
@@ -42,7 +42,24 @@ func GenerateUserAuth(userID bson.ObjectId, client *cookies.Client) (string, err
 		return err.Error(), err
 	}
 
-	return encodeToken(session)
+	err = session.Save()
+	if err != nil {
+		return err.Error(), err
+	}
+
+	jsonToken, err := util.SerializeJSON(session)
+	if err != nil {
+		return err.Error(), err
+	}
+
+	encryptedToken, err := security.Encrypt(jsonToken)
+	if err != nil {
+		return err.Error(), err
+	}
+
+	gostToken := util.Encode(encryptedToken)
+
+	return string(gostToken), nil
 }
 
 // Authorize tries to authorize an existing gostToken
@@ -57,37 +74,27 @@ func Authorize(httpHeader http.Header) (*identity.Identity, error) {
 	}
 
 	encryptedToken, err := util.Decode([]byte(gostToken))
-	log.Println("ENCRYPTED TOKEN:", encryptedToken, err)
 	if err != nil {
 		return nil, err
 	}
 
-	jsonToken, err := util.Decrypt(encryptedToken)
-	log.Println("JSON TOKEN:", jsonToken, err)
+	jsonToken, err := security.Decrypt(encryptedToken)
 	if err != nil {
 		return nil, err
 	}
 
-	var cookie *cookies.Session
+	cookie := new(cookies.Session)
 	err = util.DeserializeJSON(jsonToken, cookie)
-	log.Println("COOKIE:", cookie, err)
 	if err != nil {
 		return nil, err
-	}
-
-	if cookie.IsExpired() {
-		log.Println("COOKIE HAS EXPIRED!")
-		return nil, cookies.ErrTokenExpired
 	}
 
 	dbCookie, err := cookies.GetSession(cookie.Token)
-	log.Println("DATABASE COOKIE:", dbCookie, err)
 	if err != nil || dbCookie == nil {
-		return nil, ErrInvalidToken
+		return nil, err
 	}
 
-	cookie.ResetToken()
-	log.Println("COOKIE AFTER RESET:", cookie, err)
+	go cookie.ResetToken()
 
 	return identity.New(cookie), nil
 }
@@ -111,25 +118,4 @@ func extractGostToken(httpHeader http.Header) (string, error) {
 	}
 
 	return gostTokenValue, nil
-}
-
-func encodeToken(session *cookies.Session) (string, error) {
-	err := session.Save()
-	if err != nil {
-		return err.Error(), err
-	}
-
-	jsonToken, err := util.SerializeJSON(session)
-	if err != nil {
-		return err.Error(), err
-	}
-
-	encryptedToken, err := util.Encrypt(jsonToken)
-	if err != nil {
-		return err.Error(), err
-	}
-
-	gostToken := util.Encode(encryptedToken)
-
-	return string(gostToken), nil
 }

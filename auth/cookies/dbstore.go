@@ -17,10 +17,10 @@ func (store *DatabaseCookieStore) ReadCookie(key string) (*Session, error) {
 	session, collection := service.Connect(store.location)
 	defer session.Close()
 
-	var cookie *Session
-	err := collection.Find(bson.M{"token": key}).One(cookie)
+	cookie := Session{}
+	err := collection.Find(bson.M{"token": key}).One(&cookie)
 
-	return cookie, err
+	return &cookie, err
 }
 
 // WriteCookie writes a cookie in the cookie store. If that cookie already exists,

@@ -108,7 +108,7 @@ func GetSession(token string) (*Session, error) {
 			err = ErrTokenExpired
 		}
 
-		return nil, ErrTokenExpired
+		return nil, err
 	}
 
 	return session, nil
