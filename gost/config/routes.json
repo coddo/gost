@@ -1,29 +1,9 @@
 [
   {
-    "id": "ApplicationUsersRoute",
-    "endpoint": "/appusers",
-    "actions": {
-      "Create": "POST",
-      "Get": "GET",
-      "GetAll": "GET",
-      "Update": "PUT"
-    }
-  },
-  {
-    "id": "UserSessionsRoute",
-    "endpoint": "/users/login",
-    "actions": {
-      "Create": "POST",
-      "Delete": "DELETE",
-      "Get": "GET"
-    }
-  },
-  {
     "id": "TransactionsRoute",
     "endpoint": "/transactions",
     "actions": {
       "Create": "POST",
-      "Delete": "DELETE",
       "Get": "GET"
     }
   }

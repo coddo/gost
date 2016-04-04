@@ -18,8 +18,8 @@ const (
 type Transaction struct {
 	ID bson.ObjectId `json:"id"`
 
-	Payer    *identity.ApplicationUser `json:"payer"`
-	Receiver *identity.ApplicationUser `json:"receiver"`
+	Payer    identity.ApplicationUser `json:"payer"`
+	Receiver identity.ApplicationUser `json:"receiver"`
 
 	PaymentPortal string `json:"paymentPortal"`
 	PaymentToken  string `json:"paymentToken"`

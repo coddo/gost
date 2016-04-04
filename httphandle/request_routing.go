@@ -7,7 +7,6 @@ import (
 	"gost/config"
 	"gost/filter"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"reflect"
 )
@@ -50,10 +49,8 @@ func RouteRequest(rw http.ResponseWriter, req *http.Request, route *config.Route
 
 	// Check if the searched method from the endpoint exists
 	if endpointMethod == zeroEndpointMethod {
-		log.Println("The endpoint method is either inexistent or incorrectly mapped. Please check the server configuration files!")
-
-		sendStatusResponse(http.StatusInternalServerError, rw, req, route.Endpoint, endpointAction)
-
+		message := "The endpoint method is either inexistent or incorrectly mapped. Please check the server configuration files!"
+		sendMessageResponse(http.StatusInternalServerError, message, rw, req, route.Endpoint, endpointAction)
 		return
 	}
 

@@ -21,27 +21,30 @@ const (
 
 const apiPath = "/transactions"
 
-var transactionsRoute = fmt.Sprintf(`[{"id": "TransactionsRoute", "pattern": "/transactions", 
-    "handlers": {"%s": "POST", "%s": "GET"}}]`, CREATE, GET)
+var transactionsRoute = fmt.Sprintf(`[{"id": "TransactionsRoute", "endpoint": "/transactions", 
+    "actions": {"%s": "POST", "%s": "GET"}}]`, CREATE, GET)
 
 type dummyTransaction struct {
 	BadField string
 }
 
-func (transaction *dummyTransaction) PopConstrains() {}
-
 func TestTransactionsApi(t *testing.T) {
+	var id bson.ObjectId
+
 	tests.InitializeServerConfigurations(transactionsRoute, new(TransactionsAPI))
+
+	// Cleanup function
+	defer func() {
+		recover()
+		transactionservice.DeleteTransaction(id)
+	}()
 
 	testPostTransactionInBadFormat(t)
 	testPostTransactionNotIntegral(t)
-	id := testPostTransactionInGoodFormat(t)
+	id = testPostTransactionInGoodFormat(t)
 	testGetTransactionWithInexistentIDInDB(t)
 	testGetTransactionWithBadIDParam(t)
 	testGetTransactionWithGoodIDParam(t, id)
-
-	// Delete the created transaction
-	transactionservice.DeleteTransaction(id)
 }
 
 func testGetTransactionWithInexistentIDInDB(t *testing.T) {
@@ -66,7 +69,7 @@ func testGetTransactionWithGoodIDParam(t *testing.T, id bson.ObjectId) {
 
 	body := rw.Body.String()
 	if len(body) == 0 {
-		t.Error("Response body is empty or in deteriorated format:", body)
+		t.Error("Response body is empty or in a corrupt format:", body)
 	}
 }
 
@@ -81,7 +84,7 @@ func testPostTransactionInBadFormat(t *testing.T) {
 func testPostTransactionNotIntegral(t *testing.T) {
 	transaction := &models.Transaction{
 		ID:       bson.NewObjectId(),
-		Payer:    &identity.ApplicationUser{ID: bson.NewObjectId()},
+		Payer:    identity.ApplicationUser{ID: bson.NewObjectId()},
 		Currency: "USD",
 	}
 
@@ -91,8 +94,8 @@ func testPostTransactionNotIntegral(t *testing.T) {
 func testPostTransactionInGoodFormat(t *testing.T) bson.ObjectId {
 	transaction := &models.Transaction{
 		ID:       bson.NewObjectId(),
-		Payer:    &identity.ApplicationUser{ID: bson.NewObjectId()},
-		Receiver: &identity.ApplicationUser{ID: bson.NewObjectId()},
+		Payer:    identity.ApplicationUser{ID: bson.NewObjectId()},
+		Receiver: identity.ApplicationUser{ID: bson.NewObjectId()},
 		Type:     models.TransactionTypeCash,
 		Ammount:  216.365,
 		Currency: "USD",

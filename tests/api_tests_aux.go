@@ -42,7 +42,7 @@ func PerformTestRequest(route, endpoint, method string, expectedStatusCode int, 
 	httphandle.RequestHandler(rw, req)
 
 	if rw.Code != expectedStatusCode {
-		t.Fatal("Response assertion failed! Needed:", expectedStatusCode, "Got:", rw.Code, "Message:", rw.Body.String())
+		t.Fatal("Response assertion failed! Needed status:", expectedStatusCode, "Got:", rw.Code, "Message:", rw.Body.String())
 	}
 
 	return rw

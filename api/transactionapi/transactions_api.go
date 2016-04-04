@@ -4,6 +4,7 @@ import (
 	"gost/api"
 	"gost/bll"
 	"gost/filter"
+	"gost/filter/apifilter"
 	"gost/orm/models"
 	"gost/util"
 )
@@ -31,7 +32,7 @@ func (t *TransactionsAPI) Create(vars *api.Request) api.Response {
 	transaction := &models.Transaction{}
 
 	err := util.DeserializeJSON(vars.Body, transaction)
-	if err != nil {
+	if err != nil || !apifilter.CheckTransactionIntegrity(transaction) {
 		return api.BadRequest(api.ErrEntityFormat)
 	}
 
