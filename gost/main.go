@@ -1,6 +1,7 @@
 package main
 
 import (
+	"gost/api/authapi"
 	"gost/api/transactionapi"
 	"gost/api/valuesapi"
 	"gost/auth/cookies"
@@ -21,6 +22,7 @@ var numberOfProcessors = runtime.NumCPU()
 // Add all the existing endpoints as part of this container
 type APIContainer struct {
 	transactionapi.TransactionsAPI
+	authapi.AuthAPI
 }
 
 // DevAPIContainer is used only for development purposes.
