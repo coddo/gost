@@ -94,9 +94,9 @@ func Authorize(httpHeader http.Header) (*identity.Identity, error) {
 		return nil, err
 	}
 
-	go cookie.ResetToken()
+	go dbCookie.ResetToken()
 
-	return identity.New(cookie), nil
+	return identity.New(dbCookie), nil
 }
 
 func extractGostToken(httpHeader http.Header) (string, error) {

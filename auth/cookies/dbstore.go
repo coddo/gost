@@ -29,7 +29,7 @@ func (store *DatabaseCookieStore) WriteCookie(cookie *Session) error {
 	session, collection := service.Connect(store.location)
 	defer session.Close()
 
-	err := collection.Update(bson.M{"token": cookie.Token}, cookie)
+	err := collection.UpdateId(cookie.ID, cookie)
 	if err == mgo.ErrNotFound {
 		err = collection.Insert(cookie)
 	}

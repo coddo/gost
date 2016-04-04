@@ -78,8 +78,7 @@ func init() {
 	security.InitCipherModule()
 
 	// Set the app to use all the available processors
-	// runtime.GOMAXPROCS(numberOfProcessors)
-	runtime.GOMAXPROCS(100) // ---- EXPERIMENTAL!
+	runtime.GOMAXPROCS(numberOfProcessors)
 }
 
 func listenForInterruptSignal() {
