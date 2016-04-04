@@ -6,11 +6,9 @@ This is the skeleton of a Web API written in [Golang](https://golang.org). In or
 
 This template contains basic endpoints for Users (+ login system) and Transactions (payments made between users). Both the endpoints are fully working ones, however the user is free to modify/delete them as they will. 
 
-###!NOTE that deleting the Users model completely from the app will make this template to malfunction.
-
 # Configuration steps for the API
 
-1. Install Go and set up your [GOPATH](http://golang.org/doc/code.html#GOPATH)
+1. Install Go and set up your [GOPATH](http://golang.org/doc/code.html#GOPATH). Starting with version Go1.4, you also need to set the *GOROOT_BOOTSTRAP* variable, to the same path as your *GOROOT*.
 
 2. Install [MongoDb](https://scotch.io/tutorials/an-introduction-to-mongodb#installation-and-running-mongodb)
 
