@@ -21,5 +21,5 @@ func (v *ValuesAPI) CreateAppUser(params *api.Request) api.Response {
 		return api.InternalServerError(err)
 	}
 
-	return api.StatusResponse(http.StatusOK)
+	return api.JSONResponse(http.StatusOK, user)
 }

@@ -5,6 +5,7 @@ import (
 	"gost/auth/cookies"
 	"gost/auth/identity"
 	"gost/util"
+	"log"
 	"net/http"
 	"strings"
 
@@ -56,31 +57,37 @@ func Authorize(httpHeader http.Header) (*identity.Identity, error) {
 	}
 
 	encryptedToken, err := util.Decode([]byte(gostToken))
+	log.Println("ENCRYPTED TOKEN:", encryptedToken, err)
 	if err != nil {
 		return nil, err
 	}
 
 	jsonToken, err := util.Decrypt(encryptedToken)
+	log.Println("JSON TOKEN:", jsonToken, err)
 	if err != nil {
 		return nil, err
 	}
 
 	var cookie *cookies.Session
 	err = util.DeserializeJSON(jsonToken, cookie)
+	log.Println("COOKIE:", cookie, err)
 	if err != nil {
 		return nil, err
 	}
 
 	if cookie.IsExpired() {
+		log.Println("COOKIE HAS EXPIRED!")
 		return nil, cookies.ErrTokenExpired
 	}
 
 	dbCookie, err := cookies.GetSession(cookie.Token)
+	log.Println("DATABASE COOKIE:", dbCookie, err)
 	if err != nil || dbCookie == nil {
 		return nil, ErrInvalidToken
 	}
 
 	cookie.ResetToken()
+	log.Println("COOKIE AFTER RESET:", cookie, err)
 
 	return identity.New(cookie), nil
 }

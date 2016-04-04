@@ -5,21 +5,8 @@ import (
 	"io/ioutil"
 )
 
-// SingleDataResponse creates a Response from the api, containing a single entity encoded as JSON
-func SingleDataResponse(statusCode int, data interface{}) Response {
-	jsonData, err := util.SerializeJSON(data)
-	if err != nil {
-		return InternalServerError(err)
-	}
-
-	return Response{
-		StatusCode: statusCode,
-		Content:    jsonData,
-	}
-}
-
-// MultipleDataResponse creates a Response from the api, containing an array of entities encoded as JSON
-func MultipleDataResponse(statusCode int, data interface{}) Response {
+// JSONResponse creates a Response from the api, containing a single entity encoded as JSON
+func JSONResponse(statusCode int, data interface{}) Response {
 	jsonData, err := util.SerializeJSON(data)
 	if err != nil {
 		return InternalServerError(err)
@@ -36,11 +23,23 @@ func StatusResponse(statusCode int) Response {
 	return Response{StatusCode: statusCode}
 }
 
-// ByteMsgResponse creates a Response from the api, containing a status code and a message in the form of a byte array
-func ByteMsgResponse(statusCode int, data []byte) Response {
+// PlainTextResponse creates a Response from the api, containing a status code and a text message
+func PlainTextResponse(statusCode int, text string) Response {
+	return DataResponse(statusCode, []byte(text), ContentTextPlain)
+}
+
+// TextResponse creates a Response from the api, containing a status code, a text message and a custom content-type
+func TextResponse(statusCode int, text, contentType string) Response {
+	return DataResponse(statusCode, []byte(text), contentType)
+}
+
+// DataResponse creates a Response from the api, containing a status code,
+// a custom content-type and a message in the form of a byte array
+func DataResponse(statusCode int, data []byte, contetType string) Response {
 	return Response{
-		StatusCode: statusCode,
-		Content:    data,
+		StatusCode:  statusCode,
+		Content:     data,
+		ContentType: contetType,
 	}
 }
 

@@ -24,7 +24,7 @@ func (v *ValuesAPI) Get(params *api.Request) api.Response {
 		message.WriteString("NORMAL USER")
 	}
 
-	return api.ByteMsgResponse(http.StatusOK, message.Bytes())
+	return api.PlainTextResponse(http.StatusOK, message.String())
 }
 
 // GetAnonymous performs a HTTP GET as an anonymous user
@@ -39,7 +39,9 @@ func (v *ValuesAPI) GetAnonymous(params *api.Request) api.Response {
 	} else if !params.Identity.IsAnonymous() {
 		message.WriteString("Cannot verify your authorization status, something is wrong")
 		status = http.StatusForbidden
+	} else {
+		message.WriteString("BTW, You are an anonymous user")
 	}
 
-	return api.ByteMsgResponse(status, message.Bytes())
+	return api.PlainTextResponse(status, message.String())
 }

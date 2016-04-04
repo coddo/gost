@@ -43,7 +43,7 @@ func Decrypt(data []byte) ([]byte, error) {
 
 	decryptedData, err := object.Decrypt(privateKey)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	return decryptedData, nil

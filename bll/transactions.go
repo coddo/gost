@@ -20,7 +20,7 @@ func GetTransaction(transactionID bson.ObjectId) api.Response {
 	transaction := &models.Transaction{}
 	transaction.Expand(dbTransaction)
 
-	return api.SingleDataResponse(http.StatusOK, transaction)
+	return api.JSONResponse(http.StatusOK, transaction)
 }
 
 // CreateTransaction creates a new Transaction
@@ -40,5 +40,5 @@ func CreateTransaction(transaction *models.Transaction) api.Response {
 	}
 	transaction.ID = dbTransaction.ID
 
-	return api.SingleDataResponse(http.StatusCreated, transaction)
+	return api.JSONResponse(http.StatusCreated, transaction)
 }
