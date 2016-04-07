@@ -23,9 +23,27 @@ var (
 	ErrInvalidScheme           = errors.New("The used authorization scheme is invalid or not supported")
 	ErrInvalidToken            = errors.New("The given token is expired or invalid")
 	ErrInvalidUser             = errors.New("There is no application user with the given ID")
+	ErrDeactivatedUser         = errors.New("The current user account is deactivated")
 	ErrAnonymousUser           = errors.New("The user has no identity")
 	ErrInexistentClientDetails = errors.New("Missing client details. Cannot create authorization for anonymous client")
 )
+
+// GenerateGhostToken create a ghost token that will be used for authorization
+func GenerateGhostToken(session *cookies.Session) (string, error) {
+	jsonToken, err := util.SerializeJSON(session)
+	if err != nil {
+		return err.Error(), err
+	}
+
+	encryptedToken, err := security.Encrypt(jsonToken)
+	if err != nil {
+		return err.Error(), err
+	}
+
+	ghostToken := util.Encode(encryptedToken)
+
+	return string(ghostToken), nil
+}
 
 // GenerateUserAuth generates a new gost-token, saves it in the database and returns it to the client
 func GenerateUserAuth(userID bson.ObjectId, client *cookies.Client) (string, error) {
@@ -47,24 +65,14 @@ func GenerateUserAuth(userID bson.ObjectId, client *cookies.Client) (string, err
 		return err.Error(), err
 	}
 
-	jsonToken, err := util.SerializeJSON(session)
-	if err != nil {
-		return err.Error(), err
-	}
+	ghostToken, err := GenerateGhostToken(session)
 
-	encryptedToken, err := security.Encrypt(jsonToken)
-	if err != nil {
-		return err.Error(), err
-	}
-
-	gostToken := util.Encode(encryptedToken)
-
-	return string(gostToken), nil
+	return ghostToken, err
 }
 
 // Authorize tries to authorize an existing gostToken
 func Authorize(httpHeader http.Header) (*identity.Identity, error) {
-	gostToken, err := extractGostToken(httpHeader)
+	ghostToken, err := extractGostToken(httpHeader)
 	if err != nil {
 		if err == ErrAnonymousUser {
 			return identity.NewAnonymous(), nil
@@ -73,7 +81,7 @@ func Authorize(httpHeader http.Header) (*identity.Identity, error) {
 		return nil, err
 	}
 
-	encryptedToken, err := util.Decode([]byte(gostToken))
+	encryptedToken, err := util.Decode([]byte(ghostToken))
 	if err != nil {
 		return nil, err
 	}
@@ -92,6 +100,10 @@ func Authorize(httpHeader http.Header) (*identity.Identity, error) {
 	dbCookie, err := cookies.GetSession(cookie.Token)
 	if err != nil || dbCookie == nil {
 		return nil, err
+	}
+
+	if !identity.IsUserActivated(dbCookie.UserID) {
+		return nil, ErrDeactivatedUser
 	}
 
 	go dbCookie.ResetToken()

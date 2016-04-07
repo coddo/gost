@@ -14,7 +14,7 @@ type TransactionsAPI int
 
 // Get endpoint retrieves a certain transaction based on its Id
 func (t *TransactionsAPI) Get(params *api.Request) api.Response {
-	transactionID, found, err := filter.GetIDFromParams(params.Form)
+	transactionID, found, err := filter.GetIDFromParams("transactionId", params.Form)
 
 	if err != nil {
 		return api.BadRequest(err)

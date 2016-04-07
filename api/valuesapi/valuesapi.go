@@ -14,7 +14,7 @@ func (v *ValuesAPI) Get(params *api.Request) api.Response {
 	var message bytes.Buffer
 
 	if !params.Identity.IsAuthorized() {
-		return api.Unauthorized("You must be authorized to use this endpoint action")
+		return api.Unauthorized()
 	}
 
 	message.WriteString("You are currently authorized.\nYour role is: ")

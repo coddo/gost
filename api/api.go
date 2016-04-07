@@ -47,6 +47,9 @@ var (
 
 	// ErrIDParamNotSpecified shows that the ID parameter is missing from the query
 	ErrIDParamNotSpecified = errors.New("No id was specified for the entity to be updated")
+
+	// ErrInvalidIDParam shows that the ID parameter is not in the correct format
+	ErrInvalidIDParam = errors.New("The userId parameter is not a valid bson.ObjectId")
 )
 
 // A Request contains the important and processable data from a HTTP request

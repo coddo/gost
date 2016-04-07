@@ -49,21 +49,21 @@ func TestTransactionsApi(t *testing.T) {
 
 func testGetTransactionWithInexistentIDInDB(t *testing.T) {
 	params := url.Values{}
-	params.Add("id", bson.NewObjectId().Hex())
+	params.Add("transactionId", bson.NewObjectId().Hex())
 
 	tests.PerformTestRequest(apiPath, GET, api.GET, http.StatusNotFound, params, nil, t)
 }
 
 func testGetTransactionWithBadIDParam(t *testing.T) {
 	params := url.Values{}
-	params.Add("id", "2as456fas4")
+	params.Add("transactionId", "2as456fas4")
 
 	tests.PerformTestRequest(apiPath, GET, api.GET, http.StatusBadRequest, params, nil, t)
 }
 
 func testGetTransactionWithGoodIDParam(t *testing.T, id bson.ObjectId) {
 	params := url.Values{}
-	params.Add("id", id.Hex())
+	params.Add("transactionId", id.Hex())
 
 	rw := tests.PerformTestRequest(apiPath, GET, api.GET, http.StatusOK, params, nil, t)
 

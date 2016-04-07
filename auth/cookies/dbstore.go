@@ -38,12 +38,23 @@ func (store *DatabaseCookieStore) WriteCookie(cookie *Session) error {
 }
 
 // DeleteCookie deletes a cookie from the cookie storage
-func (store *DatabaseCookieStore) DeleteCookie(key string) error {
+func (store *DatabaseCookieStore) DeleteCookie(cookie *Session) error {
 	session, collection := service.Connect(store.location)
 	defer session.Close()
 
-	err := collection.Remove(bson.M{"token": key})
+	err := collection.Remove(bson.M{"token": cookie.Token})
 	return err
+}
+
+// GetAllUserCookies returns all the cookies that a certain user has
+func (store *DatabaseCookieStore) GetAllUserCookies(userID bson.ObjectId) ([]*Session, error) {
+	session, collection := service.Connect(store.location)
+	defer session.Close()
+
+	var userSessions []*Session
+	err := collection.Find(bson.M{"userID": userID}).All(&userSessions)
+
+	return userSessions, err
 }
 
 // Init initializes the cookie store

@@ -25,7 +25,7 @@ var (
 // Sessions are active since login until they expire or the user disconnects
 type Session struct {
 	ID          bson.ObjectId `bson:"_id" json:"-"`
-	UserID      bson.ObjectId `bson:"userId,omitempty" json:"userId"`
+	UserID      bson.ObjectId `bson:"userID,omitempty" json:"userID"`
 	Token       string        `bson:"token,omitempty" json:"token"`
 	AccountType int           `bson:"accountType,omitempty" json:"accountType"`
 	ExpireTime  time.Time     `bson:"expireTime,omitempty" json:"-"`
@@ -51,7 +51,7 @@ func (session *Session) Save() error {
 
 // Delete deletes the session from the cookie store
 func (session *Session) Delete() error {
-	return cookieStore.DeleteCookie(session.Token)
+	return cookieStore.DeleteCookie(session)
 }
 
 // IsExpired returns true if the session has expired
@@ -108,6 +108,29 @@ func GetSession(token string) (*Session, error) {
 	}
 
 	return session, nil
+}
+
+// GetUserSessions retrieves all the sessions that a user has
+func GetUserSessions(userID bson.ObjectId) ([]*Session, error) {
+	sessions, err := cookieStore.GetAllUserCookies(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	for i := 0; i < len(sessions); {
+		if sessions[i].IsExpired() {
+			err = sessions[i].Delete()
+			if err == nil {
+				err = ErrTokenExpired
+			}
+
+			sessions = append(sessions[:i], sessions[i+1:]...)
+		} else {
+			i++
+		}
+	}
+
+	return sessions, nil
 }
 
 // ConfigureTokenExpireTime is used to change the default cofiguration of token expiration times

@@ -74,9 +74,16 @@ func GetUser(userID bson.ObjectId) (*ApplicationUser, error) {
 	return &user, err
 }
 
-// Exists verifies if an user with the given id exists
+// IsUserExistent verifies if an user with the given id exists
 func IsUserExistent(userID bson.ObjectId) bool {
 	user, err := GetUser(userID)
 
 	return err == nil && user != nil
+}
+
+// IsUserActivated verifies if an user account is activated
+func IsUserActivated(userID bson.ObjectId) bool {
+	user, err := GetUser(userID)
+
+	return err == nil && user.AccountStatus == AccountStatusActivated
 }

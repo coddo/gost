@@ -32,8 +32,8 @@ func GetStringValueFromParams(paramName string, reqForm url.Values) (string, boo
 }
 
 // GetIDFromParams extracts a bson.ObjectID value from url paramters, based on its name
-func GetIDFromParams(reqForm url.Values) (bson.ObjectId, bool, error) {
-	id := reqForm.Get("id")
+func GetIDFromParams(paramName string, reqForm url.Values) (bson.ObjectId, bool, error) {
+	id := reqForm.Get(paramName)
 	if id == "" {
 		return "", false, nil
 	}
