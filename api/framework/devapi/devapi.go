@@ -1,4 +1,4 @@
-package valuesapi
+package devapi
 
 import (
 	"gost/api"
@@ -7,8 +7,11 @@ import (
 	"net/http"
 )
 
+// DevAPI defines the API endpoint for development actions and custom testing
+type DevAPI int
+
 // CreateAppUser is an endpoint used for creating application users
-func (v *ValuesAPI) CreateAppUser(params *api.Request) api.Response {
+func (v *DevAPI) CreateAppUser(params *api.Request) api.Response {
 	user := &identity.ApplicationUser{}
 
 	err := util.DeserializeJSON(params.Body, user)

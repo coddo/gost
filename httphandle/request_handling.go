@@ -1,6 +1,8 @@
 package httphandle
 
 import (
+	"errors"
+	"gost/api"
 	"gost/auth"
 	"gost/auth/identity"
 	"gost/config"
@@ -18,7 +20,7 @@ type Authorization struct {
 // RequestHandler receives, parses and validates a HTTP request, which is then routed to the corresponding endpoint and method
 func RequestHandler(rw http.ResponseWriter, req *http.Request) {
 	authChan := make(chan *Authorization)
-	go authorize(req, authChan)
+	go parseAuthorizationData(req, authChan)
 
 	endpoint, actionName, isParseSuccessful := parseRequestURL(req.URL)
 
@@ -42,10 +44,33 @@ func RequestHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	RouteRequest(rw, req, route, actionName, authChan)
+	userIdentity, authError := authorize(authChan, route.Actions[actionName])
+	if authError != nil {
+		sendMessageResponse(http.StatusUnauthorized, authError.Error(), rw, req, route.Endpoint, actionName)
+		return
+	}
+
+	RouteRequest(rw, req, route, actionName, userIdentity)
 }
 
-func authorize(req *http.Request, authChan chan *Authorization) {
+func authorize(authChan chan *Authorization, routeAction *config.Action) (*identity.Identity, error) {
+	defer close(authChan)
+
+	authorization := <-authChan
+	if authorization.Error != nil {
+		return nil, authorization.Error
+	}
+
+	user := authorization.Identity
+
+	if (!routeAction.AllowAnonymous && user.IsAnonymous()) || (routeAction.RequireAdmin && !user.IsAdmin()) {
+		return nil, errors.New(api.StatusText(http.StatusUnauthorized))
+	}
+
+	return user, nil
+}
+
+func parseAuthorizationData(req *http.Request, authChan chan *Authorization) {
 	// Recover in case the authorization channel was closed before the writing is done
 	defer func() {
 		recover()

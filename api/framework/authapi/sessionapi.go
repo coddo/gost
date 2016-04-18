@@ -29,10 +29,6 @@ type AuthModel struct {
 
 // GetAllSessions retrieves all the sessions for a certain user account
 func (a *AuthAPI) GetAllSessions(params *api.Request) api.Response {
-	if !params.Identity.IsAuthorized() {
-		return api.Unauthorized()
-	}
-
 	userID, found, err := filter.GetIDFromParams("token", params.Form)
 	if !found {
 		return api.BadRequest(api.ErrIDParamNotSpecified)
@@ -78,10 +74,6 @@ func (a *AuthAPI) CreateSession(params *api.Request) api.Response {
 // KillSession deletes a session for an existing user account based on
 // the session token
 func (a *AuthAPI) KillSession(params *api.Request) api.Response {
-	if !params.Identity.IsAuthorized() {
-		return api.Unauthorized()
-	}
-
 	sessionToken, found := filter.GetStringValueFromParams("token", params.Form)
 	if !found || len(sessionToken) == 0 {
 		return api.BadRequest(ErrTokenNotSpecified)

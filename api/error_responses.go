@@ -27,7 +27,7 @@ func BadRequest(err error) Response {
 func NotFound(err error) Response {
 	return Response{
 		StatusCode:   http.StatusNotFound,
-		ErrorMessage: http.StatusText(http.StatusNotFound),
+		ErrorMessage: StatusText(http.StatusNotFound),
 	}
 }
 
@@ -46,7 +46,7 @@ func ServiceUnavailable(err error) Response {
 func MethodNotAllowed() Response {
 	return Response{
 		StatusCode:   http.StatusMethodNotAllowed,
-		ErrorMessage: http.StatusText(http.StatusMethodNotAllowed),
+		ErrorMessage: StatusText(http.StatusMethodNotAllowed),
 	}
 }
 
@@ -56,6 +56,6 @@ func MethodNotAllowed() Response {
 func Unauthorized() Response {
 	return Response{
 		StatusCode:   http.StatusUnauthorized,
-		ErrorMessage: "You must be authorized to use this endpoint action",
+		ErrorMessage: StatusText(http.StatusUnauthorized),
 	}
 }

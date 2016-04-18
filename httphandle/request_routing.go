@@ -3,6 +3,7 @@ package httphandle
 import (
 	"fmt"
 	"gost/api"
+	"gost/auth/identity"
 	"gost/cache"
 	"gost/config"
 	"gost/filter"
@@ -22,7 +23,7 @@ func RegisterEndpoints(container interface{}) {
 
 // RouteRequest parses the data from a HTTP request, determines which mapped endpoind needs to be called
 // and forwards the request data to the found endpoint if it is valid.
-func RouteRequest(rw http.ResponseWriter, req *http.Request, route *config.Route, endpointAction string, authChan chan *Authorization) {
+func RouteRequest(rw http.ResponseWriter, req *http.Request, route *config.Route, endpointAction string, userIdentity *identity.Identity) {
 	// Prepare recover mechanism in case of panic
 	defer recoverFromError(rw, req, route.Endpoint, endpointAction)
 
@@ -30,7 +31,7 @@ func RouteRequest(rw http.ResponseWriter, req *http.Request, route *config.Route
 	actionParameters := make([]reflect.Value, 1)
 
 	// Create the variables containing request data
-	request := generateRequest(req, rw, route, endpointAction, authChan)
+	request := generateRequest(req, rw, route, endpointAction, userIdentity)
 	if request == nil {
 		return
 	}
@@ -96,7 +97,7 @@ func respondFromCache(rw http.ResponseWriter, req *http.Request, route *config.R
 func respond(resp *api.Response, rw http.ResponseWriter, req *http.Request, endpoint, endpointAction string) {
 	if resp.StatusCode == 0 {
 		resp.StatusCode = http.StatusInternalServerError
-		sendMessageResponse(resp.StatusCode, http.StatusText(resp.StatusCode), rw, req, endpoint, endpointAction)
+		sendMessageResponse(resp.StatusCode, api.StatusText(resp.StatusCode), rw, req, endpoint, endpointAction)
 	} else if len(resp.ErrorMessage) > 0 {
 		sendMessageResponse(resp.StatusCode, resp.ErrorMessage, rw, req, endpoint, endpointAction)
 	} else {
@@ -131,14 +132,7 @@ func cacheResponse(resp *api.Response, endpoint string) {
 	cacheEntity.Cache()
 }
 
-func generateRequest(req *http.Request, rw http.ResponseWriter, route *config.Route, endpointAction string, authChan chan *Authorization) *api.Request {
-	defer close(authChan)
-	authorization := <-authChan
-	if authorization.Error != nil {
-		sendMessageResponse(http.StatusUnauthorized, authorization.Error.Error(), rw, req, route.Endpoint, endpointAction)
-		return nil
-	}
-
+func generateRequest(req *http.Request, rw http.ResponseWriter, route *config.Route, endpointAction string, userIdentity *identity.Identity) *api.Request {
 	statusCode, err := filter.ParseRequestContent(req)
 	if err != nil {
 		sendMessageResponse(statusCode, err.Error(), rw, req, route.Endpoint, endpointAction)
@@ -156,7 +150,7 @@ func generateRequest(req *http.Request, rw http.ResponseWriter, route *config.Ro
 		Form:          req.Form,
 		ContentLength: req.ContentLength,
 		Body:          body,
-		Identity:      authorization.Identity,
+		Identity:      userIdentity,
 	}
 
 	return request

@@ -24,8 +24,9 @@ var (
 	ErrInvalidToken            = errors.New("The given token is expired or invalid")
 	ErrInvalidUser             = errors.New("There is no application user with the given ID")
 	ErrDeactivatedUser         = errors.New("The current user account is deactivated")
-	ErrAnonymousUser           = errors.New("The user has no identity")
 	ErrInexistentClientDetails = errors.New("Missing client details. Cannot create authorization for anonymous client")
+
+	errAnonymousUser = errors.New("The user has no identity")
 )
 
 // GenerateGhostToken create a ghost token that will be used for authorization
@@ -74,7 +75,7 @@ func GenerateUserAuth(userID bson.ObjectId, client *cookies.Client) (string, err
 func Authorize(httpHeader http.Header) (*identity.Identity, error) {
 	ghostToken, err := extractGostToken(httpHeader)
 	if err != nil {
-		if err == ErrAnonymousUser {
+		if err == errAnonymousUser {
 			return identity.NewAnonymous(), nil
 		}
 
@@ -115,7 +116,7 @@ func extractGostToken(httpHeader http.Header) (string, error) {
 	var gostToken string
 
 	if gostToken = httpHeader.Get(AuthorizationHeader); len(gostToken) == 0 {
-		return ErrAnonymousUser.Error(), ErrAnonymousUser
+		return errAnonymousUser.Error(), errAnonymousUser
 	}
 
 	if !strings.Contains(gostToken, AuthorizationScheme) {

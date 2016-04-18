@@ -38,15 +38,11 @@ func sendMessageResponse(statusCode int, message string, rw http.ResponseWriter,
 }
 
 func sendStatusResponse(statusCode int, rw http.ResponseWriter, req *http.Request, endpoint, endpointAction string) string {
-	msg := http.StatusText(statusCode)
+	message := api.StatusText(statusCode)
 
-	if len(msg) == 0 {
-		msg = StatusText(statusCode)
-	}
+	sendMessageResponse(statusCode, message, rw, req, endpoint, endpointAction)
 
-	sendMessageResponse(statusCode, msg, rw, req, endpoint, endpointAction)
-
-	return msg
+	return message
 }
 
 func logRequest(statusCode int, message []byte, httpMethod, endpoint, endpointAction string) {

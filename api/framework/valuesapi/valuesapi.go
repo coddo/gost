@@ -6,16 +6,12 @@ import (
 	"net/http"
 )
 
-// ValuesAPI defines the API endpoint for the custom user testing endpoint of any kind
+// ValuesAPI defines the API endpoint for verifying the API status of the application
 type ValuesAPI int
 
 // Get performs a HTTP GET as an authorized user
 func (v *ValuesAPI) Get(params *api.Request) api.Response {
 	var message bytes.Buffer
-
-	if !params.Identity.IsAuthorized() {
-		return api.Unauthorized()
-	}
 
 	message.WriteString("You are currently authorized.\nYour role is: ")
 	if params.Identity.IsAdmin() {

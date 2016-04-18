@@ -1,9 +1,10 @@
 package main
 
 import (
-	"gost/api/authapi"
-	"gost/api/transactionapi"
-	"gost/api/valuesapi"
+	"gost/api/app/transactionapi"
+	"gost/api/framework/authapi"
+	"gost/api/framework/devapi"
+	"gost/api/framework/valuesapi"
 	"gost/auth/cookies"
 	"gost/cache"
 	"gost/config"
@@ -19,18 +20,25 @@ import (
 
 var numberOfProcessors = runtime.NumCPU()
 
-// APIContainer is a struct used for boxing all the existing api endpoints. It is used for mapping requests to functions.
-// Add all the existing endpoints as part of this container
-type APIContainer struct {
-	transactionapi.TransactionsAPI
+// FrameworkAPIContainer is a struct used for boxing the framework's api endpoints.
+// Add here all the framework endpoints that should be used by your application
+type FrameworkAPIContainer struct {
 	authapi.AuthAPI
+	valuesapi.ValuesAPI
+}
+
+// ApplicationAPIContainer is a struct used for boxing all the application's api endpoints.
+// This also registers all the framework's vital endpoints
+type ApplicationAPIContainer struct {
+	FrameworkAPIContainer
+	transactionapi.TransactionsAPI
 }
 
 // DevAPIContainer is used only for development purposes.
 // Register all the necessary api endpoints in the APIContainer type as this one just inherits it
 type DevAPIContainer struct {
-	APIContainer
-	valuesapi.ValuesAPI
+	ApplicationAPIContainer
+	devapi.DevAPI
 }
 
 // Application entry point - sets the behavior for the app
@@ -45,7 +53,7 @@ func startWebFramework() {
 	go listenForInterruptSignal()
 
 	// Start a http or and https server depending on the program arguments
-	if len(os.Args) <= 1 || os.Args[1] == "http" {
+	if len(os.Args) < 1 || os.Args[1] == "http" {
 		servers.StartHTTPServer()
 	} else if os.Args[1] == "https" {
 		servers.StartHTTPSServer()
@@ -66,7 +74,7 @@ func init() {
 
 	// Register the API endpoints
 	httphandle.RegisterEndpoints(new(DevAPIContainer))
-	// httphandle.RegisterEndpoints(new(APIContainer))   ----- Use this API container when deploying in PRODUCTION
+	// httphandle.RegisterEndpoints(new(ApplicationAPIContainer))   ----- Use this API container when deploying in PRODUCTION
 
 	// Start the caching system
 	//cache.StartCachingSystem(cache.CacheExpireTime)
