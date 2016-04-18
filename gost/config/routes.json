@@ -12,7 +12,11 @@
     "endpoint": "/auth",
     "actions": {
       "CreateSession": "POST",
-      "KillSession": "POST"
+      "KillSession": "POST",
+      "GetAllSessions": "GET",
+      "ActivateAccount": "GET",
+      "RequestResetPassword":"GET",
+      "ResetPassword":"GET"
     }
   },
   {
