@@ -8,7 +8,7 @@ import (
 )
 
 // All the api files are 3 levels deep into the folder hierarchy (ex: ./api/app/someapi/someapi.go), hence the ../../../ prefix
-const routesFilePath = "../../../gost/config/routes.json"
+const routesFilePath = "../../../tests/config/test_routes.json"
 
 const (
 	envApplicationName    = "GOST_TESTAPP_NAME"
