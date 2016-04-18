@@ -7,6 +7,8 @@ import (
 	"os"
 )
 
+const routesFilePath = "../../gost/config/routes.json"
+
 const (
 	envApplicationName    = "GOST_TESTAPP_NAME"
 	envAPIInstance        = "GOST_TESTAPP_INSTANCE"
@@ -35,9 +37,9 @@ func InitTestsDatabase() {
 	config.DbConnectionString = dbConn
 }
 
-// InitTestsRoutes initializes the endpoints that will be active for a unit testing session
-func InitTestsRoutes(routesString string) {
-	deserializeRoutes([]byte(routesString))
+// InitTestsRoutes initializez the routes used for testing the endpoints
+func InitTestsRoutes() {
+	config.InitRoutes(routesFilePath)
 }
 
 func deserializeRoutes(routesString []byte) {

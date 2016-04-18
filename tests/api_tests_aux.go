@@ -49,11 +49,11 @@ func PerformTestRequest(route, endpoint, method string, expectedStatusCode int, 
 }
 
 // InitializeServerConfigurations initializes the HTTP/HTTPS server used for unit testing
-func InitializeServerConfigurations(routeString string, apiInterface interface{}) {
+func InitializeServerConfigurations(apiInterface interface{}) {
 	testconfig.InitTestsApp()
 
 	testconfig.InitTestsDatabase()
-	testconfig.InitTestsRoutes(routeString)
+	testconfig.InitTestsRoutes()
 
 	service.InitDbService()
 

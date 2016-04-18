@@ -1,7 +1,6 @@
 package transactionapi
 
 import (
-	"fmt"
 	"gost/api"
 	"gost/auth/identity"
 	"gost/orm/models"
@@ -15,14 +14,11 @@ import (
 )
 
 const (
-	GET    = "Get"
-	CREATE = "Create"
+	ACTION_GET    = "Get"
+	ACTION_CREATE = "Create"
 )
 
-const apiPath = "/transactions"
-
-var transactionsRoute = fmt.Sprintf(`[{"id": "TransactionsRoute", "endpoint": "/transactions", 
-    "actions": {"%s": "POST", "%s": "GET"}}]`, CREATE, GET)
+const endpointPath = "/transactions"
 
 type dummyTransaction struct {
 	BadField string
@@ -31,7 +27,7 @@ type dummyTransaction struct {
 func TestTransactionsApi(t *testing.T) {
 	var id bson.ObjectId
 
-	tests.InitializeServerConfigurations(transactionsRoute, new(TransactionsAPI))
+	tests.InitializeServerConfigurations(new(TransactionsAPI))
 
 	// Cleanup function
 	defer func() {
@@ -51,21 +47,21 @@ func testGetTransactionWithInexistentIDInDB(t *testing.T) {
 	params := url.Values{}
 	params.Add("transactionId", bson.NewObjectId().Hex())
 
-	tests.PerformTestRequest(apiPath, GET, api.GET, http.StatusNotFound, params, nil, t)
+	tests.PerformTestRequest(endpointPath, ACTION_GET, api.GET, http.StatusNotFound, params, nil, t)
 }
 
 func testGetTransactionWithBadIDParam(t *testing.T) {
 	params := url.Values{}
 	params.Add("transactionId", "2as456fas4")
 
-	tests.PerformTestRequest(apiPath, GET, api.GET, http.StatusBadRequest, params, nil, t)
+	tests.PerformTestRequest(endpointPath, ACTION_GET, api.GET, http.StatusBadRequest, params, nil, t)
 }
 
 func testGetTransactionWithGoodIDParam(t *testing.T, id bson.ObjectId) {
 	params := url.Values{}
 	params.Add("transactionId", id.Hex())
 
-	rw := tests.PerformTestRequest(apiPath, GET, api.GET, http.StatusOK, params, nil, t)
+	rw := tests.PerformTestRequest(endpointPath, ACTION_GET, api.GET, http.StatusOK, params, nil, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -78,7 +74,7 @@ func testPostTransactionInBadFormat(t *testing.T) {
 		BadField: "bad value",
 	}
 
-	tests.PerformTestRequest(apiPath, CREATE, api.POST, http.StatusBadRequest, nil, dTransaction, t)
+	tests.PerformTestRequest(endpointPath, ACTION_CREATE, api.POST, http.StatusBadRequest, nil, dTransaction, t)
 }
 
 func testPostTransactionNotIntegral(t *testing.T) {
@@ -88,7 +84,7 @@ func testPostTransactionNotIntegral(t *testing.T) {
 		Currency: "USD",
 	}
 
-	tests.PerformTestRequest(apiPath, CREATE, api.POST, http.StatusBadRequest, nil, transaction, t)
+	tests.PerformTestRequest(endpointPath, ACTION_CREATE, api.POST, http.StatusBadRequest, nil, transaction, t)
 }
 
 func testPostTransactionInGoodFormat(t *testing.T) bson.ObjectId {
@@ -101,7 +97,7 @@ func testPostTransactionInGoodFormat(t *testing.T) bson.ObjectId {
 		Currency: "USD",
 	}
 
-	rw := tests.PerformTestRequest(apiPath, CREATE, api.POST, http.StatusCreated, nil, transaction, t)
+	rw := tests.PerformTestRequest(endpointPath, ACTION_CREATE, api.POST, http.StatusCreated, nil, transaction, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {

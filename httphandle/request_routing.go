@@ -47,9 +47,9 @@ func RouteRequest(rw http.ResponseWriter, req *http.Request, route *config.Route
 	// based on the registered endpoints
 	endpointMethod := reflect.ValueOf(endpointsContainer).MethodByName(endpointAction)
 
-	// Check if the searched method from the endpoint exists
+	// Check if the searched action from the endpoint exists
 	if endpointMethod == zeroEndpointMethod {
-		message := "The endpoint method is either inexistent or incorrectly mapped. Please check the server configuration files!"
+		message := "The endpoint action is either inexistent or incorrectly mapped. Please check the server configuration"
 		sendMessageResponse(http.StatusInternalServerError, message, rw, req, route.Endpoint, endpointAction)
 		return
 	}
@@ -139,7 +139,7 @@ func generateRequest(req *http.Request, rw http.ResponseWriter, route *config.Ro
 		return nil
 	}
 
-	statusCode, err := filter.CheckMethodAndParseContent(req)
+	statusCode, err := filter.ParseRequestContent(req)
 	if err != nil {
 		sendMessageResponse(statusCode, err.Error(), rw, req, route.Endpoint, endpointAction)
 		return nil

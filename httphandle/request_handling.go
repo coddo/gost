@@ -20,29 +20,29 @@ func RequestHandler(rw http.ResponseWriter, req *http.Request) {
 	authChan := make(chan *Authorization)
 	go authorize(req, authChan)
 
-	endpoint, endpointAction, isParseSuccessful := parseRequestURL(req.URL)
+	endpoint, actionName, isParseSuccessful := parseRequestURL(req.URL)
 
 	if !isParseSuccessful {
 		close(authChan)
-		sendMessageResponse(http.StatusBadRequest, "The format of the request URL is invalid", rw, req, endpoint, endpointAction)
+		sendMessageResponse(http.StatusBadRequest, "The format of the request URL is invalid", rw, req, endpoint, actionName)
 		return
 	}
 
-	route := findRoute(endpoint)
+	route := config.GetRoute(endpoint)
 
 	if route == nil {
 		close(authChan)
-		sendMessageResponse(http.StatusNotFound, "404 - The requested page cannot be found", rw, req, endpoint, endpointAction)
+		sendMessageResponse(http.StatusNotFound, "404 - The requested page cannot be found", rw, req, endpoint, actionName)
 		return
 	}
 
-	if !validateEndpoint(endpointAction, route) {
+	if !validateEndpoint(req.Method, actionName, route) {
 		close(authChan)
-		sendMessageResponse(http.StatusUnauthorized, "The requested endpoint is either not implemented, or not allowed", rw, req, endpoint, endpointAction)
+		sendMessageResponse(http.StatusUnauthorized, "The requested endpoint is either not implemented, or not allowed", rw, req, endpoint, actionName)
 		return
 	}
 
-	RouteRequest(rw, req, route, endpointAction, authChan)
+	RouteRequest(rw, req, route, actionName, authChan)
 }
 
 func authorize(req *http.Request, authChan chan *Authorization) {
@@ -59,19 +59,9 @@ func authorize(req *http.Request, authChan chan *Authorization) {
 	}
 }
 
-func findRoute(pattern string) *config.Route {
-	for _, route := range config.Routes {
-		if route.Endpoint == pattern {
-			return &route
-		}
-	}
-
-	return nil
-}
-
-func validateEndpoint(endpoint string, route *config.Route) bool {
-	if _, found := route.Actions[endpoint]; found {
-		return true
+func validateEndpoint(method, actionName string, route *config.Route) bool {
+	if action, found := route.Actions[actionName]; found {
+		return method == action.Type
 	}
 
 	return false
@@ -98,7 +88,6 @@ func parseRequestURL(u *url.URL) (string, string, bool) {
 	}
 
 	lastSeparatorIndex := strings.LastIndex(fullPath, "/")
-
 	if lastSeparatorIndex == -1 {
 		return "", "", false
 	}

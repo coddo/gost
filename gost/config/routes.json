@@ -3,29 +3,67 @@
     "id": "TransactionsRoute",
     "endpoint": "/transactions",
     "actions": {
-      "Create": "POST",
-      "Get": "GET"
+      "Create": {
+        "type": "POST",
+        "allowAnonymous": false,
+        "requireAdmin": false
+      },
+      "Get": {
+        "type": "GET",
+        "allowAnonymous": false,
+        "requireAdmin": false
+      }
     }
   },
   {
     "id": "AuthorizationRoute",
     "endpoint": "/auth",
     "actions": {
-      "CreateSession": "POST",
-      "KillSession": "POST",
-      "GetAllSessions": "GET",
-      "ActivateAccount": "GET",
-      "RequestResetPassword":"GET",
-      "ResetPassword":"GET"
+      "ActivateAccount": {
+        "type": "GET",
+        "allowAnonymous": true
+      },
+      "CreateSession": {
+        "type": "POST",
+        "allowAnonymous": true
+      },
+      "GetAllSessions": {
+        "type": "GET",
+        "allowAnonymous": false,
+        "requireAdmin": false
+      },
+      "KillSession": {
+        "type": "POST",
+        "allowAnonymous": false,
+        "requireAdmin": false
+      },
+      "RequestResetPassword": {
+        "type": "GET",
+        "allowAnonymous": true
+      },
+      "ResetPassword": {
+        "type": "GET",
+        "allowAnonymous": true
+      }
     }
   },
   {
     "id": "ValuesRoute",
     "endpoint": "/values",
     "actions": {
-      "CreateAppUser": "POST",
-      "Get": "GET",
-      "GetAnonymous": "GET"
+      "CreateAppUser": {
+        "type": "POST",
+        "allowAnonymous": true
+      },
+      "Get": {
+        "type": "GET",
+        "allowAnonymous": false,
+        "requireAdmin": false
+      },
+      "GetAnonymous": {
+        "type": "GET",
+        "allowAnonymous": true
+      }
     }
   }
 ]
