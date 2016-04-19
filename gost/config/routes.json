@@ -19,10 +19,6 @@
     "id": "AuthorizationRoute",
     "endpoint": "/auth",
     "actions": {
-      "ActivateAccount": {
-        "type": "GET",
-        "allowAnonymous": true
-      },
       "CreateSession": {
         "type": "POST",
         "allowAnonymous": true
@@ -37,12 +33,16 @@
         "allowAnonymous": false,
         "requireAdmin": false
       },
+      "ActivateAccount": {
+        "type": "POST",
+        "allowAnonymous": true
+      },
       "RequestResetPassword": {
         "type": "GET",
         "allowAnonymous": true
       },
       "ResetPassword": {
-        "type": "GET",
+        "type": "POST",
         "allowAnonymous": true
       }
     }
