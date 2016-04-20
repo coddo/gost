@@ -44,17 +44,18 @@ func NewEmail() *Email {
 
 // Send sends the email message
 func (email *Email) Send() error {
+	var content = createContent(email.header, email.body)
+
 	return smtp.SendMail(smtpServer,
 		authorization,
 		sender.Address,
 		email.recipient,
-		email.createContent())
+		content)
 }
 
 // SetRecipient sets the receiver of the email
-func (email *Email) SetRecipient(name, address string) {
-	recipient := mail.Address{
-		Name:    name,
+func (email *Email) SetRecipient(address string) {
+	var recipient = mail.Address{
 		Address: address,
 	}
 
@@ -72,11 +73,11 @@ func (email *Email) SetBody(body string) {
 	email.body = body
 }
 
-func (email *Email) createContent() []byte {
+func createContent(header map[string]string, body string) []byte {
 	var message bytes.Buffer
 
 	// Header
-	for key, value := range email.header {
+	for key, value := range header {
 		message.WriteString(fmt.Sprintf("%s: %s\r\n", key, value))
 	}
 
@@ -84,7 +85,7 @@ func (email *Email) createContent() []byte {
 	message.WriteString("\r\n")
 
 	// Body
-	message.WriteString(email.body)
+	message.WriteString(body)
 
 	return message.Bytes()
 }

@@ -29,23 +29,6 @@ var (
 	errAnonymousUser = errors.New("The user has no identity")
 )
 
-// GenerateGhostToken create a ghost token that will be used for authorization
-func GenerateGhostToken(session *cookies.Session) (string, error) {
-	jsonToken, err := util.SerializeJSON(session)
-	if err != nil {
-		return err.Error(), err
-	}
-
-	encryptedToken, err := security.Encrypt(jsonToken)
-	if err != nil {
-		return err.Error(), err
-	}
-
-	ghostToken := util.Encode(encryptedToken)
-
-	return string(ghostToken), nil
-}
-
 // GenerateUserAuth generates a new gost-token, saves it in the database and returns it to the client
 func GenerateUserAuth(userID bson.ObjectId, client *cookies.Client) (string, error) {
 	if client == nil {
@@ -66,7 +49,7 @@ func GenerateUserAuth(userID bson.ObjectId, client *cookies.Client) (string, err
 		return err.Error(), err
 	}
 
-	ghostToken, err := GenerateGhostToken(session)
+	ghostToken, err := generateGhostToken(session)
 
 	return ghostToken, err
 }
@@ -110,6 +93,22 @@ func Authorize(httpHeader http.Header) (*identity.Identity, error) {
 	go dbCookie.ResetToken()
 
 	return identity.New(dbCookie), nil
+}
+
+func generateGhostToken(session *cookies.Session) (string, error) {
+	jsonToken, err := util.SerializeJSON(session)
+	if err != nil {
+		return err.Error(), err
+	}
+
+	encryptedToken, err := security.Encrypt(jsonToken)
+	if err != nil {
+		return err.Error(), err
+	}
+
+	ghostToken := util.Encode(encryptedToken)
+
+	return string(ghostToken), nil
 }
 
 func extractGostToken(httpHeader http.Header) (string, error) {
