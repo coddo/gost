@@ -96,6 +96,17 @@ func GetUserByResetPasswordToken(token string) (*ApplicationUser, error) {
 	return &user, err
 }
 
+// GetUserByEmail retrieves an ApplicationUser from the database, based on its email address
+func GetUserByEmail(emailAddress string) (*ApplicationUser, error) {
+	session, collection := service.Connect(collectionName)
+	defer session.Close()
+
+	var user = ApplicationUser{}
+	var err = collection.Find(bson.M{"email": emailAddress}).One(&user)
+
+	return &user, err
+}
+
 // DeleteUser deletes an ApplicationUser from the database, based on its ID
 func DeleteUser(userID bson.ObjectId) error {
 	session, collection := service.Connect(collectionName)
