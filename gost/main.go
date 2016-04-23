@@ -73,8 +73,9 @@ func init() {
 	service.InitDbService()
 
 	// Register the API endpoints
-	httphandle.RegisterEndpoints(new(DevAPIContainer))
 	// httphandle.RegisterEndpoints(new(ApplicationAPIContainer))   ----- Use this API container when deploying in PRODUCTION
+	httphandle.RegisterEndpoints(new(DevAPIContainer)) //----- Use this API container when in development
+	devapi.InitDevRoutes()                             //----- Uncomment this line when in development
 
 	// Start the caching system
 	//cache.StartCachingSystem(cache.CacheExpireTime)

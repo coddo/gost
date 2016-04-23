@@ -51,10 +51,6 @@
     "id": "ValuesRoute",
     "endpoint": "/values",
     "actions": {
-      "CreateAppUser": {
-        "type": "POST",
-        "allowAnonymous": true
-      },
       "Get": {
         "type": "GET",
         "allowAnonymous": false,
