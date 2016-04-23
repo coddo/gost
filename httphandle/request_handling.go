@@ -1,49 +1,92 @@
 package httphandle
 
 import (
+	"errors"
+	"gost/api"
+	"gost/auth"
+	"gost/auth/identity"
 	"gost/config"
 	"net/http"
 	"net/url"
 	"strings"
 )
 
-// RequestHandler receives, parses and validates a HTTP request, which is then routed to the corresponding endpoint
-func RequestHandler(rw http.ResponseWriter, req *http.Request) {
-	pattern, endpoint, parseSuccessful := parseRequestURL(req.URL)
+// Authorization encompasses the identity provided by the auth package
+type Authorization struct {
+	Identity *identity.Identity
+	Error    error
+}
 
-	if !parseSuccessful {
-		sendMessageResponse(http.StatusBadRequest, "The format of the request URL is invalid", rw, req, pattern)
+// RequestHandler receives, parses and validates a HTTP request, which is then routed to the corresponding endpoint and method
+func RequestHandler(rw http.ResponseWriter, req *http.Request) {
+	authChan := make(chan *Authorization)
+	go parseAuthorizationData(req, authChan)
+
+	endpoint, actionName, isParseSuccessful := parseRequestURL(req.URL)
+
+	if !isParseSuccessful {
+		close(authChan)
+		sendMessageResponse(http.StatusBadRequest, "The format of the request URL is invalid", rw, req, endpoint, actionName)
 		return
 	}
 
-	route := findRoute(pattern)
+	route := config.GetRoute(endpoint)
 
 	if route == nil {
-		sendMessageResponse(http.StatusNotFound, "404 - The requested page cannot be found", rw, req, pattern)
+		close(authChan)
+		sendMessageResponse(http.StatusNotFound, "404 - The requested page cannot be found", rw, req, endpoint, actionName)
 		return
 	}
 
-	if !validateEndpoint(endpoint, route) {
-		sendMessageResponse(http.StatusUnauthorized, "The requested endpoint is either not implemented, or not allowed", rw, req, pattern)
+	if !validateEndpoint(req.Method, actionName, route) {
+		close(authChan)
+		sendMessageResponse(http.StatusUnauthorized, "The requested endpoint is either not implemented, or not allowed", rw, req, endpoint, actionName)
 		return
 	}
 
-	RouteRequest(endpoint, rw, req, route)
-}
-
-func findRoute(pattern string) *config.Route {
-	for _, route := range config.Routes {
-		if route.Pattern == pattern {
-			return &route
-		}
+	userIdentity, authError := authorize(authChan, route.Actions[actionName])
+	if authError != nil {
+		sendMessageResponse(http.StatusUnauthorized, authError.Error(), rw, req, route.Endpoint, actionName)
+		return
 	}
 
-	return nil
+	RouteRequest(rw, req, route, actionName, userIdentity)
 }
 
-func validateEndpoint(endpoint string, route *config.Route) bool {
-	if _, found := route.Handlers[endpoint]; found {
-		return true
+func authorize(authChan chan *Authorization, routeAction *config.Action) (*identity.Identity, error) {
+	defer close(authChan)
+
+	authorization := <-authChan
+	if authorization.Error != nil {
+		return nil, authorization.Error
+	}
+
+	user := authorization.Identity
+
+	if (!routeAction.AllowAnonymous && user.IsAnonymous()) || (routeAction.RequireAdmin && !user.IsAdmin()) {
+		return nil, errors.New(api.StatusText(http.StatusUnauthorized))
+	}
+
+	return user, nil
+}
+
+func parseAuthorizationData(req *http.Request, authChan chan *Authorization) {
+	// Recover in case the authorization channel was closed before the writing is done
+	defer func() {
+		recover()
+	}()
+
+	identity, err := auth.Authorize(req.Header)
+
+	authChan <- &Authorization{
+		Identity: identity,
+		Error:    err,
+	}
+}
+
+func validateEndpoint(method, actionName string, route *config.Route) bool {
+	if action, found := route.Actions[actionName]; found {
+		return method == action.Type
 	}
 
 	return false
@@ -70,16 +113,15 @@ func parseRequestURL(u *url.URL) (string, string, bool) {
 	}
 
 	lastSeparatorIndex := strings.LastIndex(fullPath, "/")
-
 	if lastSeparatorIndex == -1 {
 		return "", "", false
 	}
 
 	// Get the endpoint name
-	endpoint := fullPath[lastSeparatorIndex+1:]
+	endpoint := fullPath[:lastSeparatorIndex]
 
-	// Get the pattern of the route
-	pattern := fullPath[:lastSeparatorIndex]
+	// Get the endpoint's action name
+	action := fullPath[lastSeparatorIndex+1:]
 
-	return pattern, endpoint, successfulParse
+	return endpoint, action, successfulParse
 }

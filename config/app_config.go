@@ -39,13 +39,11 @@ func InitApp(appConfigPath string) {
 	configData := &appConfigHolder{}
 
 	data, err := ioutil.ReadFile(appConfigFile)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	err = json.Unmarshal(data, &configData)
-
 	if err != nil {
 		log.Fatal(err)
 	}

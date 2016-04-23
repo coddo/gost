@@ -27,7 +27,7 @@ func BadRequest(err error) Response {
 func NotFound(err error) Response {
 	return Response{
 		StatusCode:   http.StatusNotFound,
-		ErrorMessage: http.StatusText(http.StatusNotFound),
+		ErrorMessage: StatusText(http.StatusNotFound),
 	}
 }
 
@@ -43,19 +43,19 @@ func ServiceUnavailable(err error) Response {
 
 // MethodNotAllowed returns a status and message that signals the API client
 // that the used HTTP Method is not allowed on this endpoint
-func MethodNotAllowed(err error) Response {
+func MethodNotAllowed() Response {
 	return Response{
 		StatusCode:   http.StatusMethodNotAllowed,
-		ErrorMessage: err.Error(),
+		ErrorMessage: StatusText(http.StatusMethodNotAllowed),
 	}
 }
 
 // Unauthorized returns a status and message that signals the API client
 // that the login failed or that the client isn't
 // logged in and therefore not authorized to use the endpoint
-func Unauthorized(err error) Response {
+func Unauthorized() Response {
 	return Response{
 		StatusCode:   http.StatusUnauthorized,
-		ErrorMessage: err.Error(),
+		ErrorMessage: StatusText(http.StatusUnauthorized),
 	}
 }

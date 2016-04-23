@@ -7,6 +7,9 @@ import (
 	"os"
 )
 
+// All the api files are 3 levels deep into the folder hierarchy (ex: ./api/app/someapi/someapi.go), hence the ../../../ prefix
+const routesFilePath = "../../../tests/config/test_routes.json"
+
 const (
 	envApplicationName    = "GOST_TESTAPP_NAME"
 	envAPIInstance        = "GOST_TESTAPP_INSTANCE"
@@ -35,9 +38,9 @@ func InitTestsDatabase() {
 	config.DbConnectionString = dbConn
 }
 
-// InitTestsRoutes initializes the endpoints that will be active for a unit testing session
-func InitTestsRoutes(routesString string) {
-	deserializeRoutes([]byte(routesString))
+// InitTestsRoutes initializez the routes used for testing the endpoints
+func InitTestsRoutes() {
+	config.InitRoutes(routesFilePath)
 }
 
 func deserializeRoutes(routesString []byte) {

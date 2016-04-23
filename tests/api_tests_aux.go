@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"gost/config"
 	"gost/httphandle"
-	"gost/models"
 	"gost/service"
 	testconfig "gost/tests/config"
+	"gost/util"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -26,7 +26,7 @@ func PerformTestRequest(route, endpoint, method string, expectedStatusCode int, 
 	// Do nothing if no object is specified
 	var jsonData []byte
 	if object != nil {
-		jsonData, err = models.SerializeJSON(object)
+		jsonData, err = util.SerializeJSON(object)
 
 		if err != nil {
 			t.Fatal(err.Error())
@@ -42,18 +42,18 @@ func PerformTestRequest(route, endpoint, method string, expectedStatusCode int, 
 	httphandle.RequestHandler(rw, req)
 
 	if rw.Code != expectedStatusCode {
-		t.Fatal("Response assertion failed! Needed:", expectedStatusCode, "Got:", rw.Code, "Message:", rw.Body.String())
+		t.Fatal("Response assertion failed! Needed status:", expectedStatusCode, "Got:", rw.Code, "Message:", rw.Body.String())
 	}
 
 	return rw
 }
 
 // InitializeServerConfigurations initializes the HTTP/HTTPS server used for unit testing
-func InitializeServerConfigurations(routeString string, apiInterface interface{}) {
+func InitializeServerConfigurations(apiInterface interface{}) {
 	testconfig.InitTestsApp()
 
 	testconfig.InitTestsDatabase()
-	testconfig.InitTestsRoutes(routeString)
+	testconfig.InitTestsRoutes()
 
 	service.InitDbService()
 

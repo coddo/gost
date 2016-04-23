@@ -7,6 +7,7 @@ package api
 
 import (
 	"errors"
+	"gost/auth/identity"
 	"net/http"
 	"net/url"
 )
@@ -31,21 +32,15 @@ const (
 	ContentJSON = "application/json"
 )
 
+// Common errors returned by the API
 var (
-	// ErrEntityFormat shows that the data is not in the correct format
-	ErrEntityFormat = errors.New("The entity was not in the correct format")
-
-	// ErrEntityIntegrity shows that the data does not contain all the compulsory components
-	ErrEntityIntegrity = errors.New("The entity doesn't comply to the integrity requirements")
-
-	// ErrEntityProcess shows that the data could not be processed correctly
-	ErrEntityProcess = errors.New("The entity could not be processed")
-
-	// ErrEntityNotFound shows that the searched data was not found
-	ErrEntityNotFound = errors.New("No entity with the specified data was found")
-
-	// ErrIDParamNotSpecified shows that the ID parameter is missing from the query
+	ErrEntityFormat        = errors.New("The entity was not in the correct format")
+	ErrEntityIntegrity     = errors.New("The entity doesn't comply to the integrity requirements")
+	ErrEntityProcessing    = errors.New("The entity could not be processed")
+	ErrEntityNotFound      = errors.New("No entity with the specified data was found")
 	ErrIDParamNotSpecified = errors.New("No id was specified for the entity to be updated")
+	ErrInvalidIDParam      = errors.New("The id parameter is not a valid bson.ObjectId")
+	ErrInvalidInput        = errors.New("The needed url paramters were inexistent or invalid")
 )
 
 // A Request contains the important and processable data from a HTTP request
@@ -54,12 +49,13 @@ type Request struct {
 	Form          url.Values
 	ContentLength int64
 	Body          []byte
+	Identity      *identity.Identity
 }
 
 // A Response contains the information that will be sent back to the user
 // through a HTTP response
 type Response struct {
-	Message      []byte
+	Content      []byte
 	StatusCode   int
 	ErrorMessage string
 	ContentType  string

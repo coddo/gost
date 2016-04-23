@@ -15,7 +15,7 @@ var (
 
 // CheckMethodAndParseContent performs validity checks on a request based on the HTTP method used.
 // Checks are made for data content if the methods are POST or PUT, and if the url form can be correctly parsed
-func CheckMethodAndParseContent(request *http.Request) (int, error) {
+func ParseRequestContent(request *http.Request) (int, error) {
 	if request.ContentLength == 0 {
 		if request.Method == "POST" || request.Method == "PUT" {
 			return http.StatusBadRequest, ErrNoContent

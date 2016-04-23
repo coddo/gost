@@ -105,9 +105,9 @@ func ModifyRoute(routeID string, newRouteData Route, saveChangesToConfigFile boo
 }
 
 // GetRoute fetches a Route entity from the active routes list, base on its ID
-func GetRoute(routeID string) *Route {
+func GetRoute(endpoint string) *Route {
 	for _, route := range Routes {
-		if route.ID == routeID {
+		if route.Endpoint == endpoint {
 			return &route
 		}
 	}

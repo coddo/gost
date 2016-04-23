@@ -1,0 +1,14 @@
+{
+    "id": "DevApiRoute",
+    "endpoint": "/dev",
+    "actions": {
+        "CreateAppUser": {
+            "type": "POST",
+            "allowAnonymous": true
+        },
+        "ActivateAppUser": {
+            "type": "GET",
+            "allowAnonymous": true
+        }
+    }
+}
