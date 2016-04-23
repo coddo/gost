@@ -40,7 +40,7 @@ func (v *DevAPI) CreateAppUser(params *api.Request) api.Response {
 
 // ActivateAppUser is an endpoint for activating an app user
 func (v *DevAPI) ActivateAppUser(params *api.Request) api.Response {
-	var token, found = filter.GetStringValueFromParams("token", params.Form)
+	var token, found = filter.GetStringParameter("token", params.Form)
 	if !found {
 		return api.BadRequest(api.ErrInvalidInput)
 	}

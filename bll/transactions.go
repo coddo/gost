@@ -31,12 +31,12 @@ func CreateTransaction(transaction *models.Transaction) api.Response {
 
 	dbTransaction := transaction.Collapse()
 	if dbTransaction == nil {
-		return api.InternalServerError(api.ErrEntityProcess)
+		return api.InternalServerError(api.ErrEntityProcessing)
 	}
 
 	err := transactionservice.CreateTransaction(dbTransaction)
 	if err != nil {
-		return api.InternalServerError(api.ErrEntityProcess)
+		return api.InternalServerError(api.ErrEntityProcessing)
 	}
 	transaction.ID = dbTransaction.ID
 

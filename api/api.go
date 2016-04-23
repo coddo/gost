@@ -36,7 +36,7 @@ const (
 var (
 	ErrEntityFormat        = errors.New("The entity was not in the correct format")
 	ErrEntityIntegrity     = errors.New("The entity doesn't comply to the integrity requirements")
-	ErrEntityProcess       = errors.New("The entity could not be processed")
+	ErrEntityProcessing    = errors.New("The entity could not be processed")
 	ErrEntityNotFound      = errors.New("No entity with the specified data was found")
 	ErrIDParamNotSpecified = errors.New("No id was specified for the entity to be updated")
 	ErrInvalidIDParam      = errors.New("The userId parameter is not a valid bson.ObjectId")

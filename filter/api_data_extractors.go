@@ -9,8 +9,8 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// GetIntValueFromParams extracts an integer value from url paramters, based on its name
-func GetIntValueFromParams(paramName string, reqForm url.Values) (int, bool, error) {
+// GetIntParameter extracts an integer value from url paramters, based on its name
+func GetIntParameter(paramName string, reqForm url.Values) (int, bool, error) {
 	value := reqForm.Get(paramName)
 	if value == "" {
 		return -1, false, nil
@@ -24,15 +24,15 @@ func GetIntValueFromParams(paramName string, reqForm url.Values) (int, bool, err
 	return -1, true, errors.New(strings.Join(errMsg, " "))
 }
 
-// GetStringValueFromParams extracts a string value from url paramters, based on its name
-func GetStringValueFromParams(paramName string, reqForm url.Values) (string, bool) {
+// GetStringParameter extracts a string value from url paramters, based on its name
+func GetStringParameter(paramName string, reqForm url.Values) (string, bool) {
 	value := reqForm.Get(paramName)
 
 	return value, value != ""
 }
 
-// GetIDFromParams extracts a bson.ObjectID value from url paramters, based on its name
-func GetIDFromParams(paramName string, reqForm url.Values) (bson.ObjectId, bool, error) {
+// GetIDParameter extracts a bson.ObjectID value from url paramters, based on its name
+func GetIDParameter(paramName string, reqForm url.Values) (bson.ObjectId, bool, error) {
 	id := reqForm.Get(paramName)
 	if id == "" {
 		return "", false, nil
