@@ -39,7 +39,7 @@ var (
 	ErrEntityProcessing    = errors.New("The entity could not be processed")
 	ErrEntityNotFound      = errors.New("No entity with the specified data was found")
 	ErrIDParamNotSpecified = errors.New("No id was specified for the entity to be updated")
-	ErrInvalidIDParam      = errors.New("The userId parameter is not a valid bson.ObjectId")
+	ErrInvalidIDParam      = errors.New("The id parameter is not a valid bson.ObjectId")
 	ErrInvalidInput        = errors.New("The needed url paramters were inexistent or invalid")
 )
 

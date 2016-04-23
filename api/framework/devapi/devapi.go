@@ -14,9 +14,9 @@ type DevAPI int
 
 // AppUserModel is the model used for creating ApplicationUsers
 type AppUserModel struct {
-	Email       string
-	Password    string
-	AccountType int
+	Email       string `json:"email"`
+	Password    string `json:"password"`
+	AccountType int    `json:"accountType"`
 }
 
 // CreateAppUser is an endpoint used for creating application users

@@ -38,7 +38,7 @@
         "allowAnonymous": true
       },
       "RequestResetPassword": {
-        "type": "GET",
+        "type": "POST",
         "allowAnonymous": true
       },
       "ResetPassword": {
