@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"gost/util"
-	"io/ioutil"
 	"log"
 
 	"github.com/square/go-jose"
@@ -63,12 +62,7 @@ func GeneratePrivateKey(printInLog bool) []byte {
 
 // InitCipherModule initializes the components used for server-side encryption
 func InitCipherModule() {
-	encodedKey, err := ioutil.ReadFile(privateKeyFile)
-	if err != nil {
-		panic(err)
-	}
-
-	key, err := util.Decode(encodedKey)
+	key, err := util.Decode(encodedPrivateKey)
 	if err != nil {
 		panic(err)
 	}
