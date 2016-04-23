@@ -24,10 +24,10 @@ func NextDateFromNow(duration time.Duration) time.Time {
 // CompareDates checks whether two dates are identical or note.
 // Both the date and the time are compared up to millisecond precision
 func CompareDates(source, target time.Time) bool {
-	date1 := source.Local().Truncate(time.Millisecond)
-	date2 := target.Local().Truncate(time.Millisecond)
+	source = source.Local().Truncate(time.Millisecond)
+	target = target.Local().Truncate(time.Millisecond)
 
-	return date1.Equal(date2)
+	return source.Equal(target)
 }
 
 // IsDateExpired tells if the limit date and time are greater than the given one
@@ -35,12 +35,13 @@ func IsDateExpired(date, limit time.Time) bool {
 	date = date.Local()
 	limit = limit.Local()
 
-	return date.Local().Before(limit)
+	return date.Before(limit)
 }
 
 // IsDateExpiredFromNow tells if the current date and time are greater than the given one
 func IsDateExpiredFromNow(date time.Time) bool {
+	date = date.Local()
 	today := Now()
 
-	return date.Local().Before(today)
+	return date.Before(today)
 }
