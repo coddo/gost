@@ -78,7 +78,7 @@ func init() {
 	devapi.InitDevRoutes()                             //----- Uncomment this line when in development
 
 	// Start the caching system
-	//cache.StartCachingSystem(cache.CacheExpireTime)
+	cache.StartCachingSystem(cache.DefaultCacheExpireTime)
 
 	// Initialize the cookie store in the auth module
 	cookies.InitCookieStore()
