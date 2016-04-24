@@ -23,7 +23,7 @@ var (
 	ErrInvalidScheme           = errors.New("The used authorization scheme is invalid or not supported")
 	ErrInvalidGhostToken       = errors.New("The given token is expired or invalid")
 	ErrInvalidUser             = errors.New("There is no application user with the given ID")
-	ErrDeactivatedUser         = errors.New("The current user account is deactivated")
+	ErrDeactivatedUser         = errors.New("The current user account is deactivated or inexistent")
 	ErrInexistentClientDetails = errors.New("Missing client details. Cannot create authorization for anonymous client")
 
 	errAnonymousUser = errors.New("The user has no identity")
@@ -35,11 +35,13 @@ func GenerateUserAuth(userID bson.ObjectId, client *cookies.Client) (string, err
 		return ErrInexistentClientDetails.Error(), ErrInexistentClientDetails
 	}
 
-	if !identity.IsUserExistent(userID) {
+	var user *identity.ApplicationUser
+	var isUserExistent bool
+	if user, isUserExistent = identity.IsUserExistent(userID); !isUserExistent {
 		return ErrInvalidUser.Error(), ErrInvalidUser
 	}
 
-	session, err := cookies.NewSession(userID, client)
+	session, err := cookies.NewSession(userID, user.AccountType, client)
 	if err != nil {
 		return err.Error(), err
 	}
@@ -83,7 +85,7 @@ func Authorize(httpHeader http.Header) (*identity.Identity, error) {
 
 	dbCookie, err := cookies.GetSession(cookie.Token)
 	if err != nil || dbCookie == nil {
-		return nil, err
+		return nil, ErrDeactivatedUser
 	}
 
 	if !identity.IsUserActivated(dbCookie.UserID) {

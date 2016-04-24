@@ -12,8 +12,8 @@ import (
 // TransactionsAPI defines the API endpoint for application transactions of any kind
 type TransactionsAPI int
 
-// Get endpoint retrieves a certain transaction based on its Id
-func (t *TransactionsAPI) Get(params *api.Request) api.Response {
+// GetTransaction endpoint retrieves a certain transaction based on its Id
+func (t *TransactionsAPI) GetTransaction(params *api.Request) api.Response {
 	transactionID, found, err := filter.GetIDParameter("transactionId", params.Form)
 
 	if err != nil {
@@ -27,8 +27,8 @@ func (t *TransactionsAPI) Get(params *api.Request) api.Response {
 	return bll.GetTransaction(transactionID)
 }
 
-// Create endpoint creates a new transaction with the valid transfer tokens and data
-func (t *TransactionsAPI) Create(params *api.Request) api.Response {
+// CreateTransaction endpoint creates a new transaction with the valid transfer tokens and data
+func (t *TransactionsAPI) CreateTransaction(params *api.Request) api.Response {
 	transaction := &models.Transaction{}
 
 	err := util.DeserializeJSON(params.Body, transaction)

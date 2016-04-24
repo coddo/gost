@@ -116,10 +116,10 @@ func DeleteUser(userID bson.ObjectId) error {
 }
 
 // IsUserExistent verifies if an user with the given id exists
-func IsUserExistent(userID bson.ObjectId) bool {
+func IsUserExistent(userID bson.ObjectId) (*ApplicationUser, bool) {
 	var user, err = GetUser(userID)
 
-	return err == nil && user != nil
+	return user, err == nil && user != nil
 }
 
 // IsUserActivated verifies if an user account is activated
