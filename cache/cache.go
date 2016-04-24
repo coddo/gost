@@ -15,8 +15,8 @@ const (
 )
 
 const (
-	// CacheExpireTime represents the maximum duration that an item can stay cached
-	CacheExpireTime = 7 * 24 * time.Hour
+	// DefaultCacheExpireTime represents the maximum duration that an item can stay cached
+	DefaultCacheExpireTime = 7 * 24 * time.Hour
 )
 
 var (
@@ -186,6 +186,8 @@ func storeOrUpdate(cache *Cache) {
 }
 
 func startCachingLoop() {
+	defer recoverFromErrors()
+
 Loop:
 	for {
 		select {
@@ -221,5 +223,17 @@ func startExpiredInvalidator(cacheExpireTime time.Duration) {
 		}
 
 		time.Sleep(cacheExpireTime)
+	}
+}
+
+// In case of error (caching is still on), restart the entire system
+func recoverFromErrors() {
+	if r := recover(); r != nil && Status == StatusON {
+		// Stop the invalidator loop
+		Status = StatusOFF
+		time.Sleep(5 * time.Second)
+
+		// Restart the caching system
+		StartCachingSystem(DefaultCacheExpireTime)
 	}
 }
