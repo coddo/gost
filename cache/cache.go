@@ -175,7 +175,7 @@ func storeOrUpdate(cache *Cache) {
 }
 
 func startCachingLoop() {
-	defer recoverFromErrors()
+	defer recoverFromCachingErrors()
 
 Loop:
 	for {
@@ -207,6 +207,8 @@ Loop:
 }
 
 func startExpiredInvalidator(cacheExpireTime time.Duration) {
+	defer recoverFromInvalidatorErrors(cacheExpireTime)
+
 	for Status == StatusON {
 		var date = util.Now()
 		var cacheCopy = memoryCache
@@ -222,13 +224,14 @@ func startExpiredInvalidator(cacheExpireTime time.Duration) {
 }
 
 // In case of error (caching is still on), restart the entire system
-func recoverFromErrors() {
+func recoverFromCachingErrors() {
 	if r := recover(); r != nil && Status == StatusON {
-		// Stop the invalidator loop
-		Status = StatusOFF
-		time.Sleep(5 * time.Second)
+		go startCachingLoop()
+	}
+}
 
-		// Restart the caching system
-		StartCachingSystem(DefaultCacheExpireTime)
+func recoverFromInvalidatorErrors(cacheExpireTime time.Duration) {
+	if r := recover(); r != nil && Status == StatusON {
+		go startExpiredInvalidator(cacheExpireTime)
 	}
 }
