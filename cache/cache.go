@@ -39,12 +39,13 @@ var (
 var memoryCache = make(map[string]map[string]*Cache)
 
 var (
-	getKeyChannel  = make(chan *combinedKey)
-	getChan        = make(chan chan *Cache)
-	errorChan      = make(chan error)
-	cacheChan      = make(chan *Cache)
-	invalidateChan = make(chan string)
-	exitChan       = make(chan int)
+	getKeyChannel         = make(chan *combinedKey)
+	getChan               = make(chan chan *Cache)
+	errorChan             = make(chan error)
+	cacheChan             = make(chan *Cache)
+	invalidateChan        = make(chan string)
+	invalidateExpiredChan = make(chan *combinedKey)
+	exitChan              = make(chan int)
 )
 
 // Cacher is the interface that has all the basic methods used by cached items
@@ -92,9 +93,13 @@ func (cache *Cache) Invalidate() {
 // InvalidateIfExpired checks whether the active time of the current entity
 // has expired, and if it did, it invalidates it
 func (cache *Cache) InvalidateIfExpired(limit time.Time) {
-	if util.IsDateExpired(cache.ExpireTime, limit) {
-		cache.Invalidate()
+	if !util.IsDateExpired(cache.ExpireTime, limit) {
+		return
 	}
+
+	go func() {
+		invalidateExpiredChan <- &combinedKey{cache.Key, cache.DataKey}
+	}()
 }
 
 // ResetExpireTime resets the timer for when the current entity will expire
@@ -146,13 +151,21 @@ func Query(key, dataKey string) (*Cache, error) {
 	flagChan := make(chan *Cache)
 	defer close(flagChan)
 
-	getChan <- flagChan
+	go func() {
+		getChan <- flagChan
+	}()
 
-	select {
-	case returnItem := <-flagChan:
-		return returnItem, nil
-	case err := <-errorChan:
-		return nil, err
+	for {
+		select {
+		case returnItem := <-flagChan:
+			return returnItem, nil
+		case err := <-errorChan:
+			return nil, err
+		default:
+			if Status == StatusOFF {
+				return nil, ErrCachingSystemStopped
+			}
+		}
 	}
 }
 
@@ -161,6 +174,7 @@ func stopCachingSystem() {
 	close(getChan)
 	close(cacheChan)
 	close(invalidateChan)
+	close(invalidateExpiredChan)
 }
 
 func invalidate(key string) {
@@ -169,9 +183,26 @@ func invalidate(key string) {
 	}
 }
 
+func invalidateExpired(key *combinedKey) {
+	if dataCaches, exists := memoryCache[key.Key]; exists {
+		if _, exists := dataCaches[key.DataKey]; exists {
+			delete(dataCaches, key.DataKey)
+			memoryCache[key.Key] = dataCaches
+		}
+	}
+}
+
 func storeOrUpdate(cache *Cache) {
 	cache.ResetExpireTime()
-	memoryCache[cache.Key][cache.DataKey] = cache
+
+	var cachePoint = map[string]*Cache{}
+	if entryPoint, exists := memoryCache[cache.Key]; exists {
+		cachePoint = entryPoint
+	}
+
+	cachePoint[cache.DataKey] = cache
+
+	memoryCache[cache.Key] = cachePoint
 }
 
 func startCachingLoop() {
@@ -184,24 +215,30 @@ Loop:
 			break Loop
 		case key := <-invalidateChan:
 			invalidate(key)
+		case key := <-invalidateExpiredChan:
+			invalidateExpired(key)
 		case cache := <-cacheChan:
 			storeOrUpdate(cache)
 		case flag := <-getChan:
-			combinedKey := <-getKeyChannel
+			key := <-getKeyChannel
 
-			if len(combinedKey.Key) == 0 || len(combinedKey.DataKey) == 0 {
+			if len(key.Key) == 0 || len(key.DataKey) == 0 {
 				errorChan <- ErrKeyFormat
 			}
 
-			if dataCaches, isContainerPresent := memoryCache[combinedKey.Key]; isContainerPresent {
-				if item, isCachePresent := dataCaches[combinedKey.DataKey]; isCachePresent {
+			var itemFound bool
+			if dataCaches, isContainerPresent := memoryCache[key.Key]; isContainerPresent {
+				if item, isCachePresent := dataCaches[key.DataKey]; isCachePresent {
+					itemFound = true
+
 					item.ResetExpireTime()
 					flag <- item
-					return
 				}
 			}
 
-			errorChan <- ErrKeyInvalidated
+			if !itemFound {
+				errorChan <- ErrKeyInvalidated
+			}
 		}
 	}
 }
