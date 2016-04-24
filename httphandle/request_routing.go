@@ -81,6 +81,10 @@ func respondFromCache(rw http.ResponseWriter, req *http.Request, route *config.R
 		return false
 	}
 
+	if !route.IsCacheable {
+		return false
+	}
+
 	if cachedData, err := cache.Query(route.Endpoint, endpointAction); err == nil {
 		if req.Method == api.GET {
 			sendResponse(cachedData.StatusCode, cachedData.Data, rw, req, route.Endpoint, endpointAction, cachedData.ContentType, cachedData.File)
