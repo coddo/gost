@@ -3,11 +3,11 @@
     "id": "TransactionsRoute",
     "endpoint": "/transactions",
     "actions": {
-      "Create": {
+      "CreateTransaction": {
         "type": "POST",
         "allowAnonymous": true
       },
-      "Get": {
+      "GetTransaction": {
         "type": "GET",
         "allowAnonymous": true
       }

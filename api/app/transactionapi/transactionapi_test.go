@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	ACTION_GET    = "Get"
-	ACTION_CREATE = "Create"
+	ActionGet    = "GetTransaction"
+	ActionCreate = "CreateTransaction"
 )
 
 const endpointPath = "/transactions"
@@ -47,21 +47,21 @@ func testGetTransactionWithInexistentIDInDB(t *testing.T) {
 	params := url.Values{}
 	params.Add("transactionId", bson.NewObjectId().Hex())
 
-	tests.PerformTestRequest(endpointPath, ACTION_GET, api.GET, http.StatusNotFound, params, nil, t)
+	tests.PerformTestRequest(endpointPath, ActionGet, api.GET, http.StatusNotFound, params, nil, t)
 }
 
 func testGetTransactionWithBadIDParam(t *testing.T) {
 	params := url.Values{}
 	params.Add("transactionId", "2as456fas4")
 
-	tests.PerformTestRequest(endpointPath, ACTION_GET, api.GET, http.StatusBadRequest, params, nil, t)
+	tests.PerformTestRequest(endpointPath, ActionGet, api.GET, http.StatusBadRequest, params, nil, t)
 }
 
 func testGetTransactionWithGoodIDParam(t *testing.T, id bson.ObjectId) {
 	params := url.Values{}
 	params.Add("transactionId", id.Hex())
 
-	rw := tests.PerformTestRequest(endpointPath, ACTION_GET, api.GET, http.StatusOK, params, nil, t)
+	rw := tests.PerformTestRequest(endpointPath, ActionGet, api.GET, http.StatusOK, params, nil, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
@@ -74,7 +74,7 @@ func testPostTransactionInBadFormat(t *testing.T) {
 		BadField: "bad value",
 	}
 
-	tests.PerformTestRequest(endpointPath, ACTION_CREATE, api.POST, http.StatusBadRequest, nil, dTransaction, t)
+	tests.PerformTestRequest(endpointPath, ActionCreate, api.POST, http.StatusBadRequest, nil, dTransaction, t)
 }
 
 func testPostTransactionNotIntegral(t *testing.T) {
@@ -84,7 +84,7 @@ func testPostTransactionNotIntegral(t *testing.T) {
 		Currency: "USD",
 	}
 
-	tests.PerformTestRequest(endpointPath, ACTION_CREATE, api.POST, http.StatusBadRequest, nil, transaction, t)
+	tests.PerformTestRequest(endpointPath, ActionCreate, api.POST, http.StatusBadRequest, nil, transaction, t)
 }
 
 func testPostTransactionInGoodFormat(t *testing.T) bson.ObjectId {
@@ -97,7 +97,7 @@ func testPostTransactionInGoodFormat(t *testing.T) bson.ObjectId {
 		Currency: "USD",
 	}
 
-	rw := tests.PerformTestRequest(endpointPath, ACTION_CREATE, api.POST, http.StatusCreated, nil, transaction, t)
+	rw := tests.PerformTestRequest(endpointPath, ActionCreate, api.POST, http.StatusCreated, nil, transaction, t)
 
 	body := rw.Body.String()
 	if len(body) == 0 {
