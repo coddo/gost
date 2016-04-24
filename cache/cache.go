@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"bytes"
 	"errors"
 	"gost/util"
 	"time"
@@ -37,10 +36,10 @@ var (
 	selectedCacheExpireTime time.Duration
 )
 
-var memoryCache = make(map[string]*Cache)
+var memoryCache = make(map[string]map[string]*Cache)
 
 var (
-	getKeyChannel  = make(chan string)
+	getKeyChannel  = make(chan *combinedKey)
 	getChan        = make(chan chan *Cache)
 	errorChan      = make(chan error)
 	cacheChan      = make(chan *Cache)
@@ -59,10 +58,16 @@ type Cacher interface {
 	ResetExpireTime()
 }
 
+type combinedKey struct {
+	Key     string
+	DataKey string
+}
+
 // A Cache entity is used to store precise information in the memory cache
 // using a key (unique idenfier) and its actual data
 type Cache struct {
 	Key         string
+	DataKey     string
 	Data        []byte
 	StatusCode  int
 	ContentType string
@@ -126,16 +131,16 @@ func StopCachingSystem() {
 	}()
 }
 
-// QueryByKey searches for a certain storage key in the memory cache
-// and returns the found Cache item, or an error if it is inexistent
-// or there was a problem with the search
-func QueryByKey(key string) (*Cache, error) {
+// Query searches for a certain storage key in the memory cache
+// and returns the found Cache item based on its data key.
+// An error is returned if it is inexistent or there was a problem with the search
+func Query(key, dataKey string) (*Cache, error) {
 	if Status == StatusOFF {
 		return nil, ErrCachingSystemStopped
 	}
 
 	go func() {
-		getKeyChannel <- key
+		getKeyChannel <- &combinedKey{Key: key, DataKey: dataKey}
 	}()
 
 	flagChan := make(chan *Cache)
@@ -149,22 +154,6 @@ func QueryByKey(key string) (*Cache, error) {
 	case err := <-errorChan:
 		return nil, err
 	}
-}
-
-// QueryByRequest maps a given endpoint to a storage key and then searches for
-// that key in the memory cache and returns the found Cache item, or an error
-// if it is inexistent or there was a problem with the search
-func QueryByRequest(endpoint string) (*Cache, error) {
-	return QueryByKey(MapKey(endpoint))
-}
-
-// MapKey creates a storage key out of a string, used for identifying cache items.
-func MapKey(endpoint string) string {
-	var buf bytes.Buffer
-
-	buf.WriteString(endpoint)
-
-	return buf.String()
 }
 
 func stopCachingSystem() {
@@ -182,7 +171,7 @@ func invalidate(key string) {
 
 func storeOrUpdate(cache *Cache) {
 	cache.ResetExpireTime()
-	memoryCache[cache.Key] = cache
+	memoryCache[cache.Key][cache.DataKey] = cache
 }
 
 func startCachingLoop() {
@@ -198,28 +187,34 @@ Loop:
 		case cache := <-cacheChan:
 			storeOrUpdate(cache)
 		case flag := <-getChan:
-			key := <-getKeyChannel
+			combinedKey := <-getKeyChannel
 
-			if len(key) == 0 {
+			if len(combinedKey.Key) == 0 || len(combinedKey.DataKey) == 0 {
 				errorChan <- ErrKeyFormat
 			}
 
-			if item, ok := memoryCache[key]; ok {
-				item.ResetExpireTime()
-				flag <- item
-			} else {
-				errorChan <- ErrKeyInvalidated
+			if dataCaches, isContainerPresent := memoryCache[combinedKey.Key]; isContainerPresent {
+				if item, isCachePresent := dataCaches[combinedKey.DataKey]; isCachePresent {
+					item.ResetExpireTime()
+					flag <- item
+					return
+				}
 			}
+
+			errorChan <- ErrKeyInvalidated
 		}
 	}
 }
 
 func startExpiredInvalidator(cacheExpireTime time.Duration) {
 	for Status == StatusON {
-		date := util.Now()
+		var date = util.Now()
+		var cacheCopy = memoryCache
 
-		for _, item := range memoryCache {
-			item.InvalidateIfExpired(date)
+		for _, dataCaches := range cacheCopy {
+			for _, item := range dataCaches {
+				item.InvalidateIfExpired(date)
+			}
 		}
 
 		time.Sleep(cacheExpireTime)

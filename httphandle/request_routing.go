@@ -81,7 +81,7 @@ func respondFromCache(rw http.ResponseWriter, req *http.Request, route *config.R
 		return false
 	}
 
-	if cachedData, err := cache.QueryByRequest(route.Endpoint); err == nil {
+	if cachedData, err := cache.Query(route.Endpoint, endpointAction); err == nil {
 		if req.Method == api.GET {
 			sendResponse(cachedData.StatusCode, cachedData.Data, rw, req, route.Endpoint, endpointAction, cachedData.ContentType, cachedData.File)
 			return true
@@ -110,19 +110,20 @@ func respond(resp *api.Response, rw http.ResponseWriter, req *http.Request, endp
 		// Try caching the data only if a GET request was made
 		go func(resp *api.Response, req *http.Request, endpoint string) {
 			if req.Method == api.GET && cache.Status == cache.StatusON {
-				cacheResponse(resp, endpoint)
+				cacheResponse(resp, endpoint, endpointAction)
 			}
 		}(resp, req, endpoint)
 	}
 }
 
-func cacheResponse(resp *api.Response, endpoint string) {
+func cacheResponse(resp *api.Response, endpoint, endpointAction string) {
 	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) || len(resp.Content) == 0 {
 		return
 	}
 
 	cacheEntity := &cache.Cache{
-		Key:         cache.MapKey(endpoint),
+		Key:         endpoint,
+		DataKey:     endpointAction,
 		Data:        resp.Content,
 		StatusCode:  resp.StatusCode,
 		ContentType: resp.ContentType,
