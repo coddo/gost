@@ -3,6 +3,7 @@ package cookies
 import (
 	"errors"
 	"gost/util"
+	"log"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
@@ -61,6 +62,7 @@ func (session *Session) IsExpired() bool {
 
 // IsUserInRole verifies if the user with the current session has a specific role
 func (session *Session) IsUserInRole(role int) bool {
+	log.Println(session.AccountType, role)
 	return session.AccountType == role
 }
 
@@ -74,18 +76,19 @@ func (session *Session) ResetToken() error {
 
 // NewSession generates a new Session pointer that contains the given userID and
 // a unique token used as an identifier
-func NewSession(userID bson.ObjectId, client *Client) (*Session, error) {
+func NewSession(userID bson.ObjectId, accountType int, client *Client) (*Session, error) {
 	token, err := util.GenerateUUID()
 	if err != nil {
 		return nil, err
 	}
 
 	session := &Session{
-		ID:         bson.NewObjectId(),
-		UserID:     userID,
-		Token:      token,
-		ExpireTime: util.NextDateFromNow(tokenExpireTime),
-		Client:     client,
+		ID:          bson.NewObjectId(),
+		UserID:      userID,
+		AccountType: accountType,
+		Token:       token,
+		ExpireTime:  util.NextDateFromNow(tokenExpireTime),
+		Client:      client,
 	}
 
 	return session, nil

@@ -16,7 +16,7 @@ type DevAPI int
 type AppUserModel struct {
 	Email       string `json:"email"`
 	Password    string `json:"password"`
-	AccountType int    `json:"accountType"`
+	AccountType int    `json:"accountType"` // 0 - NormalUser | 1 - Admin
 }
 
 // CreateAppUser is an endpoint used for creating application users
@@ -28,7 +28,7 @@ func (v *DevAPI) CreateAppUser(params *api.Request) api.Response {
 		return api.BadRequest(api.ErrEntityFormat)
 	}
 
-	var activationServiceLink = config.HTTPServerAddress + config.APIInstance + "/dev/CreateAppUser?token=%s"
+	var activationServiceLink = config.HTTPServerAddress + config.APIInstance + "dev/ActivateAppUser?token=%s"
 
 	user, err := auth.CreateAppUser(model.Email, model.Password, model.AccountType, activationServiceLink)
 	if err != nil {

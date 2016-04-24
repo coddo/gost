@@ -62,7 +62,6 @@ func authorize(authChan chan *Authorization, routeAction *config.Action) (*ident
 	}
 
 	user := authorization.Identity
-
 	if (!routeAction.AllowAnonymous && user.IsAnonymous()) || (routeAction.RequireAdmin && !user.IsAdmin()) {
 		return nil, errors.New(api.StatusText(http.StatusUnauthorized))
 	}

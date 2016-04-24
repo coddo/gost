@@ -23,6 +23,7 @@ sftp-config.json
 *.a
 *.so
 gost/gost
+debug
 
 # Folders
 _obj

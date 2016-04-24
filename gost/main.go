@@ -53,7 +53,7 @@ func startWebFramework() {
 	go listenForInterruptSignal()
 
 	// Start a http or and https server depending on the program arguments
-	if len(os.Args) < 1 || os.Args[1] == "http" {
+	if len(os.Args) <= 1 || os.Args[1] == "http" {
 		servers.StartHTTPServer()
 	} else if os.Args[1] == "https" {
 		servers.StartHTTPSServer()
@@ -78,7 +78,7 @@ func init() {
 	devapi.InitDevRoutes()                             //----- Uncomment this line when in development
 
 	// Start the caching system
-	//cache.StartCachingSystem(cache.CacheExpireTime)
+	cache.StartCachingSystem(cache.DefaultCacheExpireTime)
 
 	// Initialize the cookie store in the auth module
 	cookies.InitCookieStore()

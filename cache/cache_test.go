@@ -3,6 +3,7 @@ package cache
 import (
 	"encoding/json"
 	testconfig "gost/tests/config"
+	"gost/util"
 	"testing"
 	"time"
 )
@@ -14,13 +15,13 @@ type cacheTest struct {
 }
 
 func TestCache(t *testing.T) {
-	const cacheExpireTime = 700 * time.Millisecond
+	const cacheExpireTime = time.Millisecond * 700
 
-	var cacheKeys = []string{
-		MapKey("/testKey1"),
-		MapKey("/testKey2"),
-		MapKey("/testTheThirdKey"),
-		MapKey("/thisNeedsToExpire"),
+	var cacheKeys = []combinedKey{
+		combinedKey{Key: "/testKey1", DataKey: "testDataKey1"},
+		combinedKey{Key: "/testKey2", DataKey: "testDataKey2"},
+		combinedKey{Key: "/testTheThirdKey", DataKey: "testTheThirdDataKey"},
+		combinedKey{Key: "/thisNeedsToExpire", DataKey: "thisNeedsToDataExpire"},
 	}
 
 	var items []cacheTest
@@ -42,37 +43,37 @@ func TestCache(t *testing.T) {
 }
 
 func testExpiringItem(t *testing.T, expiringItem *Cache, cacheExpireTime time.Duration) {
-	t.Log("Testing the expired cache invalidation system")
-
-	expiringKey := expiringItem.Key
+	t.Log("[info] Testing the expired cache invalidation system")
 
 	time.Sleep(cacheExpireTime * 2)
 
-	_, err := QueryByKey(expiringKey)
+	_, err := Query(expiringItem.Key, expiringItem.DataKey)
 
 	if err == nil || err != ErrKeyInvalidated {
 		t.Fatal("The cache items did not properly expire")
 	}
 }
 
-func testFetchInexistentCache(t *testing.T, mockQuery string) {
-	t.Log("Testing the cache querying system with inexistent or invalid data")
+func testFetchInexistentCache(t *testing.T, mockQuery combinedKey) {
+	t.Log("[info] Testing the cache querying system with inexistent or invalid data")
 
 	// Will never be added
-	data, _ := QueryByKey("keySFAFSAGKAGHAJSKfhaskfhaskf")
+	var inexistentKey, _ = util.GenerateUUID()
+	var inexistentDataKey, _ = util.GenerateUUID()
+	data, _ := Query(inexistentKey, inexistentDataKey)
 	if data != nil {
-		t.Fatal("Unexpected output from cache")
+		t.Fatal("[error] Unexpected output from cache")
 	}
 
 	// Will be added later during the test
-	data, _ = QueryByKey(mockQuery)
+	data, _ = Query(mockQuery.Key, mockQuery.DataKey)
 	if data != nil {
-		t.Fatal("Unexpected output from cache")
+		t.Fatal("[error] Unexpected output from cache")
 	}
 }
 
 func testFetchingFromCache(t *testing.T, cachedItems []*Cache) {
-	t.Log("Testing the cache querying system with valid data")
+	t.Log("[info] Testing the cache querying system with valid data")
 
 	var q1 *Cache
 	var q2 *Cache
@@ -80,24 +81,24 @@ func testFetchingFromCache(t *testing.T, cachedItems []*Cache) {
 	i := 0
 
 	for i < 2 {
-		q1, _ = QueryByKey(cachedItems[0].Key)
-		q2, _ = QueryByKey(cachedItems[1].Key)
-		q3, _ = QueryByKey(cachedItems[2].Key)
+		q1, _ = Query(cachedItems[0].Key, cachedItems[0].DataKey)
+		q2, _ = Query(cachedItems[1].Key, cachedItems[1].DataKey)
+		q3, _ = Query(cachedItems[2].Key, cachedItems[2].DataKey)
 
 		if q1 == nil || q2 == nil || q3 == nil {
-			t.Fatal("Cache didn't properly return test items")
+			t.Fatal("[error] Cache didn't properly return test items")
 		}
 
 		i++
 	}
 
 	if q1.Key != cachedItems[0].Key || q2.Key != cachedItems[1].Key || q3.Key != cachedItems[2].Key {
-		t.Fatal("Wrong cache values were returned")
+		t.Fatal("[error] Wrong cache values were returned")
 	}
 }
 
-func testAddingToCache(t *testing.T, items []cacheTest, cacheKeys []string) ([]*Cache, *Cache) {
-	t.Log("Testing the data caching system")
+func testAddingToCache(t *testing.T, items []cacheTest, cacheKeys []combinedKey) ([]*Cache, *Cache) {
+	t.Log("[info] Testing the data caching system")
 
 	var cachedItems = make([]*Cache, 3)
 	var expiringCacheItem *Cache
@@ -114,8 +115,9 @@ func testAddingToCache(t *testing.T, items []cacheTest, cacheKeys []string) ([]*
 	}
 	j1, _ := json.MarshalIndent(q1, "", "  ")
 	c1 := &Cache{
-		Key:  cacheKeys[0],
-		Data: j1,
+		Key:     cacheKeys[0].Key,
+		DataKey: cacheKeys[0].DataKey,
+		Data:    j1,
 	}
 	cachedItems[0] = c1
 
@@ -127,8 +129,9 @@ func testAddingToCache(t *testing.T, items []cacheTest, cacheKeys []string) ([]*
 	}
 	j2, _ := json.MarshalIndent(q2, "", "  ")
 	c2 := &Cache{
-		Key:  cacheKeys[1],
-		Data: j2,
+		Key:     cacheKeys[1].Key,
+		DataKey: cacheKeys[1].DataKey,
+		Data:    j2,
 	}
 	cachedItems[1] = c2
 
@@ -140,15 +143,17 @@ func testAddingToCache(t *testing.T, items []cacheTest, cacheKeys []string) ([]*
 	}
 	j3, _ := json.MarshalIndent(q3, "", "  ")
 	c3 := &Cache{
-		Key:  cacheKeys[2],
-		Data: j3,
+		Key:     cacheKeys[2].Key,
+		DataKey: cacheKeys[2].DataKey,
+		Data:    j3,
 	}
 	cachedItems[2] = c3
 
 	// Expiring type
 	expiringCacheItem = &Cache{
-		Key:  cacheKeys[3],
-		Data: j1,
+		Key:     cacheKeys[3].Key,
+		DataKey: cacheKeys[3].DataKey,
+		Data:    j1,
 	}
 
 	expiringCacheItem.Cache()
@@ -162,7 +167,7 @@ func testAddingToCache(t *testing.T, items []cacheTest, cacheKeys []string) ([]*
 }
 
 func testRemovingFromCache(t *testing.T, cachedItems []*Cache) {
-	t.Log("Testing the cache invalidation system")
+	t.Log("[info] Testing the cache invalidation system")
 
 	for _, it := range cachedItems {
 		it.Invalidate()
