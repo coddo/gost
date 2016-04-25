@@ -47,11 +47,7 @@ func (v *DevAPI) ActivateAppUser(params *api.Request) api.Response {
 
 	var err = auth.ActivateAppUser(token)
 	if err != nil {
-		if err == auth.ErrActivationTokenExpired {
-			return api.BadRequest(err)
-		}
-
-		return api.InternalServerError(err)
+		return api.BadRequest(err)
 	}
 
 	return api.PlainTextResponse(http.StatusOK, "Account is now active")

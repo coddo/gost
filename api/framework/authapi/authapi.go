@@ -24,10 +24,23 @@ func (a *AuthAPI) ActivateAccount(params *api.Request) api.Response {
 
 	err = auth.ActivateAppUser(model.Token)
 	if err != nil {
-		if err == auth.ErrActivationTokenExpired {
-			return api.BadRequest(err)
-		}
+		return api.BadRequest(err)
+	}
 
+	return api.StatusResponse(http.StatusOK)
+}
+
+// ResendAccountActivationEmail resends the email with the details for activating their user account
+func (a *AuthAPI) ResendAccountActivationEmail(params *api.Request) api.Response {
+	var model = ResendActivationEmailModel{}
+
+	var err = util.DeserializeJSON(params.Body, &model)
+	if err != nil {
+		return api.BadRequest(api.ErrEntityFormat)
+	}
+
+	err = auth.ResendAccountActivationEmail(model.Email, model.ActivateAccountServiceLink)
+	if err != nil {
 		return api.InternalServerError(err)
 	}
 
@@ -36,7 +49,7 @@ func (a *AuthAPI) ActivateAccount(params *api.Request) api.Response {
 
 // RequestResetPassword sends an email with a special token that will be used for resetting the password
 func (a *AuthAPI) RequestResetPassword(params *api.Request) api.Response {
-	var model = RequestResetPassword{}
+	var model = RequestResetPasswordModel{}
 
 	var err = util.DeserializeJSON(params.Body, &model)
 	if err != nil {
@@ -53,7 +66,7 @@ func (a *AuthAPI) RequestResetPassword(params *api.Request) api.Response {
 
 // ResetPassword resets an user account's password
 func (a *AuthAPI) ResetPassword(params *api.Request) api.Response {
-	var model = ResetPassword{}
+	var model = ResetPasswordModel{}
 
 	var err = util.DeserializeJSON(params.Body, &model)
 	if err != nil {
