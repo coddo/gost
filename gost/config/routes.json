@@ -37,6 +37,10 @@
         "type": "POST",
         "allowAnonymous": true
       },
+      "ResendAccountActivationEmail": {
+          "type": "GET",
+          "allowAnonymous": true
+      },
       "RequestResetPassword": {
         "type": "POST",
         "allowAnonymous": true

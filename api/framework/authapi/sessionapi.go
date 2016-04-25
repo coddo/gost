@@ -7,7 +7,6 @@ import (
 	"gost/auth/cookies"
 	"gost/filter"
 	"gost/util"
-	"log"
 	"net/http"
 
 	"gopkg.in/mgo.v2/bson"
@@ -67,7 +66,6 @@ func (a *AuthAPI) CreateSession(params *api.Request) api.Response {
 		return api.BadRequest(err)
 	}
 
-	log.Println("TOKEN:", token)
 	return api.PlainTextResponse(http.StatusOK, token)
 }
 
