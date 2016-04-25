@@ -6,6 +6,7 @@ import (
 	"gost/auth/identity"
 	"gost/email"
 	"gost/util"
+	"log"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
@@ -49,12 +50,7 @@ func CreateAppUser(emailAddress, password string, accountType int, activationSer
 		return nil, err
 	}
 
-	var emailActivationLink = fmt.Sprintf(activationServiceLink, token)
-	err = email.SendAccountActivationEmail(user.Email, emailActivationLink)
-	if err != nil {
-		rollbackAppUserCreation(user.ID)
-		return nil, err
-	}
+	go sendAccountActivationEmail(emailAddress, activationServiceLink, token)
 
 	return user, nil
 }
@@ -116,11 +112,52 @@ func RequestResetPassword(emailAddress, passwordResetServiceLink string) error {
 		return err
 	}
 
-	var passwordResetLink = fmt.Sprintf(passwordResetServiceLink, token)
+	go sendPasswordResetEmail(emailAddress, passwordResetServiceLink, token)
 
-	return email.SendPasswordResetEmail(user.Email, passwordResetLink)
+	return nil
 }
 
-func rollbackAppUserCreation(userID bson.ObjectId) {
-	identity.DeleteUser(userID)
+// ResendAccountActivationEmail resends the email with the details for activating their user account
+func ResendAccountActivationEmail(emailAddress, activationServiceLink string) error {
+	var user, err = identity.GetUserByEmail(emailAddress)
+	if err != nil {
+		return err
+	}
+
+	token, err := util.GenerateUUID()
+	if err != nil {
+		return err
+	}
+
+	user.ActivateAccountToken = token
+	user.ActivateAccountTokenExpireDate = util.NextDateFromNow(accountActivationTokenExpireTime)
+
+	err = identity.UpdateUser(user)
+	if err != nil {
+		return err
+	}
+
+	go sendAccountActivationEmail(emailAddress, activationServiceLink, token)
+
+	return nil
+}
+
+func sendAccountActivationEmail(userEmail, activationServiceLink, token string) {
+	var accountActivationLink = fmt.Sprintf(activationServiceLink, token)
+
+	err := email.SendAccountActivationEmail(userEmail, accountActivationLink)
+
+	if err != nil {
+		log.Printf(fmt.Sprintf("Error in sending account activation email to: %s", userEmail))
+	}
+}
+
+func sendPasswordResetEmail(userEmail, passwordResetServiceLink, token string) {
+	var passwordResetLink = fmt.Sprintf(passwordResetServiceLink, token)
+
+	err := email.SendPasswordResetEmail(userEmail, passwordResetLink)
+
+	if err != nil {
+		log.Printf(fmt.Sprintf("Error in sending password reset email to: %s", userEmail))
+	}
 }
