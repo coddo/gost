@@ -3,7 +3,6 @@ package cookies
 import (
 	"errors"
 	"gost/util"
-	"log"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
@@ -62,7 +61,6 @@ func (session *Session) IsExpired() bool {
 
 // IsUserInRole verifies if the user with the current session has a specific role
 func (session *Session) IsUserInRole(role int) bool {
-	log.Println(session.AccountType, role)
 	return session.AccountType == role
 }
 
