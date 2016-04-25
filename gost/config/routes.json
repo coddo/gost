@@ -1,31 +1,69 @@
 [
   {
-    "id": "UsersRoute",
-    "pattern": "/users",
-    "handlers": {
-      "DELETE": "DeleteUser",
-      "GET": "GetUser",
-      "POST": "PostUser",
-      "PUT": "PutUser"
-    }
-  },
-  {
-    "id": "UserSessionsRoute",
-    "pattern": "/users/login",
-    "handlers": {
-      "DELETE": "DeleteUserSession",
-      "GET": "GetUserSession",
-      "POST": "PostUserSession",
-      "PUT": "PutUserSession"
-    }
-  },
-  {
     "id": "TransactionsRoute",
-    "pattern": "/transactions",
-    "handlers": {
-      "GET": "GetTransaction",
-      "POST": "PostTransaction",
-      "DELETE": "DeleteTransaction"
+    "endpoint": "/transactions",
+    "actions": {
+      "CreateTransaction": {
+        "type": "POST",
+        "allowAnonymous": false,
+        "requireAdmin": false
+      },
+      "GetTransaction": {
+        "type": "GET",
+        "allowAnonymous": false,
+        "requireAdmin": false
+      }
+    }
+  },
+  {
+    "id": "AuthorizationRoute",
+    "endpoint": "/auth",
+    "actions": {
+      "CreateSession": {
+        "type": "POST",
+        "allowAnonymous": true
+      },
+      "GetAllSessions": {
+        "type": "GET",
+        "allowAnonymous": false,
+        "requireAdmin": false
+      },
+      "KillSession": {
+        "type": "POST",
+        "allowAnonymous": false,
+        "requireAdmin": false
+      },
+      "ActivateAccount": {
+        "type": "POST",
+        "allowAnonymous": true
+      },
+      "ResendAccountActivationEmail": {
+          "type": "GET",
+          "allowAnonymous": true
+      },
+      "RequestResetPassword": {
+        "type": "POST",
+        "allowAnonymous": true
+      },
+      "ResetPassword": {
+        "type": "POST",
+        "allowAnonymous": true
+      }
+    }
+  },
+  {
+    "id": "ValuesRoute",
+    "endpoint": "/values",
+    "actions": {
+      "Get": {
+        "type": "GET",
+        "allowAnonymous": false,
+        "requireAdmin": false
+      },
+      "GetAnonymous": {
+        "type": "GET",
+        "allowAnonymous": true
+      }
     }
   }
 ]

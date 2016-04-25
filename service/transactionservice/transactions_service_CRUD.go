@@ -1,19 +1,21 @@
 package transactionservice
 
 import (
-	"gopkg.in/mgo.v2/bson"
-	"gost/dbmodels"
+	"gost/orm/dbmodels"
 	"gost/service"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
-const CollectionName = "transactions"
+const collectionName = "transactions"
 
+// CreateTransaction adds a new Transaction to the database
 func CreateTransaction(transaction *dbmodels.Transaction) error {
-	session, collection := service.Connect(CollectionName)
+	session, collection := service.Connect(collectionName)
 	defer session.Close()
 
-	if transaction.Id == "" {
-		transaction.Id = bson.NewObjectId()
+	if transaction.ID == "" {
+		transaction.ID = bson.NewObjectId()
 	}
 
 	err := collection.Insert(transaction)
@@ -21,40 +23,44 @@ func CreateTransaction(transaction *dbmodels.Transaction) error {
 	return err
 }
 
+// UpdateTransaction updates an existing Transaction in the database
 func UpdateTransaction(transaction *dbmodels.Transaction) error {
-	session, collection := service.Connect(CollectionName)
+	session, collection := service.Connect(collectionName)
 	defer session.Close()
 
-	if transaction.Id == "" {
-		return service.NoIdSpecifiedError
+	if transaction.ID == "" {
+		return service.ErrNoIDSpecified
 	}
 
-	err := collection.UpdateId(transaction.Id, transaction)
+	err := collection.UpdateId(transaction.ID, transaction)
 
 	return err
 }
 
-func DeleteTransaction(transactionId bson.ObjectId) error {
-	session, collection := service.Connect(CollectionName)
+// DeleteTransaction removes a Transaction from the database
+func DeleteTransaction(transactionID bson.ObjectId) error {
+	session, collection := service.Connect(collectionName)
 	defer session.Close()
 
-	err := collection.RemoveId(transactionId)
+	err := collection.RemoveId(transactionID)
 
 	return err
 }
 
-func GetTransaction(transactionId bson.ObjectId) (*dbmodels.Transaction, error) {
-	session, collection := service.Connect(CollectionName)
+// GetTransaction retrieves an Transaction from the database, based on its ID
+func GetTransaction(transactionID bson.ObjectId) (*dbmodels.Transaction, error) {
+	session, collection := service.Connect(collectionName)
 	defer session.Close()
 
 	transaction := dbmodels.Transaction{}
-	err := collection.FindId(transactionId).One(&transaction)
+	err := collection.FindId(transactionID).One(&transaction)
 
 	return &transaction, err
 }
 
+// GetAllTransactions retrieves all the existing Transaction entities in the database
 func GetAllTransactions() ([]dbmodels.Transaction, error) {
-	session, collection := service.Connect(CollectionName)
+	session, collection := service.Connect(collectionName)
 	defer session.Close()
 
 	var transactions []dbmodels.Transaction
@@ -63,8 +69,9 @@ func GetAllTransactions() ([]dbmodels.Transaction, error) {
 	return transactions, err
 }
 
+// GetAllTransactionsLimited retrieves the first X Transaction entities from the database, where X is the specified limit
 func GetAllTransactionsLimited(limit int) ([]dbmodels.Transaction, error) {
-	session, collection := service.Connect(CollectionName)
+	session, collection := service.Connect(collectionName)
 	defer session.Close()
 
 	var transactions []dbmodels.Transaction

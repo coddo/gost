@@ -9,34 +9,36 @@ import (
 )
 
 const (
-	CERT_FILE = "gost.crt"
-	KEY_FILE  = "gost.key"
+	httpsCertFile = "gost.crt"
+	httpsKeyFile  = "gost.key"
 )
 
+// StartHTTPServer starts a HTTP server that listens for requests
 func StartHTTPServer() {
-	http.HandleFunc(config.ApiInstance, httphandle.ApiHandler)
+	http.HandleFunc(config.APIInstance, httphandle.RequestHandler)
 
 	server := &http.Server{
-		Addr:           config.HttpServerAddress,
+		Addr:           config.HTTPServerAddress,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	log.Println("HTTP Server STARTED! Listening at:", config.HttpServerAddress+config.ApiInstance)
+	log.Println("HTTP Server STARTED! Listening at:", config.HTTPServerAddress+config.APIInstance)
 	log.Fatal(server.ListenAndServe())
 }
 
+// StartHTTPSServer starts a HTTPS server that listens for requests
 func StartHTTPSServer() {
-	http.HandleFunc(config.ApiInstance, httphandle.ApiHandler)
+	http.HandleFunc(config.APIInstance, httphandle.RequestHandler)
 
 	server := &http.Server{
-		Addr:           config.HttpServerAddress,
+		Addr:           config.HTTPServerAddress,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	log.Println("HTTPS Server STARTED! Listening at:", config.HttpServerAddress+config.ApiInstance)
-	log.Fatal(server.ListenAndServeTLS(CERT_FILE, KEY_FILE))
+	log.Println("HTTPS Server STARTED! Listening at:", config.HTTPServerAddress+config.APIInstance)
+	log.Fatal(server.ListenAndServeTLS(httpsCertFile, httpsKeyFile))
 }

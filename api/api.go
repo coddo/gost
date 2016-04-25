@@ -1,4 +1,4 @@
-// Package containing the API functionality helpers
+// Package api contains the API functionality helpers
 //
 // Each package represents the API functionality of a
 // certain endpoint which may implement some of the
@@ -7,42 +7,55 @@ package api
 
 import (
 	"errors"
+	"gost/auth/identity"
 	"net/http"
 	"net/url"
 )
 
 const (
-	GET    = "GET"
-	POST   = "POST"
-	PUT    = "PUT"
+	// GET constant represents a GET type http request
+	GET = "GET"
+	// POST constant represents a POST type http request
+	POST = "POST"
+	// PUT constant represents a PUT type http request
+	PUT = "PUT"
+	// DELETE constant represents a DELETE type http request
 	DELETE = "DELETE"
 )
 
 const (
+	// ContentTextPlain represents a HTTP transfer with simple text data
 	ContentTextPlain = "text/plain"
-	ContentHTML      = "text/html"
-	ContentJSON      = "application/json"
+	// ContentHTML represents a HTTP transfer with html data
+	ContentHTML = "text/html"
+	// ContentJSON represents a HTTP transfer with JSON data
+	ContentJSON = "application/json"
 )
 
+// Common errors returned by the API
 var (
-	EntityFormatError    = errors.New("The entity was not in the correct format")
-	EntityIntegrityError = errors.New("The entity doesn't comply to the integrity requirements")
-	EntityProcessError   = errors.New("The entity could not be processed")
-	EntityNotFoundError  = errors.New("No entity with the specified data was found")
-
-	IdParamNotSpecifiedError = errors.New("No id was specified for the entity to be updated")
-	LimitParamError          = errors.New("The limit cannot be 0. Use the value -1 for retrieving all the entities")
+	ErrEntityFormat        = errors.New("The entity was not in the correct format")
+	ErrEntityIntegrity     = errors.New("The entity doesn't comply to the integrity requirements")
+	ErrEntityProcessing    = errors.New("The entity could not be processed")
+	ErrEntityNotFound      = errors.New("No entity with the specified data was found")
+	ErrIDParamNotSpecified = errors.New("No id was specified for the entity to be updated")
+	ErrInvalidIDParam      = errors.New("The id parameter is not a valid bson.ObjectId")
+	ErrInvalidInput        = errors.New("The needed url paramters were inexistent or invalid")
 )
 
-type ApiVar struct {
-	RequestHeader        http.Header
-	RequestForm          url.Values
-	RequestContentLength int64
-	RequestBody          []byte
+// A Request contains the important and processable data from a HTTP request
+type Request struct {
+	Header        http.Header
+	Form          url.Values
+	ContentLength int64
+	Body          []byte
+	Identity      *identity.Identity
 }
 
-type ApiResponse struct {
-	Message      []byte
+// A Response contains the information that will be sent back to the user
+// through a HTTP response
+type Response struct {
+	Content      []byte
 	StatusCode   int
 	ErrorMessage string
 	ContentType  string

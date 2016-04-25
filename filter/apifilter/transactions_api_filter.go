@@ -1,14 +1,15 @@
 package apifilter
 
 import (
-	"gost/models"
+	"gost/orm/models"
 )
 
+// CheckTransactionIntegrity checks if a Transaction has all the compulsory fields populated
 func CheckTransactionIntegrity(transaction *models.Transaction) bool {
 	switch {
-	case len(transaction.Payer.Id) == 0:
+	case len(transaction.Payer.ID) == 0:
 		return false
-	case len(transaction.Receiver.Id) == 0:
+	case len(transaction.Receiver.ID) == 0:
 		return false
 	case transaction.Type < 0:
 		return false

@@ -1,51 +1,56 @@
 package api
 
 import (
-	"gost/models"
+	"gost/util"
 	"io/ioutil"
 )
 
-func SingleDataResponse(statusCode int, data models.Modeler) ApiResponse {
-	jsonData, err := models.SerializeJson(data)
+// JSONResponse creates a Response from the api, containing a single entity encoded as JSON
+func JSONResponse(statusCode int, data interface{}) Response {
+	jsonData, err := util.SerializeJSON(data)
 	if err != nil {
 		return InternalServerError(err)
 	}
 
-	return ApiResponse{
+	return Response{
 		StatusCode: statusCode,
-		Message:    jsonData,
+		Content:    jsonData,
 	}
 }
 
-func MultipleDataResponse(statusCode int, data []models.Modeler) ApiResponse {
-	jsonData, err := models.SerializeJson(data)
-	if err != nil {
-		return InternalServerError(err)
-	}
+// StatusResponse creates a Response from the api, containing just a status code
+func StatusResponse(statusCode int) Response {
+	return Response{StatusCode: statusCode}
+}
 
-	return ApiResponse{
-		StatusCode: statusCode,
-		Message:    jsonData,
+// PlainTextResponse creates a Response from the api, containing a status code and a text message
+func PlainTextResponse(statusCode int, text string) Response {
+	return DataResponse(statusCode, []byte(text), ContentTextPlain)
+}
+
+// TextResponse creates a Response from the api, containing a status code, a text message and a custom content-type
+func TextResponse(statusCode int, text, contentType string) Response {
+	return DataResponse(statusCode, []byte(text), contentType)
+}
+
+// DataResponse creates a Response from the api, containing a status code,
+// a custom content-type and a message in the form of a byte array
+func DataResponse(statusCode int, data []byte, contetType string) Response {
+	return Response{
+		StatusCode:  statusCode,
+		Content:     data,
+		ContentType: contetType,
 	}
 }
 
-func StatusResponse(statusCode int) ApiResponse {
-	return ApiResponse{StatusCode: statusCode}
-}
-
-func ByteResponse(statusCode int, data []byte) ApiResponse {
-	return ApiResponse{
-		StatusCode: statusCode,
-		Message:    data,
-	}
-}
-
-func FileResponse(statusCode int, contentType, fullFilePath string) ApiResponse {
+// FileResponse creates a Response from the api, containing a file path (download, load or stream)
+// and the content type of the file that is returned
+func FileResponse(statusCode int, contentType, fullFilePath string) Response {
 	if _, err := ioutil.ReadFile(fullFilePath); err != nil {
 		return InternalServerError(err)
 	}
 
-	return ApiResponse{
+	return Response{
 		StatusCode:  statusCode,
 		File:        fullFilePath,
 		ContentType: contentType,

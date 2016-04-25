@@ -1,23 +1,57 @@
 package cache
 
 import (
-	"bytes"
-	"net/url"
+	"errors"
+	"gost/util"
 	"time"
 )
 
 const (
-	STATUS_ON  = true
-	STATUS_OFF = false
+	// StatusON shows that the cashing system is up and running
+	StatusON = true
+	// StatusOFF shows that the caching system is stopped and not functional
+	StatusOFF = false
 )
 
 const (
-	CACHE_EXPIRE_TIME = 1 * time.Minute
+	// DefaultCacheExpireTime represents the maximum duration that an item can stay cached
+	DefaultCacheExpireTime = 7 * 24 * time.Hour
 )
 
-var Status bool = STATUS_OFF
-var selectedCacheExpireTime time.Duration
+var (
+	// ErrKeyInvalidated is used when a search key is inexistent or has been invalidated
+	ErrKeyInvalidated = errors.New("The search key has been invalidated")
 
+	// ErrKeyFormat is used when the format of the key is wrong or cannot be parsed
+	ErrKeyFormat = errors.New("The search key is not in a correct format")
+
+	// ErrCachingSystemStopped is used to indicate that the caching system is not available or stopped
+	ErrCachingSystemStopped = errors.New("The search key has been invalidated")
+)
+
+var (
+	// Status represents the current status of the caching system
+	Status = StatusOFF
+
+	selectedCacheExpireTime time.Duration
+)
+
+var memoryCache = make(map[string]map[string]*Cache)
+
+var (
+	getKeyChannel         = make(chan *combinedKey)
+	getChan               = make(chan chan *Cache)
+	errorChan             = make(chan error)
+	cacheChan             = make(chan *Cache)
+	invalidateChan        = make(chan string)
+	invalidateExpiredChan = make(chan *combinedKey)
+	exitChan              = make(chan int)
+)
+
+// Cacher is the interface that has all the basic methods used by cached items
+//
+// Each cache item can either: become Cached, become Invalidated (triggered or expired),
+// or have its expire time reset
 type Cacher interface {
 	Cache()
 	Invalidate()
@@ -25,8 +59,16 @@ type Cacher interface {
 	ResetExpireTime()
 }
 
+type combinedKey struct {
+	Key     string
+	DataKey string
+}
+
+// A Cache entity is used to store precise information in the memory cache
+// using a key (unique idenfier) and its actual data
 type Cache struct {
-	Query       string
+	Key         string
+	DataKey     string
 	Data        []byte
 	StatusCode  int
 	ContentType string
@@ -34,82 +76,138 @@ type Cache struct {
 	ExpireTime  time.Time
 }
 
+// Cache caches the current entity into memory
 func (cache *Cache) Cache() {
-	cache.ResetExpireTime()
-	cacheChan <- cache
+	go func() {
+		cacheChan <- cache
+	}()
 }
 
+// Invalidate invalidates the current entity by removing it from the cache
 func (cache *Cache) Invalidate() {
-	invalidateChan <- cache.Query
+	go func() {
+		invalidateChan <- cache.Key
+	}()
 }
 
+// InvalidateIfExpired checks whether the active time of the current entity
+// has expired, and if it did, it invalidates it
 func (cache *Cache) InvalidateIfExpired(limit time.Time) {
-	if cache.ExpireTime.Before(limit) {
-		cache.Invalidate()
+	if !util.IsDateExpired(cache.ExpireTime, limit) {
+		return
+	}
+
+	go func() {
+		invalidateExpiredChan <- &combinedKey{cache.Key, cache.DataKey}
+	}()
+}
+
+// ResetExpireTime resets the timer for when the current entity will expire
+func (cache *Cache) ResetExpireTime() {
+	go func() {
+		cache.ExpireTime = util.NextDateFromNow(selectedCacheExpireTime)
+	}()
+}
+
+// StartCachingSystem starts the caching system. The status is set to StatusON.
+//
+// The following async loops are started:
+// - Selection loop for the request channels
+// - Invalidator loop which makes sure that the entities will not be stored in the cache forever
+func StartCachingSystem(cacheExpireTime time.Duration) {
+	Status = StatusON
+
+	selectedCacheExpireTime = cacheExpireTime
+
+	go startCachingLoop()
+	go startExpiredInvalidator(cacheExpireTime)
+}
+
+// StopCachingSystem stops the caching system/ The status is set to StatusOFF.
+// All the async loops are stopped and the channels (except the errors channel) are closed.
+func StopCachingSystem() {
+	Status = StatusOFF
+
+	stopCachingSystem()
+
+	go func() {
+		exitChan <- 1
+		close(exitChan)
+	}()
+}
+
+// Query searches for a certain storage key in the memory cache
+// and returns the found Cache item based on its data key.
+// An error is returned if it is inexistent or there was a problem with the search
+func Query(key, dataKey string) (*Cache, error) {
+	if Status == StatusOFF {
+		return nil, ErrCachingSystemStopped
+	}
+
+	go func() {
+		getKeyChannel <- &combinedKey{Key: key, DataKey: dataKey}
+	}()
+
+	flagChan := make(chan *Cache)
+	defer close(flagChan)
+
+	go func() {
+		getChan <- flagChan
+	}()
+
+	for {
+		select {
+		case returnItem := <-flagChan:
+			return returnItem, nil
+		case err := <-errorChan:
+			return nil, err
+		default:
+			if Status == StatusOFF {
+				return nil, ErrCachingSystemStopped
+			}
+		}
 	}
 }
 
-func (cache *Cache) ResetExpireTime() {
-	cache.ExpireTime = time.Now().Add(selectedCacheExpireTime)
-}
-
-func QueryByKey(key string) *Cache {
-	go func() {
-		getKeyChannel <- key
-	}()
-
-	flag := make(chan *Cache)
-	defer close(flag)
-
-	getChan <- flag
-
-	return <-flag
-}
-
-func QueryByRequest(form url.Values, endpoint string) *Cache {
-	return QueryByKey(MapKey(form, endpoint))
-}
-
-func MapKey(form url.Values, endpoint string) string {
-	var buf bytes.Buffer
-
-	buf.WriteString(endpoint)
-	buf.WriteRune(':')
-	buf.WriteString(form.Encode())
-
-	return buf.String()
-}
-
-var memoryCache = make(map[string]*Cache)
-
-var (
-	getKeyChannel  = make(chan string)
-	getChan        = make(chan chan *Cache)
-	cacheChan      = make(chan *Cache)
-	invalidateChan = make(chan string)
-	exitChan       = make(chan int)
-)
-
-var exited bool = false
-
 func stopCachingSystem() {
-	exited = true
-
 	close(getKeyChannel)
 	close(getChan)
 	close(cacheChan)
 	close(invalidateChan)
+	close(invalidateExpiredChan)
 }
 
 func invalidate(key string) {
-	delete(memoryCache, key)
+	if _, exists := memoryCache[key]; exists {
+		delete(memoryCache, key)
+	}
+}
+
+func invalidateExpired(key *combinedKey) {
+	if dataCaches, exists := memoryCache[key.Key]; exists {
+		if _, exists := dataCaches[key.DataKey]; exists {
+			delete(dataCaches, key.DataKey)
+			memoryCache[key.Key] = dataCaches
+		}
+	}
 }
 
 func storeOrUpdate(cache *Cache) {
-	memoryCache[cache.Query] = cache
+	cache.ResetExpireTime()
+
+	var cachePoint = map[string]*Cache{}
+	if entryPoint, exists := memoryCache[cache.Key]; exists {
+		cachePoint = entryPoint
+	}
+
+	cachePoint[cache.DataKey] = cache
+
+	memoryCache[cache.Key] = cachePoint
 }
 
 func startCachingLoop() {
+	defer recoverFromCachingErrors()
+
 Loop:
 	for {
 		select {
@@ -117,50 +215,60 @@ Loop:
 			break Loop
 		case key := <-invalidateChan:
 			invalidate(key)
+		case key := <-invalidateExpiredChan:
+			invalidateExpired(key)
 		case cache := <-cacheChan:
 			storeOrUpdate(cache)
 		case flag := <-getChan:
 			key := <-getKeyChannel
 
-			item := memoryCache[key]
-			if item != nil {
-				item.ResetExpireTime()
+			if len(key.Key) == 0 || len(key.DataKey) == 0 {
+				errorChan <- ErrKeyFormat
 			}
 
-			flag <- item
+			var itemFound bool
+			if dataCaches, isContainerPresent := memoryCache[key.Key]; isContainerPresent {
+				if item, isCachePresent := dataCaches[key.DataKey]; isCachePresent {
+					itemFound = true
+
+					item.ResetExpireTime()
+					flag <- item
+				}
+			}
+
+			if !itemFound {
+				errorChan <- ErrKeyInvalidated
+			}
 		}
 	}
 }
 
 func startExpiredInvalidator(cacheExpireTime time.Duration) {
-	for !exited {
-		time.Sleep(cacheExpireTime)
+	defer recoverFromInvalidatorErrors(cacheExpireTime)
 
-		if !exited {
-			m := memoryCache
-			date := time.Now()
+	for Status == StatusON {
+		var date = util.Now()
+		var cacheCopy = memoryCache
 
-			for _, item := range m {
+		for _, dataCaches := range cacheCopy {
+			for _, item := range dataCaches {
 				item.InvalidateIfExpired(date)
 			}
 		}
+
+		time.Sleep(cacheExpireTime)
 	}
 }
 
-func StartCachingSystem(cacheExpireTime time.Duration) {
-	selectedCacheExpireTime = cacheExpireTime
-
-	go startCachingLoop()
-	go startExpiredInvalidator(cacheExpireTime)
-
-	Status = STATUS_ON
+// In case of error (caching is still on), restart the entire system
+func recoverFromCachingErrors() {
+	if r := recover(); r != nil && Status == StatusON {
+		go startCachingLoop()
+	}
 }
 
-func StopCachingSystem() {
-	stopCachingSystem()
-
-	go func() {
-		exitChan <- 1
-		close(exitChan)
-	}()
+func recoverFromInvalidatorErrors(cacheExpireTime time.Duration) {
+	if r := recover(); r != nil && Status == StatusON {
+		go startExpiredInvalidator(cacheExpireTime)
+	}
 }

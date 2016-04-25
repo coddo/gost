@@ -1,12 +1,12 @@
 package service
 
 import (
-	"gost/config"
+	testconfig "gost/tests/config"
 	"testing"
 )
 
 func TestServiceBase(t *testing.T) {
-	config.InitTestsDatabase()
+	testconfig.InitTestsDatabase()
 	InitDbService()
 
 	sess, col := Connect("testCollection")
