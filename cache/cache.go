@@ -193,6 +193,10 @@ func invalidateExpired(key *combinedKey) {
 }
 
 func storeOrUpdate(cache *Cache) {
+	if cache == nil {
+		return
+	}
+
 	cache.ResetExpireTime()
 
 	var cachePoint = map[string]*Cache{}
@@ -231,8 +235,13 @@ Loop:
 				if item, isCachePresent := dataCaches[key.DataKey]; isCachePresent {
 					itemFound = true
 
-					item.ResetExpireTime()
-					flag <- item
+					if item != nil {
+						item.ResetExpireTime()
+						flag <- item
+					} else {
+						errorChan <- ErrKeyInvalidated
+					}
+
 				}
 			}
 
