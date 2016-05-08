@@ -21,6 +21,7 @@ const (
 var (
 	ErrActivationTokenExpired    = errors.New("The activation token has expired")
 	ErrResetPasswordTokenExpired = errors.New("The reset password token has expired")
+	ErrAccountAlreadyActivated   = errors.New("The account is already activated")
 )
 
 // CreateAppUser creates a new ApplicationUser with the given data, generates an activation token
@@ -61,6 +62,10 @@ func ActivateAppUser(token string) error {
 	var user, err = identity.GetUserByActivationToken(token)
 	if err != nil {
 		return err
+	}
+
+	if user.AccountStatus == identity.AccountStatusActivated {
+		return ErrAccountAlreadyActivated
 	}
 
 	if util.IsDateExpiredFromNow(user.ActivateAccountTokenExpireDate) {
