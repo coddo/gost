@@ -1,5 +1,6 @@
 {
 	"applicationName": "gost",
 	"apiInstance": "/gost/",
-	"httpServerAddress": "0.0.0.0:1234"
+	"httpServerAddress": "0.0.0.0:1234",
+    "serverType": "http"
 }

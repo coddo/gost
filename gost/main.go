@@ -53,10 +53,13 @@ func startWebFramework() {
 	go listenForInterruptSignal()
 
 	// Start a http or and https server depending on the program arguments
-	if len(os.Args) <= 1 || os.Args[1] == "http" {
+	switch config.ServerType {
+	case "http":
 		servers.StartHTTPServer()
-	} else if os.Args[1] == "https" {
+	case "https":
 		servers.StartHTTPSServer()
+	default:
+		log.Fatalf("Unkown server type: %s", config.ServerType)
 	}
 }
 

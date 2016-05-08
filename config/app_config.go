@@ -19,6 +19,9 @@ var (
 
 	// HTTPServerAddress represents the address at which the HTTP server is started and listening
 	HTTPServerAddress string
+
+	// ServerType represents the type of the server: http or https
+	ServerType string
 )
 
 // Struct with the sole purpose of easier serialization
@@ -27,6 +30,7 @@ type appConfigHolder struct {
 	ApplicationName   string `json:"applicationName"`
 	APIInstance       string `json:"apiInstance"`
 	HTTPServerAddress string `json:"httpServerAddress"`
+	ServerType        string `json:"serverType"`
 }
 
 // InitApp initializes the application by reading the functional parameters
@@ -51,4 +55,5 @@ func InitApp(appConfigPath string) {
 	ApplicationName = configData.ApplicationName
 	APIInstance = configData.APIInstance
 	HTTPServerAddress = configData.HTTPServerAddress
+	ServerType = configData.ServerType
 }
