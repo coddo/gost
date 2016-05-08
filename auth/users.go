@@ -21,7 +21,6 @@ const (
 var (
 	ErrActivationTokenExpired    = errors.New("The activation token has expired")
 	ErrResetPasswordTokenExpired = errors.New("The reset password token has expired")
-	ErrPasswordMismatch          = errors.New("The entered password is incorrect")
 )
 
 // CreateAppUser creates a new ApplicationUser with the given data, generates an activation token
@@ -44,6 +43,7 @@ func CreateAppUser(emailAddress, password string, accountType int, activationSer
 		AccountType:                    accountType,
 		ActivateAccountToken:           token,
 		ActivateAccountTokenExpireDate: util.NextDateFromNow(accountActivationTokenExpireTime),
+		AccountStatus:                  identity.AccountStatusDeactivated,
 	}
 
 	err = identity.CreateUser(user)
@@ -93,11 +93,7 @@ func ChangePassword(userEmail, oldPassword, password string) error {
 		return err
 	}
 
-	oldPasswordHash, err := util.HashString(oldPassword)
-	if err != nil {
-		return err
-	}
-	if oldPasswordHash != user.Password {
+	if !util.MatchString(user.Password, oldPassword) {
 		return ErrPasswordMismatch
 	}
 

@@ -25,17 +25,22 @@ var (
 	ErrInvalidUser             = errors.New("There is no application user with the given ID")
 	ErrDeactivatedUser         = errors.New("The current user account is deactivated or inexistent")
 	ErrInexistentClientDetails = errors.New("Missing client details. Cannot create authorization for anonymous client")
+	ErrPasswordMismatch        = errors.New("The entered password is incorrect")
 
 	errAnonymousUser = errors.New("The user has no identity")
 )
 
 // GenerateUserAuth generates a new gost-token, saves it in the database and returns it to the client
-func GenerateUserAuth(userID bson.ObjectId, clientDetails *cookies.Client) (string, error) {
+func GenerateUserAuth(userID bson.ObjectId, password string, clientDetails *cookies.Client) (string, error) {
 	var user *identity.ApplicationUser
 	var isUserExistent bool
 
 	if user, isUserExistent = identity.IsUserExistent(userID); !isUserExistent {
 		return ErrInvalidUser.Error(), ErrInvalidUser
+	}
+
+	if !util.MatchString(user.Password, password) {
+		return ErrPasswordMismatch.Error(), ErrPasswordMismatch
 	}
 
 	session, err := cookies.NewSession(userID, user.AccountType, clientDetails)

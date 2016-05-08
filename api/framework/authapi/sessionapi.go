@@ -49,7 +49,7 @@ func (a *AuthAPI) CreateSession(params *api.Request) api.Response {
 		return api.BadRequest(api.ErrInvalidIDParam)
 	}
 
-	token, err := auth.GenerateUserAuth(bson.ObjectIdHex(model.AppUserID), params.ClientDetails)
+	token, err := auth.GenerateUserAuth(bson.ObjectIdHex(model.AppUserID), model.Password, params.ClientDetails)
 	if err != nil {
 		return api.BadRequest(err)
 	}
