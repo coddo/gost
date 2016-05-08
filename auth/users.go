@@ -93,7 +93,7 @@ func ChangePassword(userEmail, oldPassword, password string) error {
 		return err
 	}
 
-	if !util.MatchString(user.Password, oldPassword) {
+	if !util.MatchHashString(user.Password, oldPassword) {
 		return ErrPasswordMismatch
 	}
 

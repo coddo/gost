@@ -24,8 +24,8 @@ func HashBytes(data []byte) ([]byte, error) {
 	return key, nil
 }
 
-// MatchBytes returns true if the hash matches the password
-func MatchBytes(hash, data []byte) bool {
+// MatchHashBytes returns true if the hash matches the password
+func MatchHashBytes(hash, data []byte) bool {
 	err := bcrypt.CompareHashAndPassword(hash, data)
 	if err == nil {
 		return true
@@ -34,7 +34,7 @@ func MatchBytes(hash, data []byte) bool {
 	return false
 }
 
-// MatchString returns true if the hash matches the password
-func MatchString(hash, data string) bool {
-	return MatchBytes([]byte(hash), []byte(data))
+// MatchHashString returns true if the hash matches the password
+func MatchHashString(hash, data string) bool {
+	return MatchHashBytes([]byte(hash), []byte(data))
 }

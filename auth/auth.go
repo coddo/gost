@@ -39,7 +39,7 @@ func GenerateUserAuth(userID bson.ObjectId, password string, clientDetails *cook
 		return ErrInvalidUser.Error(), ErrInvalidUser
 	}
 
-	if !util.MatchString(user.Password, password) {
+	if !util.MatchHashString(user.Password, password) {
 		return ErrPasswordMismatch.Error(), ErrPasswordMismatch
 	}
 
