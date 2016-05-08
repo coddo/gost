@@ -18,14 +18,6 @@ var (
 	ErrTokenNotSpecified = errors.New("The session token was not specified")
 )
 
-// AuthModel is a binding model used for receiving the authentication data
-type AuthModel struct {
-	AppUserID            string          `json:"appUserID"`
-	Password             string          `json:"password"`
-	PasswordConfirmation string          `json:"passwordConfirmation"`
-	ClientDetails        *cookies.Client `json:"clientDetails"`
-}
-
 // GetAllSessions retrieves all the sessions for a certain user account
 func (a *AuthAPI) GetAllSessions(params *api.Request) api.Response {
 	userID, found, err := filter.GetIDParameter("token", params.Form)
@@ -53,15 +45,11 @@ func (a *AuthAPI) CreateSession(params *api.Request) api.Response {
 		return api.BadRequest(err)
 	}
 
-	if model.Password != model.PasswordConfirmation {
-		return api.BadRequest(ErrPasswordMatch)
-	}
-
 	if !bson.IsObjectIdHex(model.AppUserID) {
 		return api.BadRequest(api.ErrInvalidIDParam)
 	}
 
-	token, err := auth.GenerateUserAuth(bson.ObjectIdHex(model.AppUserID), model.ClientDetails)
+	token, err := auth.GenerateUserAuth(bson.ObjectIdHex(model.AppUserID), model.Password, params.ClientDetails)
 	if err != nil {
 		return api.BadRequest(err)
 	}

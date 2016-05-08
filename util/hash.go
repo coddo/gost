@@ -5,8 +5,8 @@ import (
 )
 
 // HashString returns a hashed string and an error
-func HashString(password string) (string, error) {
-	key, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+func HashString(data string) (string, error) {
+	key, err := bcrypt.GenerateFromPassword([]byte(data), bcrypt.DefaultCost)
 	if err != nil {
 		return "", err
 	}
@@ -15,8 +15,8 @@ func HashString(password string) (string, error) {
 }
 
 // HashBytes returns a hashed byte array and an error
-func HashBytes(password []byte) ([]byte, error) {
-	key, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
+func HashBytes(data []byte) ([]byte, error) {
+	key, err := bcrypt.GenerateFromPassword(data, bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
 	}
@@ -25,8 +25,8 @@ func HashBytes(password []byte) ([]byte, error) {
 }
 
 // MatchBytes returns true if the hash matches the password
-func MatchBytes(hash, password []byte) bool {
-	err := bcrypt.CompareHashAndPassword(hash, password)
+func MatchBytes(hash, data []byte) bool {
+	err := bcrypt.CompareHashAndPassword(hash, data)
 	if err == nil {
 		return true
 	}
@@ -35,6 +35,6 @@ func MatchBytes(hash, password []byte) bool {
 }
 
 // MatchString returns true if the hash matches the password
-func MatchString(hash, password string) bool {
-	return MatchBytes([]byte(hash), []byte(password))
+func MatchString(hash, data string) bool {
+	return MatchBytes([]byte(hash), []byte(data))
 }
