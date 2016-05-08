@@ -9,10 +9,9 @@ type Action struct {
 
 // Route entity
 type Route struct {
-	ID          string             `json:"id"`
-	Endpoint    string             `json:"endpoint"`
-	IsCacheable bool               `json:"isCacheable"`
-	Actions     map[string]*Action `json:"actions"`
+	ID       string             `json:"id"`
+	Endpoint string             `json:"endpoint"`
+	Actions  map[string]*Action `json:"actions"`
 }
 
 // Equal determines if the current Route is equal to another Route
