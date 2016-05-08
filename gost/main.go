@@ -6,7 +6,6 @@ import (
 	"gost/api/framework/devapi"
 	"gost/api/framework/valuesapi"
 	"gost/auth/cookies"
-	"gost/cache"
 	"gost/config"
 	"gost/httphandle"
 	"gost/security"
@@ -77,9 +76,6 @@ func init() {
 	httphandle.RegisterEndpoints(new(DevAPIContainer)) //----- Use this API container when in development
 	devapi.InitDevRoutes()                             //----- Uncomment this line when in development
 
-	// Start the caching system
-	cache.StartCachingSystem(cache.DefaultCacheExpireTime)
-
 	// Initialize the cookie store in the auth module
 	cookies.InitCookieStore()
 
@@ -100,7 +96,6 @@ func listenForInterruptSignal() {
 	log.Println("The server will now shut down gracefully...")
 
 	service.CloseDbService()
-	cache.StopCachingSystem()
 
 	os.Exit(0)
 }

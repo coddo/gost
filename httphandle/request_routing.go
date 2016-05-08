@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"gost/api"
 	"gost/auth/identity"
-	"gost/cache"
 	"gost/config"
 	"gost/filter"
 	"io/ioutil"
@@ -33,11 +32,6 @@ func RouteRequest(rw http.ResponseWriter, req *http.Request, route *config.Route
 	// Create the variables containing request data
 	request := generateRequest(req, rw, route, endpointAction, userIdentity)
 	if request == nil {
-		return
-	}
-
-	// Try giving the response directly from the cache if available or invalidate it if necessary
-	if respondFromCache(rw, req, route, endpointAction) {
 		return
 	}
 
@@ -76,28 +70,6 @@ func recoverFromError(rw http.ResponseWriter, req *http.Request, pattern, endpoi
 	}
 }
 
-func respondFromCache(rw http.ResponseWriter, req *http.Request, route *config.Route, endpointAction string) bool {
-	if cache.Status == cache.StatusOFF {
-		return false
-	}
-
-	if !route.IsCacheable {
-		return false
-	}
-
-	if cachedData, err := cache.Query(route.Endpoint, endpointAction); err == nil {
-		if req.Method == api.GET {
-			sendResponse(cachedData.StatusCode, cachedData.Data, rw, req, route.Endpoint, endpointAction, cachedData.ContentType, cachedData.File)
-			return true
-		}
-
-		// Invalidate the cache if a modification, deletion or addition was made to this endpoint
-		cachedData.Invalidate()
-	}
-
-	return false
-}
-
 func respond(resp *api.Response, rw http.ResponseWriter, req *http.Request, endpoint, endpointAction string) {
 	if resp.StatusCode == 0 {
 		resp.StatusCode = http.StatusInternalServerError
@@ -110,31 +82,7 @@ func respond(resp *api.Response, rw http.ResponseWriter, req *http.Request, endp
 		}
 
 		sendResponse(resp.StatusCode, resp.Content, rw, req, endpoint, endpointAction, resp.ContentType, resp.File)
-
-		// Try caching the data only if a GET request was made
-		go func(resp *api.Response, req *http.Request, endpoint string) {
-			if req.Method == api.GET && cache.Status == cache.StatusON {
-				cacheResponse(resp, endpoint, endpointAction)
-			}
-		}(resp, req, endpoint)
 	}
-}
-
-func cacheResponse(resp *api.Response, endpoint, endpointAction string) {
-	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) || len(resp.Content) == 0 {
-		return
-	}
-
-	cacheEntity := &cache.Cache{
-		Key:         endpoint,
-		DataKey:     endpointAction,
-		Data:        resp.Content,
-		StatusCode:  resp.StatusCode,
-		ContentType: resp.ContentType,
-		File:        resp.File,
-	}
-
-	cacheEntity.Cache()
 }
 
 func generateRequest(req *http.Request, rw http.ResponseWriter, route *config.Route, endpointAction string, userIdentity *identity.Identity) *api.Request {
