@@ -32,18 +32,6 @@ type Session struct {
 	Client      *Client       `bson:"client,omitempty" json:"client"`
 }
 
-// Client struct contains information regarding the client that has made the http request
-type Client struct {
-	IPAddress string  `bson:"ipAddress,omitempty" json:"ipAddress"`
-	Browser   string  `bson:"browser,omitempty" json:"browser"`
-	OS        string  `bson:"os,omitempty" json:"os"`
-	Country   string  `bson:"country,omitempty" json:"country"`
-	State     string  `bson:"state,omitempty" json:"state"`
-	City      string  `bson:"city,omitempty" json:"city"`
-	Latitude  float64 `bson:"latitude,omitempty" json:"latitude"`
-	Longitude float64 `bson:"longitude,omitempty" json:"longitude"`
-}
-
 // Save saves the session in the cookie store
 func (session *Session) Save() error {
 	return cookieStore.WriteCookie(session)

@@ -3,12 +3,15 @@ package httphandle
 import (
 	"fmt"
 	"gost/api"
+	"gost/auth/cookies"
 	"gost/auth/identity"
 	"gost/config"
 	"gost/filter"
 	"io/ioutil"
 	"net/http"
 	"reflect"
+
+	"xojoc.pw/useragent"
 )
 
 var endpointsContainer interface{}
@@ -98,13 +101,35 @@ func generateRequest(req *http.Request, rw http.ResponseWriter, route *config.Ro
 		return nil
 	}
 
+	var clientDetails = parseClientDetails(req)
+
 	request := &api.Request{
 		Header:        req.Header,
 		Form:          req.Form,
 		ContentLength: req.ContentLength,
 		Body:          body,
 		Identity:      userIdentity,
+		ClientDetails: clientDetails,
 	}
 
 	return request
+}
+
+func parseClientDetails(req *http.Request) *cookies.Client {
+	var userAgent = useragent.Parse(req.UserAgent())
+
+	if userAgent == nil {
+		return cookies.UnknownClientDetails()
+	}
+
+	var client = cookies.Client{
+		Address:        req.RemoteAddr,
+		Type:           userAgent.Type.String(),
+		Name:           userAgent.Name,
+		Version:        userAgent.Version.String(),
+		OS:             userAgent.OS,
+		IsMobileDevice: userAgent.Mobile || userAgent.Tablet,
+	}
+
+	return &client
 }
