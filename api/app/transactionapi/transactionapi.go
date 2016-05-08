@@ -6,7 +6,7 @@ import (
 	"gost/filter"
 	"gost/filter/apifilter"
 	"gost/orm/models"
-	"gost/util"
+	"gost/util/jsonutil"
 )
 
 // TransactionsAPI defines the API endpoint for application transactions of any kind
@@ -31,7 +31,7 @@ func (t *TransactionsAPI) GetTransaction(params *api.Request) api.Response {
 func (t *TransactionsAPI) CreateTransaction(params *api.Request) api.Response {
 	transaction := &models.Transaction{}
 
-	err := util.DeserializeJSON(params.Body, transaction)
+	err := jsonutil.DeserializeJSON(params.Body, transaction)
 	if err != nil || !apifilter.CheckTransactionIntegrity(transaction) {
 		return api.BadRequest(api.ErrEntityFormat)
 	}

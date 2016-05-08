@@ -6,7 +6,7 @@ import (
 	"gost/auth"
 	"gost/auth/cookies"
 	"gost/filter"
-	"gost/util"
+	"gost/util/jsonutil"
 	"net/http"
 
 	"gopkg.in/mgo.v2/bson"
@@ -40,7 +40,7 @@ func (a *AuthAPI) GetAllSessions(params *api.Request) api.Response {
 func (a *AuthAPI) CreateSession(params *api.Request) api.Response {
 	model := &AuthModel{}
 
-	err := util.DeserializeJSON(params.Body, model)
+	err := jsonutil.DeserializeJSON(params.Body, model)
 	if err != nil {
 		return api.BadRequest(err)
 	}

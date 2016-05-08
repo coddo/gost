@@ -1,13 +1,13 @@
 package api
 
 import (
-	"gost/util"
+	"gost/util/jsonutil"
 	"io/ioutil"
 )
 
 // JSONResponse creates a Response from the api, containing a single entity encoded as JSON
 func JSONResponse(statusCode int, data interface{}) Response {
-	jsonData, err := util.SerializeJSON(data)
+	jsonData, err := jsonutil.SerializeJSON(data)
 	if err != nil {
 		return InternalServerError(err)
 	}

@@ -5,7 +5,7 @@ import (
 	"gost/auth"
 	"gost/config"
 	"gost/filter"
-	"gost/util"
+	"gost/util/jsonutil"
 	"net/http"
 )
 
@@ -23,7 +23,7 @@ type AppUserModel struct {
 func (v *DevAPI) CreateAppUser(params *api.Request) api.Response {
 	model := &AppUserModel{}
 
-	err := util.DeserializeJSON(params.Body, model)
+	err := jsonutil.DeserializeJSON(params.Body, model)
 	if err != nil {
 		return api.BadRequest(api.ErrEntityFormat)
 	}

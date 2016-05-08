@@ -3,6 +3,7 @@ package cookies
 import (
 	"errors"
 	"gost/util"
+	"gost/util/dateutil"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
@@ -44,7 +45,7 @@ func (session *Session) Delete() error {
 
 // IsExpired returns true if the session has expired
 func (session *Session) IsExpired() bool {
-	return util.IsDateExpiredFromNow(session.ExpireTime)
+	return dateutil.IsDateExpiredFromNow(session.ExpireTime)
 }
 
 // IsUserInRole verifies if the user with the current session has a specific role
@@ -55,7 +56,7 @@ func (session *Session) IsUserInRole(role int) bool {
 // ResetToken generates a new token and resets the expire time target of the session
 // This also triggers a Save() action, to update the cookie store
 func (session *Session) ResetToken() error {
-	session.ExpireTime = util.NextDateFromNow(tokenExpireTime)
+	session.ExpireTime = dateutil.NextDateFromNow(tokenExpireTime)
 
 	return session.Save()
 }
@@ -73,7 +74,7 @@ func NewSession(userID bson.ObjectId, accountType int, clientDetails *Client) (*
 		UserID:      userID,
 		AccountType: accountType,
 		Token:       token,
-		ExpireTime:  util.NextDateFromNow(tokenExpireTime),
+		ExpireTime:  dateutil.NextDateFromNow(tokenExpireTime),
 		Client:      clientDetails,
 	}
 

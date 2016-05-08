@@ -5,7 +5,9 @@ import (
 	"gost/auth/cookies"
 	"gost/auth/identity"
 	"gost/security"
-	"gost/util"
+	"gost/util/encodeutil"
+	"gost/util/hashutil"
+	"gost/util/jsonutil"
 	"net/http"
 	"strings"
 
@@ -39,7 +41,7 @@ func GenerateUserAuth(userID bson.ObjectId, password string, clientDetails *cook
 		return ErrInvalidUser.Error(), ErrInvalidUser
 	}
 
-	if !util.MatchHashString(user.Password, password) {
+	if !hashutil.MatchHashString(user.Password, password) {
 		return ErrPasswordMismatch.Error(), ErrPasswordMismatch
 	}
 
@@ -69,7 +71,7 @@ func Authorize(httpHeader http.Header) (*identity.Identity, error) {
 		return nil, err
 	}
 
-	encryptedToken, err := util.Decode([]byte(ghostToken))
+	encryptedToken, err := encodeutil.Decode([]byte(ghostToken))
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +82,7 @@ func Authorize(httpHeader http.Header) (*identity.Identity, error) {
 	}
 
 	cookie := new(cookies.Session)
-	err = util.DeserializeJSON(jsonToken, cookie)
+	err = jsonutil.DeserializeJSON(jsonToken, cookie)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +102,7 @@ func Authorize(httpHeader http.Header) (*identity.Identity, error) {
 }
 
 func generateGostToken(session *cookies.Session) (string, error) {
-	jsonToken, err := util.SerializeJSON(session)
+	jsonToken, err := jsonutil.SerializeJSON(session)
 	if err != nil {
 		return err.Error(), err
 	}
@@ -110,7 +112,7 @@ func generateGostToken(session *cookies.Session) (string, error) {
 		return err.Error(), err
 	}
 
-	ghostToken := util.Encode(encryptedToken)
+	ghostToken := encodeutil.Encode(encryptedToken)
 
 	return string(ghostToken), nil
 }

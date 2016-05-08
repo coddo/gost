@@ -2,7 +2,7 @@ package devapi
 
 import (
 	"gost/config"
-	"gost/util"
+	"gost/util/jsonutil"
 	"log"
 )
 
@@ -29,7 +29,7 @@ var devRoutes = `
 func InitDevRoutes() {
 	var route []config.Route
 
-	var err = util.DeserializeJSON([]byte(devRoutes), &route)
+	var err = jsonutil.DeserializeJSON([]byte(devRoutes), &route)
 	if err != nil {
 		log.Fatal(err)
 	}

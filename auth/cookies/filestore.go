@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"gost/security"
-	"gost/util"
+	"gost/util/jsonutil"
 	"io/ioutil"
 	"os"
 
@@ -30,7 +30,7 @@ func (store *FileCookieStore) ReadCookie(key string) (*Session, error) {
 	}
 
 	var session *Session
-	err = util.DeserializeJSON(jsonData, session)
+	err = jsonutil.DeserializeJSON(jsonData, session)
 
 	return session, err
 }
@@ -39,7 +39,7 @@ func (store *FileCookieStore) ReadCookie(key string) (*Session, error) {
 // it is overwritten
 func (store *FileCookieStore) WriteCookie(cookie *Session) error {
 	fileName := fileLocation(store.location, cookie.Token)
-	jsonData, err := util.SerializeJSON(cookie)
+	jsonData, err := jsonutil.SerializeJSON(cookie)
 	if err != nil {
 		return err
 	}
@@ -171,7 +171,7 @@ func getUserTokens(storeLocation string, userID bson.ObjectId) ([]string, error)
 	}
 
 	var userTokens []string
-	err = util.DeserializeJSON(fileContent, userTokens)
+	err = jsonutil.DeserializeJSON(fileContent, userTokens)
 	if err != nil {
 		return nil, err
 	}
@@ -182,7 +182,7 @@ func getUserTokens(storeLocation string, userID bson.ObjectId) ([]string, error)
 func saveUserTokens(storeLocation string, userID bson.ObjectId, tokens []string) error {
 	userIndexFile := fileLocation(storeLocation, userID.Hex())
 
-	jsonData, err := util.SerializeJSON(tokens)
+	jsonData, err := jsonutil.SerializeJSON(tokens)
 	if err != nil {
 		return err
 	}

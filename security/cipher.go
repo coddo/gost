@@ -3,7 +3,8 @@ package security
 import (
 	"crypto/rand"
 	"crypto/rsa"
-	"gost/util"
+	"gost/util/encodeutil"
+	"gost/util/jsonutil"
 	"log"
 
 	"github.com/square/go-jose"
@@ -48,7 +49,7 @@ func GeneratePrivateKey(printInLog bool) []byte {
 		panic(err)
 	}
 
-	data, err := util.SerializeJSON(priv)
+	data, err := jsonutil.SerializeJSON(priv)
 	if err != nil {
 		panic(err)
 	}
@@ -62,12 +63,12 @@ func GeneratePrivateKey(printInLog bool) []byte {
 
 // InitCipherModule initializes the components used for server-side encryption
 func InitCipherModule() {
-	key, err := util.Decode(encodedPrivateKey)
+	key, err := encodeutil.Decode(encodedPrivateKey)
 	if err != nil {
 		panic(err)
 	}
 
-	err = util.DeserializeJSON(key, privateKey)
+	err = jsonutil.DeserializeJSON(key, privateKey)
 	if err != nil {
 		panic(err)
 	}

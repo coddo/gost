@@ -2,7 +2,7 @@ package framework
 
 import (
 	"gost/config"
-	"gost/util"
+	"gost/util/jsonutil"
 	"log"
 )
 
@@ -66,7 +66,7 @@ const frameworkRoutes = `
 func InitFrameworkRoutes() {
 	var routes []config.Route
 
-	var err = util.DeserializeJSON([]byte(frameworkRoutes), &routes)
+	var err = jsonutil.DeserializeJSON([]byte(frameworkRoutes), &routes)
 	if err != nil {
 		log.Fatalf("[InitFrameworkRoutes] %v\n", err)
 	}
