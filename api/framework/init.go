@@ -18,11 +18,11 @@ const frameworkRoutes = `
             },
             "GetAllSessions": {
               "type": "GET",
-              "allowAnonymous": false,
+              "allowAnonymous": false
             },
             "KillSession": {
               "type": "POST",
-              "allowAnonymous": false,
+              "allowAnonymous": false
             },
             "ActivateAccount": {
               "type": "POST",
@@ -48,7 +48,7 @@ const frameworkRoutes = `
         "actions": {
             "Get": {
               "type": "GET",
-              "allowAnonymous": false,
+              "allowAnonymous": false
             },
             "GetAnonymous": {
               "type": "GET",
