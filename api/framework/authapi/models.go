@@ -1,5 +1,14 @@
 package authapi
 
+import "gost/auth/cookies"
+
+// AuthModel is a binding model used for receiving the authentication data
+type AuthModel struct {
+	AppUserID     string          `json:"appUserID"`
+	Password      string          `json:"password"`
+	ClientDetails *cookies.Client `json:"clientDetails"`
+}
+
 // ActivateAccountModel is used for activating accounts
 type ActivateAccountModel struct {
 	Token string `json:"token"`

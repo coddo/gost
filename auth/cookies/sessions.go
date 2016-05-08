@@ -74,7 +74,7 @@ func (session *Session) ResetToken() error {
 
 // NewSession generates a new Session pointer that contains the given userID and
 // a unique token used as an identifier
-func NewSession(userID bson.ObjectId, accountType int, client *Client) (*Session, error) {
+func NewSession(userID bson.ObjectId, accountType int, clientDetails *Client) (*Session, error) {
 	token, err := util.GenerateUUID()
 	if err != nil {
 		return nil, err
@@ -86,7 +86,7 @@ func NewSession(userID bson.ObjectId, accountType int, client *Client) (*Session
 		AccountType: accountType,
 		Token:       token,
 		ExpireTime:  util.NextDateFromNow(tokenExpireTime),
-		Client:      client,
+		Client:      clientDetails,
 	}
 
 	return session, nil
