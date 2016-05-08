@@ -1,30 +1,40 @@
 package devapi
 
 import (
-	"encoding/json"
 	"gost/config"
-	"io/ioutil"
+	"gost/util"
 	"log"
 )
 
 // Routes configuration file path
-var routesConfigFile = "config/devroutes.json"
+var devRoutes = `
+[
+    {
+        "id": "DevApiRoute",
+        "endpoint": "/dev",
+        "actions": {
+            "CreateAppUser": {
+                "type": "POST",
+                "allowAnonymous": true
+            },
+            "ActivateAppUser": {
+                "type": "GET",
+                "allowAnonymous": true
+            }
+        }
+    }
+]`
 
 // InitDevRoutes initializes the routes used for development purposes only
 func InitDevRoutes() {
-	routesData, err := ioutil.ReadFile(routesConfigFile)
+	var route []config.Route
+
+	var err = util.DeserializeJSON([]byte(devRoutes), &route)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var route = config.Route{}
-
-	err = json.Unmarshal(routesData, &route)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = config.AddRoutes(false, route)
+	err = config.AddRoutes(false, route...)
 	if err != nil {
 		log.Fatal(err)
 	}
