@@ -2,6 +2,7 @@ package main
 
 import (
 	"gost/api/app/transactionapi"
+	"gost/api/framework"
 	"gost/api/framework/authapi"
 	"gost/api/framework/devapi"
 	"gost/api/framework/valuesapi"
@@ -66,7 +67,11 @@ func init() {
 	// Initialize application configuration
 	config.InitApp(emptyConfigParam)
 	config.InitDatabase(emptyConfigParam)
+
+	// Intialize application routes configuration
+	framework.InitFrameworkRoutes()
 	config.InitRoutes(emptyConfigParam)
+	devapi.InitDevRoutes() //----- Uncomment this line when in development
 
 	// Initialize the MongoDb service
 	service.InitDbService()
@@ -74,7 +79,6 @@ func init() {
 	// Register the API endpoints
 	// httphandle.RegisterEndpoints(new(ApplicationAPIContainer))   ----- Use this API container when deploying in PRODUCTION
 	httphandle.RegisterEndpoints(new(DevAPIContainer)) //----- Use this API container when in development
-	devapi.InitDevRoutes()                             //----- Uncomment this line when in development
 
 	// Initialize the cookie store in the auth module
 	cookies.InitCookieStore()

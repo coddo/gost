@@ -14,56 +14,5 @@
         "requireAdmin": false
       }
     }
-  },
-  {
-    "id": "AuthorizationRoute",
-    "endpoint": "/auth",
-    "actions": {
-      "CreateSession": {
-        "type": "POST",
-        "allowAnonymous": true
-      },
-      "GetAllSessions": {
-        "type": "GET",
-        "allowAnonymous": false,
-        "requireAdmin": false
-      },
-      "KillSession": {
-        "type": "POST",
-        "allowAnonymous": false,
-        "requireAdmin": false
-      },
-      "ActivateAccount": {
-        "type": "POST",
-        "allowAnonymous": true
-      },
-      "ResendAccountActivationEmail": {
-          "type": "GET",
-          "allowAnonymous": true
-      },
-      "RequestResetPassword": {
-        "type": "POST",
-        "allowAnonymous": true
-      },
-      "ResetPassword": {
-        "type": "POST",
-        "allowAnonymous": true
-      }
-    }
-  },
-  {
-    "id": "ValuesRoute",
-    "endpoint": "/values",
-    "actions": {
-      "Get": {
-        "type": "GET",
-        "allowAnonymous": false,
-        "requireAdmin": false
-      },
-      "GetAnonymous": {
-        "type": "GET",
-        "allowAnonymous": true
-      }
-    }
   }
 ]
