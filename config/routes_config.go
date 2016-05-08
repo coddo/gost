@@ -20,13 +20,13 @@ func InitRoutes(routesConfigPath string) {
 		routesConfigFile = routesConfigPath
 	}
 
-	routesString, err := ioutil.ReadFile(routesConfigFile)
+	routesData, err := ioutil.ReadFile(routesConfigFile)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	deserializeRoutes(routesString)
+	deserializeRoutes(routesData)
 }
 
 // SaveRoutesConfiguration saves all the active routes (Routes slice) in json format
@@ -50,19 +50,20 @@ func SaveRoutesConfiguration() error {
 	return nil
 }
 
-// AddRoute adds a new route and makes it active
-func AddRoute(route *Route, saveChangesToConfigFile bool) error {
+// AddRoutes adds a new route and makes it active
+func AddRoutes(saveChangesToConfigFile bool, newRoutes ...Route) error {
 	initialLength := len(Routes)
 
-	for _, r := range Routes {
-		if r.ID == route.ID {
+	for _, route := range newRoutes {
+		existingRoute := GetRoute(route.Endpoint)
+		if existingRoute != nil {
 			return errors.New("Route already exists!")
 		}
 	}
 
-	Routes = append(Routes, *route)
+	Routes = append(Routes, newRoutes...)
 
-	err := checkCollectionModification(route, initialLength)
+	err := checkCollectionModification(initialLength)
 
 	return saveChanges(err, saveChangesToConfigFile, SaveRoutesConfiguration)
 }
@@ -83,10 +84,9 @@ func RemoveRoute(routeID string, saveChangesToConfigFile bool) error {
 		return errors.New("Route was not found for deletion!")
 	}
 
-	removedRoute := Routes[index]
 	Routes = append(Routes[:index], Routes[index+1:]...)
 
-	err := checkCollectionModification(&removedRoute, initialLength)
+	err := checkCollectionModification(initialLength)
 
 	return saveChanges(err, saveChangesToConfigFile, SaveRoutesConfiguration)
 }
@@ -115,15 +115,15 @@ func GetRoute(endpoint string) *Route {
 	return nil
 }
 
-func deserializeRoutes(routesString []byte) {
-	err := json.Unmarshal(routesString, &Routes)
+func deserializeRoutes(routesData []byte) {
+	err := json.Unmarshal(routesData, &Routes)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func checkCollectionModification(route *Route, initialLength int) error {
+func checkCollectionModification(initialLength int) error {
 	if initialLength == len(Routes) {
 		return errors.New("The route couldn't be processed for the collection!")
 	}
