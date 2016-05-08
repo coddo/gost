@@ -6,6 +6,8 @@ import (
 	"gost/auth/identity"
 	"gost/email"
 	"gost/util"
+	"gost/util/dateutil"
+	"gost/util/hashutil"
 	"log"
 	"time"
 
@@ -32,7 +34,7 @@ func CreateAppUser(emailAddress, password string, accountType int, activationSer
 		return nil, err
 	}
 
-	passwordHash, err := util.HashString(password)
+	passwordHash, err := hashutil.HashString(password)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +45,7 @@ func CreateAppUser(emailAddress, password string, accountType int, activationSer
 		Password:                       passwordHash,
 		AccountType:                    accountType,
 		ActivateAccountToken:           token,
-		ActivateAccountTokenExpireDate: util.NextDateFromNow(accountActivationTokenExpireTime),
+		ActivateAccountTokenExpireDate: dateutil.NextDateFromNow(accountActivationTokenExpireTime),
 		AccountStatus:                  identity.AccountStatusDeactivated,
 	}
 
@@ -68,7 +70,7 @@ func ActivateAppUser(token string) error {
 		return ErrAccountAlreadyActivated
 	}
 
-	if util.IsDateExpiredFromNow(user.ActivateAccountTokenExpireDate) {
+	if dateutil.IsDateExpiredFromNow(user.ActivateAccountTokenExpireDate) {
 		return ErrActivationTokenExpired
 	}
 
@@ -84,7 +86,7 @@ func ResetPassword(token, password string) error {
 		return err
 	}
 
-	if util.IsDateExpiredFromNow(user.ResetPasswordTokenExpireDate) {
+	if dateutil.IsDateExpiredFromNow(user.ResetPasswordTokenExpireDate) {
 		return ErrResetPasswordTokenExpired
 	}
 
@@ -98,7 +100,7 @@ func ChangePassword(userEmail, oldPassword, password string) error {
 		return err
 	}
 
-	if !util.MatchHashString(user.Password, oldPassword) {
+	if !hashutil.MatchHashString(user.Password, oldPassword) {
 		return ErrPasswordMismatch
 	}
 
@@ -118,7 +120,7 @@ func RequestResetPassword(emailAddress, passwordResetServiceLink string) error {
 	}
 
 	user.ResetPasswordToken = token
-	user.ResetPasswordTokenExpireDate = util.NextDateFromNow(passwordResetTokenExpireTime)
+	user.ResetPasswordTokenExpireDate = dateutil.NextDateFromNow(passwordResetTokenExpireTime)
 
 	err = identity.UpdateUser(user)
 	if err != nil {
@@ -143,7 +145,7 @@ func ResendAccountActivationEmail(emailAddress, activationServiceLink string) er
 	}
 
 	user.ActivateAccountToken = token
-	user.ActivateAccountTokenExpireDate = util.NextDateFromNow(accountActivationTokenExpireTime)
+	user.ActivateAccountTokenExpireDate = dateutil.NextDateFromNow(accountActivationTokenExpireTime)
 
 	err = identity.UpdateUser(user)
 	if err != nil {
@@ -176,7 +178,7 @@ func sendPasswordResetEmail(userEmail, passwordResetServiceLink, token string) {
 }
 
 func changeUserPassword(user *identity.ApplicationUser, password string) error {
-	passwordHash, err := util.HashString(password)
+	passwordHash, err := hashutil.HashString(password)
 	if err != nil {
 		return err
 	}

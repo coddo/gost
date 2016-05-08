@@ -4,7 +4,7 @@ import (
 	"errors"
 	"gost/api"
 	"gost/auth"
-	"gost/util"
+	"gost/util/jsonutil"
 	"net/http"
 )
 
@@ -17,7 +17,7 @@ var errPasswordsDoNotMatch = errors.New("The password and its confirmation do no
 func (a *AuthAPI) ActivateAccount(params *api.Request) api.Response {
 	var model = ActivateAccountModel{}
 
-	var err = util.DeserializeJSON(params.Body, &model)
+	var err = jsonutil.DeserializeJSON(params.Body, &model)
 	if err != nil {
 		return api.BadRequest(api.ErrEntityFormat)
 	}
@@ -34,7 +34,7 @@ func (a *AuthAPI) ActivateAccount(params *api.Request) api.Response {
 func (a *AuthAPI) ResendAccountActivationEmail(params *api.Request) api.Response {
 	var model = ResendActivationEmailModel{}
 
-	var err = util.DeserializeJSON(params.Body, &model)
+	var err = jsonutil.DeserializeJSON(params.Body, &model)
 	if err != nil {
 		return api.BadRequest(api.ErrEntityFormat)
 	}
@@ -51,7 +51,7 @@ func (a *AuthAPI) ResendAccountActivationEmail(params *api.Request) api.Response
 func (a *AuthAPI) RequestResetPassword(params *api.Request) api.Response {
 	var model = RequestResetPasswordModel{}
 
-	var err = util.DeserializeJSON(params.Body, &model)
+	var err = jsonutil.DeserializeJSON(params.Body, &model)
 	if err != nil {
 		return api.BadRequest(api.ErrEntityFormat)
 	}
@@ -68,7 +68,7 @@ func (a *AuthAPI) RequestResetPassword(params *api.Request) api.Response {
 func (a *AuthAPI) ResetPassword(params *api.Request) api.Response {
 	var model = ResetPasswordModel{}
 
-	var err = util.DeserializeJSON(params.Body, &model)
+	var err = jsonutil.DeserializeJSON(params.Body, &model)
 	if err != nil {
 		return api.BadRequest(api.ErrEntityFormat)
 	}
@@ -93,7 +93,7 @@ func (a *AuthAPI) ResetPassword(params *api.Request) api.Response {
 func (a *AuthAPI) ChangePassword(params *api.Request) api.Response {
 	var model = ChangePasswordModel{}
 
-	var err = util.DeserializeJSON(params.Body, &model)
+	var err = jsonutil.DeserializeJSON(params.Body, &model)
 	if err != nil {
 		return api.BadRequest(api.ErrEntityFormat)
 	}

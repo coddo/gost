@@ -2,7 +2,7 @@ package config
 
 import (
 	"errors"
-	"gost/util"
+	"gost/util/jsonutil"
 	"io/ioutil"
 	"log"
 	"os"
@@ -32,7 +32,7 @@ func InitRoutes(routesConfigPath string) {
 
 	var routes []Route
 
-	err = util.DeserializeJSON(routesData, &routes)
+	err = jsonutil.DeserializeJSON(routesData, &routes)
 	if err != nil {
 		log.Fatalf("[InitRoutes] %v\n", err)
 	}
@@ -50,7 +50,7 @@ func SaveRoutesConfiguration() error {
 		return errors.New("There are no routes configured in order to be saved")
 	}
 
-	data, err := util.SerializeJSON(activeRoutes)
+	data, err := jsonutil.SerializeJSON(activeRoutes)
 
 	if err != nil {
 		return errors.New("Encoding routes slice to json failed!")
