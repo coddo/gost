@@ -1,7 +1,6 @@
 package config
 
 import (
-	"encoding/json"
 	"gost/config"
 	"log"
 	"os"
@@ -41,12 +40,4 @@ func InitTestsDatabase() {
 // InitTestsRoutes initializez the routes used for testing the endpoints
 func InitTestsRoutes() {
 	config.InitRoutes(routesFilePath)
-}
-
-func deserializeRoutes(routesString []byte) {
-	err := json.Unmarshal(routesString, &config.Routes)
-
-	if err != nil {
-		log.Fatal(err)
-	}
 }

@@ -23,10 +23,13 @@ func InitRoutes(routesConfigPath string) {
 	routesData, err := ioutil.ReadFile(routesConfigFile)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("[InitRoutes] %v\n", err)
 	}
 
-	deserializeRoutes(routesData)
+	err = json.Unmarshal(routesData, &Routes)
+	if err != nil {
+		log.Fatalf("[InitRoutes] %v\n", err)
+	}
 }
 
 // SaveRoutesConfiguration saves all the active routes (Routes slice) in json format
@@ -113,14 +116,6 @@ func GetRoute(endpoint string) *Route {
 	}
 
 	return nil
-}
-
-func deserializeRoutes(routesData []byte) {
-	err := json.Unmarshal(routesData, &Routes)
-
-	if err != nil {
-		log.Fatal(err)
-	}
 }
 
 func checkCollectionModification(initialLength int) error {

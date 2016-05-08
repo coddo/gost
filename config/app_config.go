@@ -40,12 +40,12 @@ func InitApp(appConfigPath string) {
 
 	data, err := ioutil.ReadFile(appConfigFile)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("[InitApp] %v\n", err)
 	}
 
 	err = json.Unmarshal(data, &configData)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("[InitApp] %v\n", err)
 	}
 
 	ApplicationName = configData.ApplicationName

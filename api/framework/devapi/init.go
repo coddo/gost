@@ -36,6 +36,6 @@ func InitDevRoutes() {
 
 	err = config.AddRoutes(false, route...)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("[InitDevRoutes] %v\n", err)
 	}
 }
