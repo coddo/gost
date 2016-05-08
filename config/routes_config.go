@@ -12,7 +12,12 @@ import (
 var routesConfigFile = "config/routes.json"
 
 // Routes is a variable used for storing all the routes that the api will have
-var Routes []Route
+var activeRoutes []Route
+
+// Routes returns a slice containing all the currently active routes used by the application
+func Routes() []Route {
+	return activeRoutes
+}
 
 // InitRoutes initializes the routes based on a configuration file
 func InitRoutes(routesConfigPath string) {
@@ -26,7 +31,7 @@ func InitRoutes(routesConfigPath string) {
 		log.Fatalf("[InitRoutes] %v\n", err)
 	}
 
-	err = json.Unmarshal(routesData, &Routes)
+	err = json.Unmarshal(routesData, &activeRoutes)
 	if err != nil {
 		log.Fatalf("[InitRoutes] %v\n", err)
 	}
@@ -35,11 +40,11 @@ func InitRoutes(routesConfigPath string) {
 // SaveRoutesConfiguration saves all the active routes (Routes slice) in json format
 // into the configuration file
 func SaveRoutesConfiguration() error {
-	if len(Routes) == 0 {
+	if len(activeRoutes) == 0 {
 		return errors.New("There are no routes configured in order to be saved")
 	}
 
-	data, err := json.MarshalIndent(Routes, "", "  ")
+	data, err := json.MarshalIndent(activeRoutes, "", "  ")
 
 	if err != nil {
 		return errors.New("Encoding routes slice to json failed!")
@@ -55,7 +60,7 @@ func SaveRoutesConfiguration() error {
 
 // AddRoutes adds a new route and makes it active
 func AddRoutes(saveChangesToConfigFile bool, newRoutes ...Route) error {
-	initialLength := len(Routes)
+	initialLength := len(activeRoutes)
 
 	for _, route := range newRoutes {
 		existingRoute := GetRoute(route.Endpoint)
@@ -64,7 +69,7 @@ func AddRoutes(saveChangesToConfigFile bool, newRoutes ...Route) error {
 		}
 	}
 
-	Routes = append(Routes, newRoutes...)
+	activeRoutes = append(activeRoutes, newRoutes...)
 
 	err := checkCollectionModification(initialLength)
 
@@ -73,10 +78,10 @@ func AddRoutes(saveChangesToConfigFile bool, newRoutes ...Route) error {
 
 // RemoveRoute disables and removes a certain route
 func RemoveRoute(routeID string, saveChangesToConfigFile bool) error {
-	initialLength := len(Routes)
+	initialLength := len(activeRoutes)
 	index := -1
 
-	for ind, route := range Routes {
+	for ind, route := range activeRoutes {
 		if route.ID == routeID {
 			index = ind
 			break
@@ -87,7 +92,7 @@ func RemoveRoute(routeID string, saveChangesToConfigFile bool) error {
 		return errors.New("Route was not found for deletion!")
 	}
 
-	Routes = append(Routes[:index], Routes[index+1:]...)
+	activeRoutes = append(activeRoutes[:index], activeRoutes[index+1:]...)
 
 	err := checkCollectionModification(initialLength)
 
@@ -96,9 +101,9 @@ func RemoveRoute(routeID string, saveChangesToConfigFile bool) error {
 
 // ModifyRoute modifies the state and information of a certain route
 func ModifyRoute(routeID string, newRouteData Route, saveChangesToConfigFile bool) error {
-	for i := 0; i < len(Routes); i++ {
-		if Routes[i].ID == routeID {
-			Routes[i] = newRouteData
+	for i := 0; i < len(activeRoutes); i++ {
+		if activeRoutes[i].ID == routeID {
+			activeRoutes[i] = newRouteData
 
 			return saveChanges(nil, saveChangesToConfigFile, SaveRoutesConfiguration)
 		}
@@ -109,7 +114,7 @@ func ModifyRoute(routeID string, newRouteData Route, saveChangesToConfigFile boo
 
 // GetRoute fetches a Route entity from the active routes list, base on its ID
 func GetRoute(endpoint string) *Route {
-	for _, route := range Routes {
+	for _, route := range activeRoutes {
 		if route.Endpoint == endpoint {
 			return &route
 		}
@@ -119,7 +124,7 @@ func GetRoute(endpoint string) *Route {
 }
 
 func checkCollectionModification(initialLength int) error {
-	if initialLength == len(Routes) {
+	if initialLength == len(activeRoutes) {
 		return errors.New("The route couldn't be processed for the collection!")
 	}
 
