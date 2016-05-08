@@ -1,8 +1,8 @@
 package config
 
 import (
-	"encoding/json"
 	"errors"
+	"gost/util"
 	"io/ioutil"
 	"log"
 	"os"
@@ -26,12 +26,18 @@ func InitRoutes(routesConfigPath string) {
 	}
 
 	routesData, err := ioutil.ReadFile(routesConfigFile)
-
 	if err != nil {
 		log.Fatalf("[InitRoutes] %v\n", err)
 	}
 
-	err = json.Unmarshal(routesData, &activeRoutes)
+	var routes []Route
+
+	err = util.DeserializeJSON(routesData, &routes)
+	if err != nil {
+		log.Fatalf("[InitRoutes] %v\n", err)
+	}
+
+	err = AddRoutes(false, routes...)
 	if err != nil {
 		log.Fatalf("[InitRoutes] %v\n", err)
 	}
@@ -44,7 +50,7 @@ func SaveRoutesConfiguration() error {
 		return errors.New("There are no routes configured in order to be saved")
 	}
 
-	data, err := json.MarshalIndent(activeRoutes, "", "  ")
+	data, err := util.SerializeJSON(activeRoutes)
 
 	if err != nil {
 		return errors.New("Encoding routes slice to json failed!")

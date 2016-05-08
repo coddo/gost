@@ -96,8 +96,7 @@ func listenForInterruptSignal() {
 
 	<-signalChan
 
-	log.Println("")
-	log.Println("The server will now shut down gracefully...")
+	log.Println("\nThe server will now shut down gracefully...")
 
 	service.CloseDbService()
 
