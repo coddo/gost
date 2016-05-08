@@ -23,3 +23,11 @@ type ResendActivationEmailModel struct {
 	Email                      string `json:"email"`
 	ActivateAccountServiceLink string `json:"activateAccountServiceLink"`
 }
+
+// ChangePasswordModel is used for changing a user's password
+type ChangePasswordModel struct {
+	Email                string `json:"email"`
+	OldPassword          string `json:"oldPassword"`
+	Password             string `json:"password"`
+	PasswordConfirmation string `json:"passwordConfirmation"`
+}

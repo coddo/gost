@@ -21,6 +21,7 @@ const (
 var (
 	ErrActivationTokenExpired    = errors.New("The activation token has expired")
 	ErrResetPasswordTokenExpired = errors.New("The reset password token has expired")
+	ErrPasswordMismatch          = errors.New("The entered password is incorrect")
 )
 
 // CreateAppUser creates a new ApplicationUser with the given data, generates an activation token
@@ -82,14 +83,25 @@ func ResetPassword(token, password string) error {
 		return ErrResetPasswordTokenExpired
 	}
 
-	passwordHash, err := util.HashString(password)
+	return changeUserPassword(user, password)
+}
+
+// ChangePassword changes the current password that the user has
+func ChangePassword(userEmail, oldPassword, password string) error {
+	var user, err = identity.GetUserByEmail(userEmail)
 	if err != nil {
 		return err
 	}
 
-	user.Password = passwordHash
+	oldPasswordHash, err := util.HashString(oldPassword)
+	if err != nil {
+		return err
+	}
+	if oldPasswordHash != user.Password {
+		return ErrPasswordMismatch
+	}
 
-	return identity.UpdateUser(user)
+	return changeUserPassword(user, password)
 }
 
 // RequestResetPassword generates a reset token and sends an email with the link where to perform the change
@@ -160,4 +172,15 @@ func sendPasswordResetEmail(userEmail, passwordResetServiceLink, token string) {
 	if err != nil {
 		log.Printf(fmt.Sprintf("Error in sending password reset email to: %s", userEmail))
 	}
+}
+
+func changeUserPassword(user *identity.ApplicationUser, password string) error {
+	passwordHash, err := util.HashString(password)
+	if err != nil {
+		return err
+	}
+
+	user.Password = passwordHash
+
+	return identity.UpdateUser(user)
 }

@@ -88,3 +88,24 @@ func (a *AuthAPI) ResetPassword(params *api.Request) api.Response {
 
 	return api.StatusResponse(http.StatusOK)
 }
+
+// ChangePassword changes an user account's password
+func (a *AuthAPI) ChangePassword(params *api.Request) api.Response {
+	var model = ChangePasswordModel{}
+
+	var err = util.DeserializeJSON(params.Body, &model)
+	if err != nil {
+		return api.BadRequest(api.ErrEntityFormat)
+	}
+
+	if model.Password != model.PasswordConfirmation {
+		return api.BadRequest(errPasswordsDoNotMatch)
+	}
+
+	err = auth.ChangePassword(model.Email, model.OldPassword, model.Password)
+	if err != nil {
+		return api.BadRequest(err)
+	}
+
+	return api.StatusResponse(http.StatusOK)
+}

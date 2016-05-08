@@ -39,6 +39,10 @@ const frameworkRoutes = `
             "ResetPassword": {
               "type": "POST",
               "allowAnonymous": true
+            },
+            "ChangePassword": {
+              "type": "POST",
+              "allowAnonymous": false
             }
         }
     },
