@@ -1,7 +1,7 @@
 package identity
 
 import (
-	"gost/service"
+	"gost/orm/service"
 	testconfig "gost/tests/config"
 	"gost/util"
 	"testing"

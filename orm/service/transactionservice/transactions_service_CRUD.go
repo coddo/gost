@@ -2,7 +2,7 @@ package transactionservice
 
 import (
 	"gost/orm/dbmodels"
-	"gost/service"
+	"gost/orm/service"
 
 	"gopkg.in/mgo.v2/bson"
 )

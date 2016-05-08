@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"gost/config"
 	"gost/httphandle"
-	"gost/service"
+	"gost/orm/service"
 	testconfig "gost/tests/config"
 	"gost/util"
 	"net/http"

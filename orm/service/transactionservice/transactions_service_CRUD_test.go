@@ -3,7 +3,7 @@ package transactionservice
 import (
 	"gost/orm/dbmodels"
 	"gost/orm/models"
-	"gost/service"
+	"gost/orm/service"
 	testconfig "gost/tests/config"
 	"testing"
 	"time"

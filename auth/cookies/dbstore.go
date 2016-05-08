@@ -1,7 +1,7 @@
 package cookies
 
 import (
-	"gost/service"
+	"gost/orm/service"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
