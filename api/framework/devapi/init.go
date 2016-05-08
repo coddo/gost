@@ -12,17 +12,20 @@ var routesConfigFile = "config/devroutes.json"
 
 // InitDevRoutes initializes the routes used for development purposes only
 func InitDevRoutes() {
-	routesString, err := ioutil.ReadFile(routesConfigFile)
+	routesData, err := ioutil.ReadFile(routesConfigFile)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	var route = config.Route{}
 
-	err = json.Unmarshal(routesString, &route)
+	err = json.Unmarshal(routesData, &route)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	config.Routes = append(config.Routes, route)
+	err = config.AddRoutes(false, route)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
