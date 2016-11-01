@@ -44,5 +44,7 @@ func CloseDbService() {
 // Connect creates the connection to the database.
 // To avoid forgetting to close the session, always write: *defer session.Close()* right after getting it through this method
 func Connect(collectionName string) (*mgo.Session, *mgo.Collection) {
-	return mongoDbSession.Copy(), mongoDbSession.DB(config.DbName).C(collectionName)
+	var session = mongoDbSession.Copy()
+
+	return session, session.DB(config.DbName).C(collectionName)
 }
