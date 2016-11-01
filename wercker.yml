@@ -13,17 +13,6 @@ build:
     - setup-go-workspace:
         package-dir: gost
 
-    # Set gost environment variables
-    - script:
-        name: set env
-        code: |
-            export MONGODB_URL="$MONGO_PORT_27017_TCP_ADDR:$MONGO_PORT_27017_TCP_PORT"
-            export GOST_TESTAPP_DB_NAME="gost_test_app_db"
-            export GOST_TESTAPP_DB_CONN="$MONGODB_URL/$GOST_TESTAPP_DB_NAME"
-            export GOST_TESTAPP_NAME="gost_test_app"
-            export GOST_TESTAPP_INSTANCE="/gost-test/"
-            export GOST_TESTAPP_HTTP="localhost:7500"
-
     - script:
         name: display env vars
         code: |
