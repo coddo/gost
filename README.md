@@ -1,4 +1,4 @@
-[![wercker status](https://app.wercker.com/status/312eae746a4c0e7d1198a007e5355122/m "wercker status")](https://app.wercker.com/project/bykey/312eae746a4c0e7d1198a007e5355122)
+[![wercker status](https://app.wercker.com/status/d25f1a79c7ec302ba836fde68da07e21/m/ "wercker status")](https://app.wercker.com/project/byKey/d25f1a79c7ec302ba836fde68da07e21)
 
 # What's this?
 
