@@ -3,6 +3,8 @@ package cookies
 import (
 	"gost/orm/service"
 
+	"log"
+
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -69,7 +71,7 @@ func (store *DatabaseCookieStore) Init() {
 
 	err := collection.EnsureIndex(index)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Database store indexes initialization error: %v\n", err)
 	}
 }
 
