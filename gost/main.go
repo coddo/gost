@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"gost/api/app/transactionapi"
 	"gost/api/framework"
 	"gost/api/framework/authapi"
@@ -19,6 +20,11 @@ import (
 )
 
 var numberOfProcessors = runtime.NumCPU()
+
+// Application flags
+var (
+	envFlag = ""
+)
 
 // FrameworkAPIContainer is a struct used for boxing the framework's api endpoints.
 // Add here all the framework endpoints that should be used by your application
@@ -67,7 +73,11 @@ func startWebFramework() {
 func init() {
 	var emptyConfigParam string
 
+	// Initialize application flags
+	defineAppFlags()
+
 	// Initialize application configuration
+	config.SetEnvironmentMode(envFlag)
 	config.InitApp(emptyConfigParam)
 	config.InitDatabase(emptyConfigParam)
 
@@ -91,6 +101,14 @@ func init() {
 
 	// Set the app to use all the available processors
 	runtime.GOMAXPROCS(numberOfProcessors)
+}
+
+func defineAppFlags() {
+	// Define application flags
+	flag.StringVar(&envFlag, "env", config.Development, "The type of environemnt in which the app is run")
+
+	// Parse all the flags
+	flag.Parse()
 }
 
 func listenForInterruptSignal() {
