@@ -13,11 +13,6 @@ build:
     - setup-go-workspace:
         package-dir: gost
 
-    - script:
-        name: display env vars
-        code: |
-            env
-
     # Gets the dependencies
     - script:
         name: go get -v
