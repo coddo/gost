@@ -2,11 +2,6 @@ package main
 
 import (
 	"flag"
-	"gost/api/app/transactionapi"
-	"gost/api/framework"
-	"gost/api/framework/authapi"
-	"gost/api/framework/devapi"
-	"gost/api/framework/valuesapi"
 	"gost/auth/cookies"
 	"gost/config"
 	"gost/httphandle"
@@ -25,27 +20,6 @@ var numberOfProcessors = runtime.NumCPU()
 var (
 	envFlag = ""
 )
-
-// FrameworkAPIContainer is a struct used for boxing the framework's api endpoints.
-// Add here all the framework endpoints that should be used by your application
-type FrameworkAPIContainer struct {
-	authapi.AuthAPI
-	valuesapi.ValuesAPI
-}
-
-// ApplicationAPIContainer is a struct used for boxing all the application's api endpoints.
-// This also registers all the framework's vital endpoints
-type ApplicationAPIContainer struct {
-	FrameworkAPIContainer
-	transactionapi.TransactionsAPI
-}
-
-// DevAPIContainer is used only for development purposes.
-// Register all the necessary api endpoints in the APIContainer type as this one just inherits it
-type DevAPIContainer struct {
-	ApplicationAPIContainer
-	devapi.DevAPI
-}
 
 // Application entry point - sets the behavior for the app
 func main() {
@@ -79,20 +53,19 @@ func init() {
 	// Initialize the encryption module
 	security.InitCipherModule()
 
-	// Intialize application routes configuration
-	framework.InitFrameworkRoutes()
-	httphandle.InitRoutes(servers.Multiplexer)
+	// Generate the necessary routes based on environemnt
+	httphandle.CreateFrameworkRoutes()
+	httphandle.CreateAPIRoutes()
 
 	if config.IsInDevMode() {
-		devapi.InitDevRoutes()
+		httphandle.CreateDevelopmentRoutes()
 	}
+
+	// Initialize all the generated routes
+	httphandle.InitRoutes(servers.Multiplexer)
 
 	// Initialize the MongoDb service
 	service.InitDbService()
-
-	// Register the API endpoints
-	// httphandle.RegisterEndpoints(new(ApplicationAPIContainer))   ----- Use this API container when deploying in PRODUCTION
-	httphandle.RegisterEndpoints(new(DevAPIContainer)) //----- Use this API container when in development
 
 	// Initialize the cookie store in the auth module
 	cookies.InitCookieStore()
