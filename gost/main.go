@@ -87,7 +87,10 @@ func init() {
 	// Intialize application routes configuration
 	framework.InitFrameworkRoutes()
 	config.InitRoutes(emptyConfigParam)
-	devapi.InitDevRoutes() //----- Uncomment this line when in development
+
+	if config.IsInDevMode() {
+		devapi.InitDevRoutes()
+	}
 
 	// Initialize the MongoDb service
 	service.InitDbService()
