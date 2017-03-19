@@ -1,6 +1,7 @@
 package devapi
 
 import (
+	"fmt"
 	"gost/api"
 	"gost/auth"
 	"gost/config"
@@ -28,7 +29,7 @@ func (v *DevAPI) CreateAppUser(params *api.Request) api.Response {
 		return api.BadRequest(api.ErrEntityFormat)
 	}
 
-	var activationServiceLink = config.ServerType + "://" + config.HTTPServerAddress + config.APIInstance + "dev/ActivateAppUser?token=%s"
+	var activationServiceLink = fmt.Sprintf("%s://%s%s%s", config.ServerType, config.HTTPServerAddress, config.APIInstance, "dev/ActivateAppUser?token=%s")
 
 	user, err := auth.CreateAppUser(model.Email, model.Password, model.AccountType, activationServiceLink)
 	if err != nil {
