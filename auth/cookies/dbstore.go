@@ -63,10 +63,6 @@ func (store *DatabaseCookieStore) Init() {
 	defer session.Close()
 	session.SetMode(mgo.Monotonic, true)
 
-	if store.hasTokenIndex(collection) {
-		return
-	}
-
 	index := mgo.Index{
 		Key: []string{"$text:token"},
 	}
@@ -75,24 +71,6 @@ func (store *DatabaseCookieStore) Init() {
 	if err != nil {
 		panic(err)
 	}
-}
-
-// hasTokenIndex verifies if there is already an index created for the token field of a collection
-func (store *DatabaseCookieStore) hasTokenIndex(collection *mgo.Collection) bool {
-	indexes, err := collection.Indexes()
-	if err != nil {
-		panic(ErrInitializationFailed)
-	}
-
-	for _, index := range indexes {
-		for _, key := range index.Key {
-			if key == "token" {
-				return true
-			}
-		}
-	}
-
-	return false
 }
 
 // NewDatabaseCookieStore creates a new DatabaseCookieStore pointer entity

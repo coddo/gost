@@ -71,6 +71,9 @@ func init() {
 	config.InitApp(emptyConfigParam)
 	config.InitDatabase(emptyConfigParam)
 
+	// Initialize the encryption module
+	security.InitCipherModule()
+
 	// Intialize application routes configuration
 	framework.InitFrameworkRoutes()
 	config.InitRoutes(emptyConfigParam)
@@ -85,9 +88,6 @@ func init() {
 
 	// Initialize the cookie store in the auth module
 	cookies.InitCookieStore()
-
-	// Initialize the encryption module
-	security.InitCipherModule()
 
 	// Set the app to use all the available processors
 	runtime.GOMAXPROCS(numberOfProcessors)

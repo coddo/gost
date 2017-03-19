@@ -61,8 +61,10 @@ func fetchAndDeserializeDbData(filePath string) DbConfig {
 func createConnectionString(data DbConfig) string {
 	var buf bytes.Buffer
 
-	buf.WriteString(data.Driver)
-	buf.WriteString("://")
+	if len(data.Driver) > 0 {
+		buf.WriteString(data.Driver)
+		buf.WriteString("://")
+	}
 
 	if len(data.User) > 0 {
 		buf.WriteString(data.User)

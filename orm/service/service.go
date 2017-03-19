@@ -28,6 +28,7 @@ func InitDbService() {
 	if mongoDbSession == nil {
 		var err error
 		mongoDbSession, err = mgo.Dial(config.DbConnectionString)
+		mongoDbSession.SetMode(mgo.Monotonic, true)
 
 		if err != nil {
 			log.Fatalf("Can't connect to mongo, go error: %v\n", err)

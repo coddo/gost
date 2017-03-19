@@ -3,14 +3,11 @@ package security
 import (
 	"crypto/rand"
 	"crypto/rsa"
-	"gost/util/encodeutil"
 	"gost/util/jsonutil"
 	"log"
 
 	"github.com/square/go-jose"
 )
-
-const privateKeyFile = "config/enc.cfg"
 
 var privateKey = new(rsa.PrivateKey)
 var encrypter jose.Encrypter
@@ -63,16 +60,15 @@ func GeneratePrivateKey(printInLog bool) []byte {
 
 // InitCipherModule initializes the components used for server-side encryption
 func InitCipherModule() {
-	key, err := encodeutil.Decode(encodedPrivateKey)
+	var err error
+
+	// Generate the private key
+	privateKey, err = rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		panic(err)
 	}
 
-	err = jsonutil.DeserializeJSON(key, privateKey)
-	if err != nil {
-		panic(err)
-	}
-
+	// Initialize the encryption mechanism using the new private key
 	encrypter, err = jose.NewEncrypter(jose.RSA_OAEP, jose.A128GCM, &privateKey.PublicKey)
 	if err != nil {
 		panic(err)
