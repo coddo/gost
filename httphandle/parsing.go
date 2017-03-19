@@ -12,26 +12,26 @@ import (
 	"xojoc.pw/useragent"
 )
 
-func requestAction(rw http.ResponseWriter, req *http.Request, method string, endpoint string, allowAnonymous bool, roles []string, action func(*api.Request) api.Response) {
+func requestAction(rw http.ResponseWriter, req *http.Request, method string, allowAnonymous bool, roles []string, action func(*api.Request) api.Response) {
 	// Check http method
 	if method != req.Method {
-		sendMessageResponse(http.StatusNotFound, api.StatusText(http.StatusNotFound), rw, req, endpoint)
+		sendMessageResponse(http.StatusNotFound, api.StatusText(http.StatusNotFound), rw, req)
 		return
 	}
 
 	// Try authorizing the user
 	var identity, isAuthorized = authorize(req, allowAnonymous, roles)
 	if !isAuthorized {
-		sendMessageResponse(http.StatusUnauthorized, api.StatusText(http.StatusUnauthorized), rw, req, endpoint)
+		sendMessageResponse(http.StatusUnauthorized, api.StatusText(http.StatusUnauthorized), rw, req)
 		return
 	}
 
 	// Create the request
-	request := generateRequest(req, rw, endpoint, identity)
+	request := generateRequest(req, rw, identity)
 
 	// Call the endpoint
 	var response = action(request)
-	respond(&response, rw, req, endpoint)
+	respond(&response, rw, req)
 }
 
 func authorize(req *http.Request, allowAnonymous bool, roles []string) (*identity.Identity, bool) {
@@ -47,16 +47,16 @@ func authorize(req *http.Request, allowAnonymous bool, roles []string) (*identit
 	return identity, true
 }
 
-func generateRequest(req *http.Request, rw http.ResponseWriter, endpoint string, userIdentity *identity.Identity) *api.Request {
+func generateRequest(req *http.Request, rw http.ResponseWriter, userIdentity *identity.Identity) *api.Request {
 	statusCode, err := filter.ParseRequestContent(req)
 	if err != nil {
-		sendMessageResponse(statusCode, err.Error(), rw, req, endpoint)
+		sendMessageResponse(statusCode, err.Error(), rw, req)
 		return nil
 	}
 
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		sendMessageResponse(http.StatusBadRequest, err.Error(), rw, req, endpoint)
+		sendMessageResponse(http.StatusBadRequest, err.Error(), rw, req)
 		return nil
 	}
 
@@ -93,17 +93,17 @@ func parseClientDetails(req *http.Request) *cookies.Client {
 	return &client
 }
 
-func respond(resp *api.Response, rw http.ResponseWriter, req *http.Request, endpoint string) {
+func respond(resp *api.Response, rw http.ResponseWriter, req *http.Request) {
 	if resp.StatusCode == 0 {
 		resp.StatusCode = http.StatusInternalServerError
-		sendMessageResponse(resp.StatusCode, api.StatusText(resp.StatusCode), rw, req, endpoint)
+		sendMessageResponse(resp.StatusCode, api.StatusText(resp.StatusCode), rw, req)
 	} else if len(resp.ErrorMessage) > 0 {
-		sendMessageResponse(resp.StatusCode, resp.ErrorMessage, rw, req, endpoint)
+		sendMessageResponse(resp.StatusCode, resp.ErrorMessage, rw, req)
 	} else {
 		if len(resp.ContentType) == 0 {
 			resp.ContentType = api.ContentJSON
 		}
 
-		sendResponse(resp.StatusCode, resp.Content, rw, req, endpoint, resp.ContentType, resp.File)
+		sendResponse(resp.StatusCode, resp.Content, rw, req, resp.ContentType, resp.File)
 	}
 }

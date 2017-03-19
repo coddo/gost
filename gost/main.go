@@ -49,12 +49,6 @@ type DevAPIContainer struct {
 
 // Application entry point - sets the behavior for the app
 func main() {
-	startWebFramework()
-}
-
-// startWebFramework performs the startup operations for the entire web framework
-// and starts the actual http or https server used for listening for requests.
-func startWebFramework() {
 	// Start listener for performing a graceful shutdown of the server
 	go listenForInterruptSignal()
 
@@ -87,7 +81,7 @@ func init() {
 
 	// Intialize application routes configuration
 	framework.InitFrameworkRoutes()
-	config.InitRoutes(emptyConfigParam)
+	httphandle.InitRoutes(servers.Multiplexer)
 
 	if config.IsInDevMode() {
 		devapi.InitDevRoutes()
