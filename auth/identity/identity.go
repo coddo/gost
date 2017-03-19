@@ -1,10 +1,14 @@
 package identity
 
-import "gost/auth/cookies"
+import (
+	"gost/auth/cookies"
+	"gost/util/sliceutil"
+)
 
 // Identity represents the identity of the user the is in the current context
 type Identity struct {
 	Session      *cookies.Session
+	User         *ApplicationUser
 	isAuthorized bool
 }
 
@@ -18,15 +22,20 @@ func (identity *Identity) IsAuthorized() bool {
 	return identity.isAuthorized
 }
 
-// IsAdmin returns true if the current authorized user is in the admin role
-func (identity *Identity) IsAdmin() bool {
-	return identity.IsAuthorized() && identity.Session.IsUserInRole(AccountTypeAdministrator)
+// HasAnyRole returns true if the current user has any of the specified roles
+func (identity *Identity) HasAnyRole(roles []string) bool {
+	if identity.User == nil {
+		return false
+	}
+
+	return sliceutil.AreIntersected(identity.User.Roles, roles)
 }
 
 // New creates a new Identity based on a user session
-func New(session *cookies.Session) *Identity {
+func New(session *cookies.Session, user *ApplicationUser) *Identity {
 	return &Identity{
 		Session:      session,
+		User:         user,
 		isAuthorized: session != nil,
 	}
 }
@@ -35,6 +44,7 @@ func New(session *cookies.Session) *Identity {
 func NewAnonymous() *Identity {
 	return &Identity{
 		Session:      nil,
+		User:         nil,
 		isAuthorized: false,
 	}
 }
