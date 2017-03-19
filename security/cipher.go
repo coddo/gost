@@ -3,8 +3,6 @@ package security
 import (
 	"crypto/rand"
 	"crypto/rsa"
-	"gost/util/jsonutil"
-	"log"
 
 	"github.com/square/go-jose"
 )
@@ -36,26 +34,6 @@ func Decrypt(data []byte) ([]byte, error) {
 	}
 
 	return decryptedData, nil
-}
-
-// GeneratePrivateKey generates and prints in the terminal/log the byte array
-// containing a private RSA key serialized as a JSON value
-func GeneratePrivateKey(printInLog bool) []byte {
-	priv, err := rsa.GenerateKey(rand.Reader, 2048)
-	if err != nil {
-		panic(err)
-	}
-
-	data, err := jsonutil.SerializeJSON(priv)
-	if err != nil {
-		panic(err)
-	}
-
-	if printInLog {
-		log.Println(data)
-	}
-
-	return data
 }
 
 // InitCipherModule initializes the components used for server-side encryption
