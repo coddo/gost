@@ -28,7 +28,7 @@ var (
 
 // CreateAppUser creates a new ApplicationUser with the given data, generates an activation token
 // and sends an email containing a link used for activating the account
-func CreateAppUser(emailAddress, password string, accountType int, activationServiceLink string) (*identity.ApplicationUser, error) {
+func CreateAppUser(emailAddress, password string, roles []string, activationServiceLink string) (*identity.ApplicationUser, error) {
 	var token, err = util.GenerateUUID()
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func CreateAppUser(emailAddress, password string, accountType int, activationSer
 		ID:                             bson.NewObjectId(),
 		Email:                          emailAddress,
 		Password:                       passwordHash,
-		AccountType:                    accountType,
+		Roles:                          roles,
 		ActivateAccountToken:           token,
 		ActivateAccountTokenExpireDate: dateutil.NextDateFromNow(accountActivationTokenExpireTime),
 		AccountStatus:                  identity.AccountStatusDeactivated,

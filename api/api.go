@@ -1,8 +1,3 @@
-// Package api contains the API functionality helpers
-//
-// Each package represents the API functionality of a
-// certain endpoint which may implement some of the
-// following functionalities: GET, POST, PUT or DELETE
 package api
 
 import (
@@ -54,8 +49,7 @@ type Request struct {
 	ClientDetails *cookies.Client
 }
 
-// A Response contains the information that will be sent back to the user
-// through a HTTP response
+// A Response contains the information that will be sent back to the user through a HTTP response
 type Response struct {
 	Content      []byte
 	StatusCode   int

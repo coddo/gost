@@ -7,6 +7,12 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// Constants for basic user roles
+const (
+	UserRoleNormal = "basic"
+	UserRoleAdmin  = "admin"
+)
+
 // Constants describing the status of the current user account
 const (
 	AccountStatusDeactivated = iota

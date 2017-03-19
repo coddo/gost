@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func sendResponse(statusCode int, message []byte, rw http.ResponseWriter, req *http.Request, endpoint, endpointAction, contentType, filePath string) {
+func sendResponse(statusCode int, message []byte, rw http.ResponseWriter, req *http.Request, endpoint, contentType, filePath string) {
 	// Handle redirect
 	if statusCode == http.StatusTemporaryRedirect {
 		http.Redirect(rw, req, string(message), statusCode)
@@ -28,28 +28,26 @@ func sendResponse(statusCode int, message []byte, rw http.ResponseWriter, req *h
 	}
 
 	// Log event
-	go logRequest(statusCode, message, req.Method, endpoint, endpointAction)
+	go logRequest(statusCode, message, req.Method, endpoint)
 }
 
-func sendMessageResponse(statusCode int, message string, rw http.ResponseWriter, req *http.Request, endpoint, endpointAction string) {
+func sendMessageResponse(statusCode int, message string, rw http.ResponseWriter, req *http.Request, endpoint string) {
 	msg := []byte(message)
 
-	sendResponse(statusCode, msg, rw, req, endpoint, endpointAction, api.ContentTextPlain, "")
+	sendResponse(statusCode, msg, rw, req, endpoint, api.ContentTextPlain, "")
 }
 
-func sendStatusResponse(statusCode int, rw http.ResponseWriter, req *http.Request, endpoint, endpointAction string) string {
+func sendStatusResponse(statusCode int, rw http.ResponseWriter, req *http.Request, endpoint string) string {
 	message := api.StatusText(statusCode)
 
-	sendMessageResponse(statusCode, message, rw, req, endpoint, endpointAction)
+	sendMessageResponse(statusCode, message, rw, req, endpoint)
 
 	return message
 }
 
-func logRequest(statusCode int, message []byte, httpMethod, endpoint, endpointAction string) {
+func logRequest(statusCode int, message []byte, httpMethod, endpoint string) {
 	var requestPath bytes.Buffer
 	requestPath.WriteString(endpoint)
-	requestPath.WriteRune('/')
-	requestPath.WriteString(endpointAction)
 
 	if statusCode >= 400 {
 		log.Println(httpMethod, requestPath.String(), statusCode, string(message))

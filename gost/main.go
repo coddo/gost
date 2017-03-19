@@ -71,6 +71,7 @@ func startWebFramework() {
 
 // Function for performing automatic initializations at application startup
 func init() {
+	log.Println("Initializing server...")
 	var emptyConfigParam string
 
 	// Initialize application flags
