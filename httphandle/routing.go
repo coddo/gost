@@ -31,12 +31,13 @@ func InitRoutes(mux *bone.Mux) {
 		var registerFunc = getRegisterFunc(mux, route.Method)
 
 		registerFunc(route.Path, func(rw http.ResponseWriter, req *http.Request) {
-			requestAction(rw, req, route.Method, route.AllowAnonymous, route.Roles, route.Action)
+			RequestHandler(rw, req, route.Method, route.AllowAnonymous, route.Roles, route.Action)
 		})
 	}
 }
 
-func requestAction(rw http.ResponseWriter, req *http.Request, method string, allowAnonymous bool, roles []string, action func(*api.Request) api.Response) {
+// RequestHandler represents the main func that is called on a request once an URL match succeeds
+func RequestHandler(rw http.ResponseWriter, req *http.Request, method string, allowAnonymous bool, roles []string, action func(*api.Request) api.Response) {
 	// Check http method
 	if method != req.Method {
 		sendMessageResponse(http.StatusNotFound, api.StatusText(http.StatusNotFound), rw, req)

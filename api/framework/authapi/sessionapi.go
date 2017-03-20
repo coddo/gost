@@ -5,7 +5,6 @@ import (
 	"gost/api"
 	"gost/auth"
 	"gost/auth/cookies"
-	"gost/filter"
 	"gost/util/jsonutil"
 	"net/http"
 
@@ -19,8 +18,8 @@ var (
 )
 
 // GetAllSessions retrieves all the sessions for a certain user account
-func (a *AuthAPI) GetAllSessions(params *api.Request) api.Response {
-	userID, found, err := filter.GetIDParameter("token", params.Form)
+func GetAllSessions(params *api.Request) api.Response {
+	userID, found, err := api.GetIDParameter("token", params.Form)
 	if !found {
 		return api.BadRequest(api.ErrIDParamNotSpecified)
 	}
@@ -37,7 +36,7 @@ func (a *AuthAPI) GetAllSessions(params *api.Request) api.Response {
 }
 
 // CreateSession creates a new session for an existing user account
-func (a *AuthAPI) CreateSession(params *api.Request) api.Response {
+func CreateSession(params *api.Request) api.Response {
 	model := &AuthModel{}
 
 	err := jsonutil.DeserializeJSON(params.Body, model)
@@ -59,8 +58,8 @@ func (a *AuthAPI) CreateSession(params *api.Request) api.Response {
 
 // KillSession deletes a session for an existing user account based on
 // the session token
-func (a *AuthAPI) KillSession(params *api.Request) api.Response {
-	sessionToken, found := filter.GetStringParameter("token", params.Form)
+func KillSession(params *api.Request) api.Response {
+	sessionToken, found := api.GetStringParameter("token", params.Form)
 	if !found || len(sessionToken) == 0 {
 		return api.BadRequest(ErrTokenNotSpecified)
 	}

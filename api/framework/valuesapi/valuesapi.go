@@ -4,27 +4,21 @@ import (
 	"bytes"
 	"gost/api"
 	"net/http"
+	"strings"
 )
 
-// ValuesAPI defines the API endpoint for verifying the API status of the application
-type ValuesAPI int
-
 // Get performs a HTTP GET as an authorized user
-func (v *ValuesAPI) Get(params *api.Request) api.Response {
+func Get(params *api.Request) api.Response {
 	var message bytes.Buffer
 
-	message.WriteString("You are currently authorized.\nYour role is: ")
-	if params.Identity.IsAdmin() {
-		message.WriteString("ADMIN")
-	} else {
-		message.WriteString("NORMAL USER")
-	}
+	message.WriteString("You are currently authorized.\nYour roles are: ")
+	message.WriteString(strings.Join(params.Identity.User.Roles, ", "))
 
 	return api.PlainTextResponse(http.StatusOK, message.String())
 }
 
 // GetAnonymous performs a HTTP GET as an anonymous user
-func (v *ValuesAPI) GetAnonymous(params *api.Request) api.Response {
+func GetAnonymous(params *api.Request) api.Response {
 	var message bytes.Buffer
 	status := http.StatusOK
 
@@ -32,11 +26,11 @@ func (v *ValuesAPI) GetAnonymous(params *api.Request) api.Response {
 
 	if params.Identity.IsAuthorized() {
 		message.WriteString("BTW, You are an authorized user")
-	} else if !params.Identity.IsAnonymous() {
-		message.WriteString("Cannot verify your authorization status, something is wrong")
-		status = http.StatusForbidden
-	} else {
+	} else if params.Identity.IsAnonymous() {
 		message.WriteString("BTW, You are an anonymous user")
+	} else {
+		message.WriteString("Cannot verify your authorization status, something is wrong")
+		status = http.StatusInternalServerError
 	}
 
 	return api.PlainTextResponse(status, message.String())

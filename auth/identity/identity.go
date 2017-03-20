@@ -23,7 +23,7 @@ func (identity *Identity) IsAuthorized() bool {
 }
 
 // HasAnyRole returns true if the current user has any of the specified roles
-func (identity *Identity) HasAnyRole(roles []string) bool {
+func (identity *Identity) HasAnyRole(roles ...string) bool {
 	if identity.User == nil {
 		return false
 	}

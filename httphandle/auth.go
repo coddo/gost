@@ -17,7 +17,7 @@ func authorize(req *http.Request, allowAnonymous bool, roles []string) (*identit
 			return nil, false, http.StatusUnauthorized
 		}
 
-		if !identity.HasAnyRole(roles) {
+		if !identity.HasAnyRole(roles...) {
 			return nil, false, http.StatusForbidden
 		}
 	}
