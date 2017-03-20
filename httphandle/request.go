@@ -2,7 +2,6 @@ package httphandle
 
 import (
 	"gost/api"
-	"gost/auth"
 	"gost/auth/cookies"
 	"gost/auth/identity"
 	"gost/filter"
@@ -11,47 +10,6 @@ import (
 
 	"xojoc.pw/useragent"
 )
-
-func requestAction(rw http.ResponseWriter, req *http.Request, method string, allowAnonymous bool, roles []string, action func(*api.Request) api.Response) {
-	// Check http method
-	if method != req.Method {
-		sendMessageResponse(http.StatusNotFound, api.StatusText(http.StatusNotFound), rw, req)
-		return
-	}
-
-	// Try authorizing the user
-	var identity, isAuthorized, errorStatusCode = authorize(req, allowAnonymous, roles)
-	if !isAuthorized {
-		sendMessageResponse(errorStatusCode, api.StatusText(errorStatusCode), rw, req)
-		return
-	}
-
-	// Create the request
-	request := generateRequest(req, rw, identity)
-
-	// Call the endpoint
-	var response = action(request)
-	respond(&response, rw, req)
-}
-
-func authorize(req *http.Request, allowAnonymous bool, roles []string) (*identity.Identity, bool, int) {
-	identity, err := auth.Authorize(req.Header)
-	if err != nil {
-		return nil, false, http.StatusUnauthorized
-	}
-
-	if !allowAnonymous {
-		if identity.IsAnonymous() {
-			return nil, false, http.StatusUnauthorized
-		}
-
-		if !identity.HasAnyRole(roles) {
-			return nil, false, http.StatusForbidden
-		}
-	}
-
-	return identity, true, http.StatusOK
-}
 
 func generateRequest(req *http.Request, rw http.ResponseWriter, userIdentity *identity.Identity) *api.Request {
 	statusCode, err := filter.ParseRequestContent(req)
