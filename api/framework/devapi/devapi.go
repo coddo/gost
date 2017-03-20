@@ -5,33 +5,21 @@ import (
 	"gost/api"
 	"gost/auth"
 	"gost/config"
-	"gost/filter"
-	"gost/util/jsonutil"
 	"net/http"
 )
 
-// DevAPI defines the API endpoint for development actions and custom testing
-type DevAPI int
-
 // AppUserModel is the model used for creating ApplicationUsers
 type AppUserModel struct {
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	AccountType int    `json:"accountType"` // 0 - NormalUser | 1 - Admin
+	Email    string   `json:"email"`
+	Password string   `json:"password"`
+	Roles    []string `json:"roles"`
 }
 
-// CreateAppUser is an endpoint used for creating application users
-func (v *DevAPI) CreateAppUser(params *api.Request) api.Response {
-	model := &AppUserModel{}
-
-	err := jsonutil.DeserializeJSON(params.Body, model)
-	if err != nil {
-		return api.BadRequest(api.ErrEntityFormat)
-	}
-
+// createAppUser is an endpoint used for creating application users
+func createAppUser(model *AppUserModel) api.Response {
 	var activationServiceLink = fmt.Sprintf("%s://%s%s%s", config.ServerType, config.HTTPServerAddress, config.APIInstance, "dev/ActivateAppUser?token=%s")
 
-	user, err := auth.CreateAppUser(model.Email, model.Password, model.AccountType, activationServiceLink)
+	user, err := auth.CreateAppUser(model.Email, model.Password, model.Roles, activationServiceLink)
 	if err != nil {
 		return api.InternalServerError(err)
 	}
@@ -39,13 +27,8 @@ func (v *DevAPI) CreateAppUser(params *api.Request) api.Response {
 	return api.JSONResponse(http.StatusOK, user)
 }
 
-// ActivateAppUser is an endpoint for activating an app user
-func (v *DevAPI) ActivateAppUser(params *api.Request) api.Response {
-	var token, found = filter.GetStringParameter("token", params.Form)
-	if !found {
-		return api.BadRequest(api.ErrInvalidInput)
-	}
-
+// activateAppUser is an endpoint for activating an app user
+func activateAppUser(token string) api.Response {
 	var err = auth.ActivateAppUser(token)
 	if err != nil {
 		return api.BadRequest(err)

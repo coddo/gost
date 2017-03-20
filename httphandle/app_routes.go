@@ -2,7 +2,6 @@ package httphandle
 
 import (
 	"gost/api/app/transactionapi"
-	"gost/auth/identity"
 	"net/http"
 )
 
@@ -13,14 +12,14 @@ func CreateAPIRoutes() {
 			Path:           "/transactions/{transactionId}",
 			Method:         http.MethodGet,
 			AllowAnonymous: false,
-			Roles:          []string{identity.UserRoleNormal},
+			Roles:          []string{},
 			Action:         transactionapi.RouteGetTransaction,
 		},
 		&Route{
 			Path:           "/transactions",
 			Method:         http.MethodPost,
 			AllowAnonymous: false,
-			Roles:          []string{identity.UserRoleNormal},
+			Roles:          []string{},
 			Action:         transactionapi.RouteCreateTransaction,
 		},
 	)

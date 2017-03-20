@@ -24,6 +24,10 @@ var Routes = make([]*Route, 0)
 // InitRoutes initializes the application API routes and actions
 func InitRoutes(mux *bone.Mux) {
 	for _, route := range Routes {
+		if route.Roles == nil {
+			route.Roles = make([]string, 0)
+		}
+
 		var registerFunc = getRegisterFunc(mux, route.Method)
 
 		registerFunc(route.Path, func(rw http.ResponseWriter, req *http.Request) {
