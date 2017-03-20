@@ -20,9 +20,9 @@ func requestAction(rw http.ResponseWriter, req *http.Request, method string, all
 	}
 
 	// Try authorizing the user
-	var identity, isAuthorized = authorize(req, allowAnonymous, roles)
+	var identity, isAuthorized, errorStatusCode = authorize(req, allowAnonymous, roles)
 	if !isAuthorized {
-		sendMessageResponse(http.StatusUnauthorized, api.StatusText(http.StatusUnauthorized), rw, req)
+		sendMessageResponse(errorStatusCode, api.StatusText(errorStatusCode), rw, req)
 		return
 	}
 
@@ -34,17 +34,23 @@ func requestAction(rw http.ResponseWriter, req *http.Request, method string, all
 	respond(&response, rw, req)
 }
 
-func authorize(req *http.Request, allowAnonymous bool, roles []string) (*identity.Identity, bool) {
+func authorize(req *http.Request, allowAnonymous bool, roles []string) (*identity.Identity, bool, int) {
 	identity, err := auth.Authorize(req.Header)
 	if err != nil {
-		return nil, false
+		return nil, false, http.StatusUnauthorized
 	}
 
-	if (!allowAnonymous && identity.IsAnonymous()) || !identity.HasAnyRole(roles) {
-		return nil, false
+	if !allowAnonymous {
+		if identity.IsAnonymous() {
+			return nil, false, http.StatusUnauthorized
+		}
+
+		if !identity.HasAnyRole(roles) {
+			return nil, false, http.StatusForbidden
+		}
 	}
 
-	return identity, true
+	return identity, true, http.StatusOK
 }
 
 func generateRequest(req *http.Request, rw http.ResponseWriter, userIdentity *identity.Identity) *api.Request {
