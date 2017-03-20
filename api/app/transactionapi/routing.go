@@ -6,7 +6,7 @@ import (
 	"gost/util/jsonutil"
 )
 
-// RouteGetTransaction performs parameter parsing before calling the API
+// RouteGetTransaction performs data parsing and binding before calling the API
 func RouteGetTransaction(request *api.Request) api.Response {
 	transactionID, found, err := api.GetIDParameter("transactionId", request.Form)
 	if err != nil {
@@ -19,7 +19,7 @@ func RouteGetTransaction(request *api.Request) api.Response {
 	return getTransaction(transactionID)
 }
 
-// RouteCreateTransaction performs parameter parsing before calling the API
+// RouteCreateTransaction performs data parsing and binding before calling the API
 func RouteCreateTransaction(request *api.Request) api.Response {
 	transaction := &models.Transaction{}
 	err := jsonutil.DeserializeJSON(request.Body, transaction)
