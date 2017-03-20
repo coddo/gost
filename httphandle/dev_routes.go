@@ -1,7 +1,7 @@
 package httphandle
 
 import (
-	"gost/api/framework/devapi"
+	"gost/api/dev/devapi"
 	"net/http"
 )
 
