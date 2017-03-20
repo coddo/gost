@@ -4,9 +4,6 @@ import (
 	"gost/api"
 	"gost/api/app/transactionapi"
 	"gost/auth/identity"
-	"gost/filter"
-	"gost/orm/models"
-	"gost/util/jsonutil"
 	"net/http"
 )
 
@@ -27,36 +24,14 @@ func CreateAPIRoutes() {
 			Method:         http.MethodGet,
 			AllowAnonymous: false,
 			Roles:          []string{identity.UserRoleNormal},
-			Action:         getTransaction,
+			Action:         transactionapi.RouteGetTransaction,
 		},
 		&Route{
 			Path:           "/transactions",
 			Method:         http.MethodPost,
 			AllowAnonymous: false,
 			Roles:          []string{identity.UserRoleNormal},
-			Action:         createTransaction,
+			Action:         transactionapi.RouteCreateTransaction,
 		},
 	)
-}
-
-func getTransaction(request *api.Request) api.Response {
-	transactionID, found, err := filter.GetIDParameter("transactionId", request.Form)
-	if err != nil {
-		return api.BadRequest(err)
-	}
-	if !found {
-		return api.NotFound(err)
-	}
-
-	return transactionapi.GetTransaction(transactionID)
-}
-
-func createTransaction(request *api.Request) api.Response {
-	transaction := &models.Transaction{}
-	err := jsonutil.DeserializeJSON(request.Body, transaction)
-	if err != nil {
-		return api.BadRequest(api.ErrEntityFormat)
-	}
-
-	return transactionapi.CreateTransaction(transaction)
 }

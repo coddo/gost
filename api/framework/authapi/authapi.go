@@ -8,13 +8,10 @@ import (
 	"net/http"
 )
 
-// AuthAPI defines the API endpoint for user authorization
-type AuthAPI int
-
 var errPasswordsDoNotMatch = errors.New("The password and its confirmation do not match")
 
 // ActivateAccount activates an account using the activation token sent through email
-func (a *AuthAPI) ActivateAccount(params *api.Request) api.Response {
+func ActivateAccount(params *api.Request) api.Response {
 	var model = ActivateAccountModel{}
 
 	var err = jsonutil.DeserializeJSON(params.Body, &model)
@@ -31,7 +28,7 @@ func (a *AuthAPI) ActivateAccount(params *api.Request) api.Response {
 }
 
 // ResendAccountActivationEmail resends the email with the details for activating their user account
-func (a *AuthAPI) ResendAccountActivationEmail(params *api.Request) api.Response {
+func ResendAccountActivationEmail(params *api.Request) api.Response {
 	var model = ResendActivationEmailModel{}
 
 	var err = jsonutil.DeserializeJSON(params.Body, &model)
@@ -48,7 +45,7 @@ func (a *AuthAPI) ResendAccountActivationEmail(params *api.Request) api.Response
 }
 
 // RequestResetPassword sends an email with a special token that will be used for resetting the password
-func (a *AuthAPI) RequestResetPassword(params *api.Request) api.Response {
+func RequestResetPassword(params *api.Request) api.Response {
 	var model = RequestResetPasswordModel{}
 
 	var err = jsonutil.DeserializeJSON(params.Body, &model)
@@ -65,7 +62,7 @@ func (a *AuthAPI) RequestResetPassword(params *api.Request) api.Response {
 }
 
 // ResetPassword resets an user account's password
-func (a *AuthAPI) ResetPassword(params *api.Request) api.Response {
+func ResetPassword(params *api.Request) api.Response {
 	var model = ResetPasswordModel{}
 
 	var err = jsonutil.DeserializeJSON(params.Body, &model)
@@ -90,7 +87,7 @@ func (a *AuthAPI) ResetPassword(params *api.Request) api.Response {
 }
 
 // ChangePassword changes an user account's password
-func (a *AuthAPI) ChangePassword(params *api.Request) api.Response {
+func ChangePassword(params *api.Request) api.Response {
 	var model = ChangePasswordModel{}
 
 	var err = jsonutil.DeserializeJSON(params.Body, &model)

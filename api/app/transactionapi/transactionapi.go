@@ -4,14 +4,14 @@ import (
 	"gost/api"
 	"gost/filter/apifilter"
 	"gost/orm/models"
+	"gost/orm/service/transactionservice"
 	"net/http"
-	"testapp/service/transactionservice"
 
 	"gopkg.in/mgo.v2/bson"
 )
 
-// GetTransaction endpoint retrieves a certain transaction based on its Id
-func GetTransaction(transactionID bson.ObjectId) api.Response {
+// getTransaction endpoint retrieves a certain transaction based on its Id
+func getTransaction(transactionID bson.ObjectId) api.Response {
 	dbTransaction, err := transactionservice.GetTransaction(transactionID)
 	if err != nil || dbTransaction == nil {
 		return api.NotFound(api.ErrEntityNotFound)
@@ -23,8 +23,8 @@ func GetTransaction(transactionID bson.ObjectId) api.Response {
 	return api.JSONResponse(http.StatusOK, transaction)
 }
 
-// CreateTransaction endpoint creates a new transaction with the valid transfer tokens and data
-func CreateTransaction(transaction *models.Transaction) api.Response {
+// createTransaction endpoint creates a new transaction with the valid transfer tokens and data
+func createTransaction(transaction *models.Transaction) api.Response {
 	if !apifilter.CheckTransactionIntegrity(transaction) {
 		return api.BadRequest(api.ErrEntityIntegrity)
 	}
