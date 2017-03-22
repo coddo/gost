@@ -4,12 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"gost/auth/identity"
+	"gost/config"
 	"gost/email"
 	"gost/util"
 	"gost/util/dateutil"
 	"gost/util/hashutil"
 	"log"
-	"strings"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
@@ -29,7 +29,7 @@ var (
 
 // CreateAppUser creates a new ApplicationUser with the given data, generates an activation token
 // and sends an email containing a link used for activating the account
-func CreateAppUser(emailAddress, password string, roles []string, activationServiceLink string) (*identity.ApplicationUser, error) {
+func CreateAppUser(emailAddress, password string, roles []string) (*identity.ApplicationUser, error) {
 	var token, err = util.GenerateUUID()
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func CreateAppUser(emailAddress, password string, roles []string, activationServ
 		return nil, err
 	}
 
-	var accountActivationLink = createLinkWithToken(activationServiceLink, token)
+	var accountActivationLink = createLinkWithToken(config.AccountActivationEndpoint, token)
 
 	go sendAccountActivationEmail(emailAddress, accountActivationLink)
 
@@ -111,7 +111,7 @@ func ChangePassword(userEmail, oldPassword, password string) error {
 }
 
 // RequestResetPassword generates a reset token and sends an email with the link where to perform the change
-func RequestResetPassword(emailAddress, passwordResetServiceLink string) (string, error) {
+func RequestResetPassword(emailAddress string) (string, error) {
 	var user, err = identity.GetUserByEmail(emailAddress)
 	if err != nil {
 		return "", err
@@ -130,14 +130,14 @@ func RequestResetPassword(emailAddress, passwordResetServiceLink string) (string
 		return "", err
 	}
 
-	var passwordResetLink = createLinkWithToken(passwordResetServiceLink, token)
+	var passwordResetLink = createLinkWithToken(config.PasswordResetEndpoint, token)
 	go sendPasswordResetEmail(emailAddress, passwordResetLink)
 
 	return passwordResetLink, nil
 }
 
 // ResendAccountActivationEmail resends the email with the details for activating their user account
-func ResendAccountActivationEmail(emailAddress, activationServiceLink string) (string, error) {
+func ResendAccountActivationEmail(emailAddress string) (string, error) {
 	var user, err = identity.GetUserByEmail(emailAddress)
 	if err != nil {
 		return "", err
@@ -156,7 +156,7 @@ func ResendAccountActivationEmail(emailAddress, activationServiceLink string) (s
 		return "", err
 	}
 
-	var accountActivationLink = createLinkWithToken(activationServiceLink, token)
+	var accountActivationLink = createLinkWithToken(config.AccountActivationEndpoint, token)
 
 	go sendAccountActivationEmail(emailAddress, accountActivationLink)
 
@@ -191,5 +191,5 @@ func changeUserPassword(user *identity.ApplicationUser, password string) error {
 }
 
 func createLinkWithToken(url, token string) string {
-	return fmt.Sprintf("%s/%s", strings.TrimRight(url, "/"), token)
+	return fmt.Sprintf("%s%s", url, token)
 }

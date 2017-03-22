@@ -1,10 +1,8 @@
 package devapi
 
 import (
-	"fmt"
 	"gost/api"
 	"gost/auth"
-	"gost/config"
 	"net/http"
 )
 
@@ -17,9 +15,7 @@ type AppUserModel struct {
 
 // createAppUser is an endpoint used for creating application users
 func createAppUser(model *AppUserModel) api.Response {
-	var activationServiceLink = fmt.Sprintf("%s://%s%s%s", config.ServerType, config.HTTPServerAddress, config.APIInstance, "dev/ActivateAppUser?token=%s")
-
-	user, err := auth.CreateAppUser(model.Email, model.Password, model.Roles, activationServiceLink)
+	user, err := auth.CreateAppUser(model.Email, model.Password, model.Roles)
 	if err != nil {
 		return api.InternalServerError(err)
 	}
