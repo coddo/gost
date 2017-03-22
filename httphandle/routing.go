@@ -11,13 +11,16 @@ import (
 	"github.com/go-zoo/bone"
 )
 
+// Router is the type that all the api endpoints' entry points should have
+type Router func(request *api.Request) api.Response
+
 // Route represents an endpoint from the API
 type Route struct {
 	Path           string
 	Method         string
 	AllowAnonymous bool
 	Roles          []string
-	Action         func(request *api.Request) api.Response
+	Action         Router
 }
 
 // Routes represents the slice of routes that are active on the server
@@ -39,7 +42,7 @@ func InitRoutes(mux *bone.Mux) {
 }
 
 // RegisterRoute registers a new route in the system. The url query will be stripped from the path, as it is used only for readability
-func RegisterRoute(path, method string, allowAnonymous bool, roles []string, routeAction func(*api.Request) api.Response) {
+func RegisterRoute(path, method string, allowAnonymous bool, roles []string, routeAction Router) {
 	if roles == nil {
 		roles = make([]string, 0)
 	}
@@ -56,7 +59,7 @@ func RegisterRoute(path, method string, allowAnonymous bool, roles []string, rou
 }
 
 // RequestHandler represents the main func that is called on a request once an URL match succeeds
-func RequestHandler(rw http.ResponseWriter, req *http.Request, method string, allowAnonymous bool, roles []string, action func(*api.Request) api.Response) {
+func RequestHandler(rw http.ResponseWriter, req *http.Request, method string, allowAnonymous bool, roles []string, action Router) {
 	// Check http method
 	if method != req.Method {
 		sendMessageResponse(http.StatusNotFound, api.StatusText(http.StatusNotFound), rw, req)

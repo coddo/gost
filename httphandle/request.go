@@ -1,10 +1,10 @@
 package httphandle
 
 import (
+	"errors"
 	"gost/api"
 	"gost/auth/cookies"
 	"gost/auth/identity"
-	"gost/filter"
 	"io/ioutil"
 	"net/http"
 
@@ -12,8 +12,16 @@ import (
 	"xojoc.pw/useragent"
 )
 
+var (
+	// ErrNoContent shows that the underlying HTTP request doesn't contain any data/content
+	ErrNoContent = errors.New("No content has been received")
+
+	// ErrInvalidFormFormat shows that the underlying HTTP request has its data or form in a incorrect or unparsable format
+	ErrInvalidFormFormat = errors.New("The request form has an invalid format")
+)
+
 func generateRequest(req *http.Request, rw http.ResponseWriter, userIdentity *identity.Identity) *api.Request {
-	statusCode, err := filter.ParseRequestContent(req)
+	statusCode, err := parseRequestContent(req)
 	if err != nil {
 		sendMessageResponse(statusCode, err.Error(), rw, req)
 		return nil
@@ -57,6 +65,24 @@ func parseClientDetails(req *http.Request) *cookies.Client {
 	}
 
 	return &client
+}
+
+// parseRequestContent performs validity checks on a request based on the HTTP method used.
+// Checks are made for data content if the methods are POST or PUT, and if the url form can be correctly parsed
+func parseRequestContent(request *http.Request) (int, error) {
+	if request.ContentLength == 0 {
+		if request.Method == "POST" || request.Method == "PUT" {
+			return http.StatusBadRequest, ErrNoContent
+		}
+	}
+
+	err := request.ParseForm()
+
+	if err != nil {
+		return http.StatusBadRequest, ErrInvalidFormFormat
+	}
+
+	return -1, nil
 }
 
 func respond(resp *api.Response, rw http.ResponseWriter, req *http.Request) {

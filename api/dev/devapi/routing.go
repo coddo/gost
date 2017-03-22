@@ -7,7 +7,7 @@ import (
 
 // RouteActivateAppUser performs data parsing and binding before calling the API
 func RouteActivateAppUser(request *api.Request) api.Response {
-	var token = api.GetStringParameter("token", request.Form)
+	var token = request.GetStringParameter("token")
 	if len(token) == 0 {
 		return api.BadRequest(api.ErrInvalidInput)
 	}
@@ -18,6 +18,7 @@ func RouteActivateAppUser(request *api.Request) api.Response {
 // RouteCreateAppUser performs data parsing and binding before calling the API
 func RouteCreateAppUser(request *api.Request) api.Response {
 	model := &AppUserModel{}
+
 	err := jsonutil.DeserializeJSON(request.Body, model)
 	if err != nil {
 		return api.BadRequest(api.ErrEntityFormat)

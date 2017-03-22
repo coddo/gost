@@ -8,7 +8,7 @@ import (
 
 // RouteGetTransaction performs data parsing and binding before calling the API
 func RouteGetTransaction(request *api.Request) api.Response {
-	transactionID, err := api.GetIDRouteValue("transactionId", request.RouteValues)
+	transactionID, err := request.GetIDRouteValue("transactionId")
 
 	if err != nil {
 		return api.BadRequest(err)

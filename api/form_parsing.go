@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"net/url"
 	"strconv"
 
 	"fmt"
@@ -11,8 +10,8 @@ import (
 )
 
 // GetIntParameter extracts an integer value from url paramters, based on its name
-func GetIntParameter(paramName string, reqForm url.Values) (int, error) {
-	value := reqForm.Get(paramName)
+func (req *Request) GetIntParameter(paramName string) (int, error) {
+	value := req.Form.Get(paramName)
 
 	if intVal, err := strconv.Atoi(value); err == nil {
 		return intVal, nil
@@ -22,13 +21,13 @@ func GetIntParameter(paramName string, reqForm url.Values) (int, error) {
 }
 
 // GetStringParameter extracts a string value from url paramters, based on its name
-func GetStringParameter(paramName string, reqForm url.Values) string {
-	return reqForm.Get(paramName)
+func (req *Request) GetStringParameter(paramName string) string {
+	return req.Form.Get(paramName)
 }
 
 // GetIDParameter extracts a bson.ObjectID value from url paramters, based on its name
-func GetIDParameter(paramName string, reqForm url.Values) (bson.ObjectId, error) {
-	id := reqForm.Get(paramName)
+func (req *Request) GetIDParameter(paramName string) (bson.ObjectId, error) {
+	id := req.Form.Get(paramName)
 
 	if !bson.IsObjectIdHex(id) {
 		return "", errors.New("The id parameter is not a valid bson.ObjectId")
@@ -38,8 +37,8 @@ func GetIDParameter(paramName string, reqForm url.Values) (bson.ObjectId, error)
 }
 
 // GetIntRouteValue extracts an integer value from the url route, based on its name
-func GetIntRouteValue(valueName string, routeValues map[string]string) (int, error) {
-	if value, found := routeValues[valueName]; found {
+func (req *Request) GetIntRouteValue(valueName string) (int, error) {
+	if value, found := req.RouteValues[valueName]; found {
 		if intVal, err := strconv.Atoi(value); err == nil {
 			return intVal, nil
 		}
@@ -49,8 +48,8 @@ func GetIntRouteValue(valueName string, routeValues map[string]string) (int, err
 }
 
 // GetStringRouteValue extracts a string value from the url route, based on its name
-func GetStringRouteValue(valueName string, routeValues map[string]string) string {
-	if value, found := routeValues[valueName]; found {
+func (req *Request) GetStringRouteValue(valueName string) string {
+	if value, found := req.RouteValues[valueName]; found {
 		return value
 	}
 
@@ -58,8 +57,8 @@ func GetStringRouteValue(valueName string, routeValues map[string]string) string
 }
 
 // GetIDRouteValue extracts a bson.ObjectID value from the url route, based on its name
-func GetIDRouteValue(valueName string, routeValues map[string]string) (bson.ObjectId, error) {
-	if value, found := routeValues[valueName]; found {
+func (req *Request) GetIDRouteValue(valueName string) (bson.ObjectId, error) {
+	if value, found := req.RouteValues[valueName]; found {
 		if bson.IsObjectIdHex(value) {
 			return bson.ObjectIdHex(value), nil
 		}
