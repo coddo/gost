@@ -2,7 +2,6 @@ package transactionapi
 
 import (
 	"gost/api"
-	"gost/filter/apifilter"
 	"gost/orm/models"
 	"gost/orm/service/transactionservice"
 	"net/http"
@@ -25,18 +24,14 @@ func getTransaction(transactionID bson.ObjectId) api.Response {
 
 // createTransaction endpoint creates a new transaction with the valid transfer tokens and data
 func createTransaction(transaction *models.Transaction) api.Response {
-	if !apifilter.CheckTransactionIntegrity(transaction) {
-		return api.BadRequest(api.ErrEntityIntegrity)
-	}
-
-	dbTransaction := transaction.Collapse()
+	var dbTransaction = transaction.Collapse()
 	if dbTransaction == nil {
 		return api.InternalServerError(api.ErrEntityProcessing)
 	}
 
 	err := transactionservice.CreateTransaction(dbTransaction)
 	if err != nil {
-		return api.InternalServerError(api.ErrEntityProcessing)
+		return api.InternalServerError(err)
 	}
 	transaction.ID = dbTransaction.ID
 

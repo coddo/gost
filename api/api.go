@@ -1,7 +1,6 @@
 package api
 
 import (
-	"errors"
 	"gost/auth/cookies"
 	"gost/auth/identity"
 	"net/http"
@@ -26,17 +25,6 @@ const (
 	ContentHTML = "text/html"
 	// ContentJSON represents a HTTP transfer with JSON data
 	ContentJSON = "application/json"
-)
-
-// Common errors returned by the API
-var (
-	ErrEntityFormat        = errors.New("The entity was not in the correct format")
-	ErrEntityIntegrity     = errors.New("The entity doesn't comply to the integrity requirements")
-	ErrEntityProcessing    = errors.New("The entity could not be processed")
-	ErrEntityNotFound      = errors.New("No entity with the specified data was found")
-	ErrIDParamNotSpecified = errors.New("No id was specified for the entity to be updated")
-	ErrInvalidIDParam      = errors.New("The id parameter is not a valid bson.ObjectId")
-	ErrInvalidInput        = errors.New("The needed url paramters were inexistent or invalid")
 )
 
 // A Request contains the important and processable data from a HTTP request

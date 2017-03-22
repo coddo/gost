@@ -30,5 +30,5 @@ func activateAppUser(token string) api.Response {
 		return api.BadRequest(err)
 	}
 
-	return api.PlainTextResponse(http.StatusOK, "Account is now active")
+	return api.PlainTextResponse(http.StatusCreated, "Account is now active")
 }

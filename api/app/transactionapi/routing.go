@@ -26,7 +26,7 @@ func RouteCreateTransaction(request *api.Request) api.Response {
 
 	err := jsonutil.DeserializeJSON(request.Body, transaction)
 	if err != nil {
-		return api.BadRequest(api.ErrEntityFormat)
+		return api.BadRequest(err)
 	}
 
 	return createTransaction(transaction)

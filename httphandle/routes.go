@@ -28,9 +28,9 @@ func CreateFrameworkRoutes() {
 	RegisterRoute("/session/{token}", http.MethodDelete, false, nil, sessionapi.RouteKillSession)
 
 	// append the authentication api routes
-	RegisterRoute("/auth/activate/{token}", http.MethodPatch, false, nil, authapi.RouteActivateAccount)
-	RegisterRoute("/auth/activate/resendEmail/{email}", http.MethodGet, false, nil, authapi.RouteResendAccountActivationEmail)
-	RegisterRoute("/auth/password/reset/{email}", http.MethodGet, false, nil, sessionapi.RouteRequestResetPassword)
+	RegisterRoute("/auth/activate", http.MethodPatch, false, nil, authapi.RouteActivateAccount)
+	RegisterRoute("/auth/activate/{email}/resendEmail", http.MethodGet, false, nil, authapi.RouteResendAccountActivationEmail)
+	RegisterRoute("/auth/password/{email}/reset", http.MethodGet, false, nil, sessionapi.RouteRequestResetPassword)
 	RegisterRoute("/auth/password/reset", http.MethodPatch, false, nil, sessionapi.RouteResetPassword)
 	RegisterRoute("/auth/password/change", http.MethodPatch, false, nil, sessionapi.RouteChangePassword)
 }
