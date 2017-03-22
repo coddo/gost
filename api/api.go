@@ -43,6 +43,7 @@ var (
 type Request struct {
 	Header        http.Header
 	Form          url.Values
+	RouteValues   map[string]string
 	ContentLength int64
 	Body          []byte
 	Identity      *identity.Identity

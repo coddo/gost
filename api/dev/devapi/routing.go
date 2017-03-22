@@ -7,8 +7,8 @@ import (
 
 // RouteActivateAppUser performs data parsing and binding before calling the API
 func RouteActivateAppUser(request *api.Request) api.Response {
-	var token, found = api.GetStringParameter("token", request.Form)
-	if !found {
+	var token = api.GetStringParameter("token", request.Form)
+	if len(token) == 0 {
 		return api.BadRequest(api.ErrInvalidInput)
 	}
 

@@ -5,11 +5,16 @@ import (
 )
 
 // RouteGet performs data parsing and binding before calling the API
-func RouteGet(params *api.Request) api.Response {
-	return get(params.Identity)
+func RouteGet(request *api.Request) api.Response {
+	return get(request.Identity)
+}
+
+// RouteGetAdmin performs data parsing and binding before calling the API
+func RouteGetAdmin(request *api.Request) api.Response {
+	return getAdmin(request.Identity)
 }
 
 // RouteGetAnonymous performs data parsing and binding before calling the API
-func RouteGetAnonymous(params *api.Request) api.Response {
-	return getAnonymous(params.Identity)
+func RouteGetAnonymous(request *api.Request) api.Response {
+	return getAnonymous(request.Identity)
 }

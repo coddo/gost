@@ -6,6 +6,8 @@ import (
 
 	"fmt"
 
+	"strings"
+
 	"github.com/go-zoo/bone"
 )
 
@@ -19,11 +21,11 @@ type Route struct {
 }
 
 // Routes represents the slice of routes that are active on the server
-var Routes = make([]*Route, 0)
+var routes = make([]*Route, 0)
 
 // InitRoutes initializes the application API routes and actions
 func InitRoutes(mux *bone.Mux) {
-	for _, route := range Routes {
+	for _, route := range routes {
 		if route.Roles == nil {
 			route.Roles = make([]string, 0)
 		}
@@ -34,6 +36,23 @@ func InitRoutes(mux *bone.Mux) {
 			RequestHandler(rw, req, route.Method, route.AllowAnonymous, route.Roles, route.Action)
 		})
 	}
+}
+
+// RegisterRoute registers a new route in the system. The url query will be stripped from the path, as it is used only for readability
+func RegisterRoute(path, method string, allowAnonymous bool, roles []string, routeAction func(*api.Request) api.Response) {
+	if roles == nil {
+		roles = make([]string, 0)
+	}
+
+	path = strings.Split(path, "?")[0]
+
+	routes = append(routes, &Route{
+		Path:           path,
+		Method:         method,
+		AllowAnonymous: allowAnonymous,
+		Roles:          roles,
+		Action:         routeAction,
+	})
 }
 
 // RequestHandler represents the main func that is called on a request once an URL match succeeds

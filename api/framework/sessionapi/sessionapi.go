@@ -1,4 +1,4 @@
-package authapi
+package sessionapi
 
 import (
 	"errors"

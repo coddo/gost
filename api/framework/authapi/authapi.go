@@ -36,12 +36,12 @@ func ResendAccountActivationEmail(params *api.Request) api.Response {
 		return api.BadRequest(api.ErrEntityFormat)
 	}
 
-	err = auth.ResendAccountActivationEmail(model.Email, model.ActivateAccountServiceLink)
+	activationLink, err := auth.ResendAccountActivationEmail(model.Email, model.ActivateAccountServiceLink)
 	if err != nil {
 		return api.InternalServerError(err)
 	}
 
-	return api.StatusResponse(http.StatusOK)
+	return api.PlainTextResponse(http.StatusOK, activationLink)
 }
 
 // RequestResetPassword sends an email with a special token that will be used for resetting the password

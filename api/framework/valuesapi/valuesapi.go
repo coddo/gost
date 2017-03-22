@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// Get performs a HTTP GET as an authorized user
+// get performs a HTTP GET as an authorized user
 func get(reqIdentity *identity.Identity) api.Response {
 	var message bytes.Buffer
 
@@ -18,7 +18,17 @@ func get(reqIdentity *identity.Identity) api.Response {
 	return api.PlainTextResponse(http.StatusOK, message.String())
 }
 
-// GetAnonymous performs a HTTP GET as an anonymous user
+// getAdmin performs a HTTP GET allowed only for admin users
+func getAdmin(reqIdentity *identity.Identity) api.Response {
+	var message bytes.Buffer
+
+	message.WriteString("You are currently authorized as an administrator.\nYour roles are: ")
+	message.WriteString(strings.Join(reqIdentity.User.Roles, ", "))
+
+	return api.PlainTextResponse(http.StatusOK, message.String())
+}
+
+// getAnonymous performs a HTTP GET as an anonymous user
 func getAnonymous(reqIdentity *identity.Identity) api.Response {
 	var message bytes.Buffer
 	status := http.StatusOK

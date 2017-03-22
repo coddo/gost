@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/go-zoo/bone"
 	"xojoc.pw/useragent"
 )
 
@@ -29,6 +30,7 @@ func generateRequest(req *http.Request, rw http.ResponseWriter, userIdentity *id
 	request := &api.Request{
 		Header:        req.Header,
 		Form:          req.Form,
+		RouteValues:   bone.GetAllValues(req),
 		ContentLength: req.ContentLength,
 		Body:          body,
 		Identity:      userIdentity,
