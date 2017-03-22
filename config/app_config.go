@@ -64,4 +64,6 @@ func InitApp(appConfigPath string) {
 	APIInstance = configData.APIInstance
 	HTTPServerAddress = configData.HTTPServerAddress
 	ServerType = configData.ServerType
+	AccountActivationEndpoint = configData.AccountActivationEndpoint
+	PasswordResetEndpoint = configData.PasswordResetEndpoint
 }
