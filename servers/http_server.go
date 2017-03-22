@@ -2,10 +2,11 @@ package servers
 
 import (
 	"gost/config"
-	"gost/httphandle"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/go-zoo/bone"
 )
 
 const (
@@ -13,15 +14,17 @@ const (
 	httpsKeyFile  = "gost.key"
 )
 
+// Multiplexer represents the route handler used by the http server
+var Multiplexer = bone.New()
+
 // StartHTTPServer starts a HTTP server that listens for requests
 func StartHTTPServer() {
-	http.HandleFunc(config.APIInstance, httphandle.RequestHandler)
-
 	server := &http.Server{
-		Addr:           config.HTTPServerAddress,
+		Addr:           config.HTTPServerAddress + config.APIInstance,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
+		Handler:        Multiplexer,
 	}
 
 	log.Println("HTTP Server STARTED! Listening at:", config.HTTPServerAddress+config.APIInstance)
@@ -30,13 +33,12 @@ func StartHTTPServer() {
 
 // StartHTTPSServer starts a HTTPS server that listens for requests
 func StartHTTPSServer() {
-	http.HandleFunc(config.APIInstance, httphandle.RequestHandler)
-
 	server := &http.Server{
-		Addr:           config.HTTPServerAddress,
+		Addr:           config.HTTPServerAddress + config.APIInstance,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
+		Handler:        Multiplexer,
 	}
 
 	log.Println("HTTPS Server STARTED! Listening at:", config.HTTPServerAddress+config.APIInstance)

@@ -7,12 +7,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// Constants describing the type of account the the users have
-const (
-	AccountTypeNormalUser    = iota
-	AccountTypeAdministrator = iota
-)
-
 // Constants describing the status of the current user account
 const (
 	AccountStatusDeactivated = iota
@@ -27,7 +21,7 @@ type ApplicationUser struct {
 
 	Email                          string    `bson:"email,omitempty" json:"email"`
 	Password                       string    `bson:"password,omitempty" json:"password"`
-	AccountType                    int       `bson:"accountType,omitempty" json:"accountType"`
+	Roles                          []string  `bson:"roles,omitempty" json:"roles"`
 	ResetPasswordToken             string    `bson:"resetPasswordToken,omitempty" json:"resetPasswordToken"`
 	ResetPasswordTokenExpireDate   time.Time `bson:"resetPasswordTokenExpireDate,omitempty" json:"resetPasswordTokenExpireDate"`
 	ActivateAccountToken           string    `bson:"activateAccountToken" json:"activateAccountToken"`
@@ -123,8 +117,11 @@ func IsUserExistent(userID bson.ObjectId) (*ApplicationUser, bool) {
 }
 
 // IsUserActivated verifies if an user account is activated
-func IsUserActivated(userID bson.ObjectId) bool {
-	var user, err = GetUser(userID)
+func IsUserActivated(userID bson.ObjectId) (*ApplicationUser, bool) {
+	user, exists := IsUserExistent(userID)
+	if !exists || user == nil {
+		return nil, false
+	}
 
-	return err == nil && user.AccountStatus == AccountStatusActivated
+	return user, user.AccountStatus == AccountStatusActivated
 }

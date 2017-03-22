@@ -25,12 +25,11 @@ var (
 // Session is a struct representing the session that a user has.
 // Sessions are active since login until they expire or the user disconnects
 type Session struct {
-	ID          bson.ObjectId `bson:"_id" json:"-"`
-	UserID      bson.ObjectId `bson:"userID,omitempty" json:"userID"`
-	Token       string        `bson:"token,omitempty" json:"token"`
-	AccountType int           `bson:"accountType,omitempty" json:"accountType"`
-	ExpireTime  time.Time     `bson:"expireTime,omitempty" json:"-"`
-	Client      *Client       `bson:"client,omitempty" json:"client"`
+	ID         bson.ObjectId `bson:"_id" json:"-"`
+	UserID     bson.ObjectId `bson:"userID,omitempty" json:"userID"`
+	Token      string        `bson:"token,omitempty" json:"token"`
+	ExpireTime time.Time     `bson:"expireTime,omitempty" json:"-"`
+	Client     *Client       `bson:"client,omitempty" json:"client"`
 }
 
 // Save saves the session in the cookie store
@@ -48,11 +47,6 @@ func (session *Session) IsExpired() bool {
 	return dateutil.IsDateExpiredFromNow(session.ExpireTime)
 }
 
-// IsUserInRole verifies if the user with the current session has a specific role
-func (session *Session) IsUserInRole(role int) bool {
-	return session.AccountType == role
-}
-
 // ResetToken generates a new token and resets the expire time target of the session
 // This also triggers a Save() action, to update the cookie store
 func (session *Session) ResetToken() error {
@@ -63,19 +57,18 @@ func (session *Session) ResetToken() error {
 
 // NewSession generates a new Session pointer that contains the given userID and
 // a unique token used as an identifier
-func NewSession(userID bson.ObjectId, accountType int, clientDetails *Client) (*Session, error) {
+func NewSession(userID bson.ObjectId, clientDetails *Client) (*Session, error) {
 	token, err := util.GenerateUUID()
 	if err != nil {
 		return nil, err
 	}
 
 	session := &Session{
-		ID:          bson.NewObjectId(),
-		UserID:      userID,
-		AccountType: accountType,
-		Token:       token,
-		ExpireTime:  dateutil.NextDateFromNow(tokenExpireTime),
-		Client:      clientDetails,
+		ID:         bson.NewObjectId(),
+		UserID:     userID,
+		Token:      token,
+		ExpireTime: dateutil.NextDateFromNow(tokenExpireTime),
+		Client:     clientDetails,
 	}
 
 	return session, nil

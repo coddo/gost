@@ -2,12 +2,11 @@ package config
 
 import (
 	"gost/config"
+	"gost/httphandle"
+	"gost/servers"
 	"log"
 	"os"
 )
-
-// All the api files are 3 levels deep into the folder hierarchy (ex: ./api/app/someapi/someapi.go), hence the ../../../ prefix
-const routesFilePath = "../../../tests/config/test_routes.json"
 
 const (
 	envApplicationName    = "GOST_TESTAPP_NAME"
@@ -39,5 +38,8 @@ func InitTestsDatabase() {
 
 // InitTestsRoutes initializez the routes used for testing the endpoints
 func InitTestsRoutes() {
-	config.InitRoutes(routesFilePath)
+	httphandle.CreateFrameworkRoutes()
+	httphandle.CreateDevelopmentRoutes()
+	httphandle.CreateAPIRoutes()
+	httphandle.InitRoutes(servers.Multiplexer)
 }

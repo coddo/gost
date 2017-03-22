@@ -3,6 +3,7 @@ package email
 import (
 	"bytes"
 	"fmt"
+	"gost/util"
 	"net/mail"
 	"net/smtp"
 )
@@ -54,6 +55,10 @@ func (email *Email) Send() error {
 
 // SetRecipient sets the receiver of the email
 func (email *Email) SetRecipient(address string) {
+	if !util.IsValidEmail(address) {
+		return
+	}
+
 	var recipient = mail.Address{
 		Address: address,
 	}

@@ -1,14 +1,13 @@
 package httphandle
 
 import (
-	"bytes"
 	"gost/api"
 	"gost/filter"
 	"log"
 	"net/http"
 )
 
-func sendResponse(statusCode int, message []byte, rw http.ResponseWriter, req *http.Request, endpoint, endpointAction, contentType, filePath string) {
+func sendResponse(statusCode int, message []byte, rw http.ResponseWriter, req *http.Request, contentType, filePath string) {
 	// Handle redirect
 	if statusCode == http.StatusTemporaryRedirect {
 		http.Redirect(rw, req, string(message), statusCode)
@@ -28,33 +27,28 @@ func sendResponse(statusCode int, message []byte, rw http.ResponseWriter, req *h
 	}
 
 	// Log event
-	go logRequest(statusCode, message, req.Method, endpoint, endpointAction)
+	go logRequest(statusCode, message, req)
 }
 
-func sendMessageResponse(statusCode int, message string, rw http.ResponseWriter, req *http.Request, endpoint, endpointAction string) {
+func sendMessageResponse(statusCode int, message string, rw http.ResponseWriter, req *http.Request) {
 	msg := []byte(message)
 
-	sendResponse(statusCode, msg, rw, req, endpoint, endpointAction, api.ContentTextPlain, "")
+	sendResponse(statusCode, msg, rw, req, api.ContentTextPlain, "")
 }
 
-func sendStatusResponse(statusCode int, rw http.ResponseWriter, req *http.Request, endpoint, endpointAction string) string {
+func sendStatusResponse(statusCode int, rw http.ResponseWriter, req *http.Request) string {
 	message := api.StatusText(statusCode)
 
-	sendMessageResponse(statusCode, message, rw, req, endpoint, endpointAction)
+	sendMessageResponse(statusCode, message, rw, req)
 
 	return message
 }
 
-func logRequest(statusCode int, message []byte, httpMethod, endpoint, endpointAction string) {
-	var requestPath bytes.Buffer
-	requestPath.WriteString(endpoint)
-	requestPath.WriteRune('/')
-	requestPath.WriteString(endpointAction)
-
+func logRequest(statusCode int, message []byte, req *http.Request) {
 	if statusCode >= 400 {
-		log.Println(httpMethod, requestPath.String(), statusCode, string(message))
+		log.Println(req.Method, req.RequestURI, statusCode, string(message))
 	} else {
-		log.Println(httpMethod, requestPath.String(), statusCode)
+		log.Println(req.Method, req.RequestURI, statusCode)
 	}
 }
 

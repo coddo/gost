@@ -22,15 +22,23 @@ var (
 
 	// ServerType represents the type of the server: http or https
 	ServerType string
+
+	// AccountActivationEndpoint is the link where the account activation takes place (i.e. http://example.com?token=)
+	AccountActivationEndpoint string
+
+	// PasswordResetEndpoint is the link where the password reset action takes place (i.e. http://example.com?token=)
+	PasswordResetEndpoint string
 )
 
 // Struct with the sole purpose of easier serialization
 // and deserialization of configuration data
 type appConfigHolder struct {
-	ApplicationName   string `json:"applicationName"`
-	APIInstance       string `json:"apiInstance"`
-	HTTPServerAddress string `json:"httpServerAddress"`
-	ServerType        string `json:"serverType"`
+	ApplicationName           string `json:"applicationName"`
+	APIInstance               string `json:"apiInstance"`
+	HTTPServerAddress         string `json:"httpServerAddress"`
+	ServerType                string `json:"serverType"`
+	AccountActivationEndpoint string `json:"accountActivationEndpoint"`
+	PasswordResetEndpoint     string `json:"passwordResetEndpoint"`
 }
 
 // InitApp initializes the application by reading the functional parameters
@@ -56,4 +64,6 @@ func InitApp(appConfigPath string) {
 	APIInstance = configData.APIInstance
 	HTTPServerAddress = configData.HTTPServerAddress
 	ServerType = configData.ServerType
+	AccountActivationEndpoint = configData.AccountActivationEndpoint
+	PasswordResetEndpoint = configData.PasswordResetEndpoint
 }

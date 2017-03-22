@@ -1,3 +1,8 @@
+// Package api contains the API functionality helpers
+//
+// Each package represents the API functionality of a
+// certain endpoint which may implement some of the
+// following functionalities: GET, POST, PUT or DELETE
 package api
 
 import (

@@ -1,9 +1,9 @@
-box: wercker/golang@1.4.0
+box: golang
 # Build definition
 
 # Mongodb service
 services:
-    - wercker/mongodb@1.0.1
+    - mongo
 
 build:
   # The steps that will be executed on build
@@ -13,20 +13,9 @@ build:
     - setup-go-workspace:
         package-dir: gost
 
-    # Set gost environment variables
-    - script:
-        name: set env
-        code: |
-            export MONGODB_URL="localhost"
-            export GOST_TESTAPP_DB_NAME="gost_test_app_db"
-            export GOST_TESTAPP_DB_CONN="$MONGODB_URL/$GOST_TESTAPP_DB_NAME"
-            export GOST_TESTAPP_NAME="gost_test_app"
-            export GOST_TESTAPP_INSTANCE="/gost-test/"
-            export GOST_TESTAPP_HTTP="localhost:7500"
-
     # Gets the dependencies
     - script:
-        name: go get
+        name: go get -v
         code: |
           cd $WERCKER_SOURCE_DIR
           go version
@@ -36,7 +25,7 @@ build:
     - script:
         name: go build
         code: |
-          go build ./...
+          go build -v ./...
 
     # Test the project. Also print the mongodb
     # connection environment variables

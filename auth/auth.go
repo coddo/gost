@@ -25,6 +25,7 @@ var (
 	ErrInvalidScheme           = errors.New("The used authorization scheme is invalid or not supported")
 	ErrInvalidGhostToken       = errors.New("The given token is expired or invalid")
 	ErrInvalidUser             = errors.New("There is no application user with the given ID")
+	ErrSessionExpired          = errors.New("The session was invalidated or has expired")
 	ErrDeactivatedUser         = errors.New("The current user account is deactivated or inexistent")
 	ErrInexistentClientDetails = errors.New("Missing client details. Cannot create authorization for anonymous client")
 	ErrPasswordMismatch        = errors.New("The entered password is incorrect")
@@ -45,7 +46,7 @@ func GenerateUserAuth(userID bson.ObjectId, password string, clientDetails *cook
 		return ErrPasswordMismatch.Error(), ErrPasswordMismatch
 	}
 
-	session, err := cookies.NewSession(userID, user.AccountType, clientDetails)
+	session, err := cookies.NewSession(userID, clientDetails)
 	if err != nil {
 		return err.Error(), err
 	}
@@ -87,18 +88,19 @@ func Authorize(httpHeader http.Header) (*identity.Identity, error) {
 		return nil, err
 	}
 
-	dbCookie, err := cookies.GetSession(cookie.Token)
-	if err != nil || dbCookie == nil {
+	session, err := cookies.GetSession(cookie.Token)
+	if err != nil || session == nil {
+		return nil, ErrSessionExpired
+	}
+
+	user, isUserActivated := identity.IsUserActivated(session.UserID)
+	if !isUserActivated {
 		return nil, ErrDeactivatedUser
 	}
 
-	if !identity.IsUserActivated(dbCookie.UserID) {
-		return nil, ErrDeactivatedUser
-	}
+	go session.ResetToken()
 
-	go dbCookie.ResetToken()
-
-	return identity.New(dbCookie), nil
+	return identity.New(session, user), nil
 }
 
 func generateGostToken(session *cookies.Session) (string, error) {
