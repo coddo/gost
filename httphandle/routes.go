@@ -30,9 +30,9 @@ func CreateFrameworkRoutes() {
 	// append the authentication api routes
 	RegisterRoute("/auth/activate", http.MethodPatch, false, nil, authapi.RouteActivateAccount)
 	RegisterRoute("/auth/activate/{email}/resendEmail", http.MethodGet, false, nil, authapi.RouteResendAccountActivationEmail)
-	RegisterRoute("/auth/password/{email}/reset", http.MethodGet, false, nil, sessionapi.RouteRequestResetPassword)
-	RegisterRoute("/auth/password/reset", http.MethodPatch, false, nil, sessionapi.RouteResetPassword)
-	RegisterRoute("/auth/password/change", http.MethodPatch, false, nil, sessionapi.RouteChangePassword)
+	RegisterRoute("/auth/password/{email}/reset", http.MethodGet, false, nil, authapi.RouteRequestResetPassword)
+	RegisterRoute("/auth/password/reset", http.MethodPatch, false, nil, authapi.RouteResetPassword)
+	RegisterRoute("/auth/password/change", http.MethodPatch, false, nil, authapi.RouteChangePassword)
 }
 
 // CreateDevelopmentRoutes generates the routes that are used only in development mode

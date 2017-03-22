@@ -6,14 +6,21 @@ import (
 	"gost/orm/service/transactionservice"
 	"net/http"
 
+	"errors"
+
 	"gopkg.in/mgo.v2/bson"
+)
+
+// Errors returned by the transactionapi
+var (
+	ErrTransactionNotFound = errors.New("There is no transaction with the specified ID")
 )
 
 // getTransaction endpoint retrieves a certain transaction based on its Id
 func getTransaction(transactionID bson.ObjectId) api.Response {
 	dbTransaction, err := transactionservice.GetTransaction(transactionID)
 	if err != nil || dbTransaction == nil {
-		return api.NotFound(api.ErrEntityNotFound)
+		return api.NotFound(ErrTransactionNotFound)
 	}
 
 	transaction := &models.Transaction{}
@@ -25,9 +32,6 @@ func getTransaction(transactionID bson.ObjectId) api.Response {
 // createTransaction endpoint creates a new transaction with the valid transfer tokens and data
 func createTransaction(transaction *models.Transaction) api.Response {
 	var dbTransaction = transaction.Collapse()
-	if dbTransaction == nil {
-		return api.InternalServerError(api.ErrEntityProcessing)
-	}
 
 	err := transactionservice.CreateTransaction(dbTransaction)
 	if err != nil {
