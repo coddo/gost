@@ -5,6 +5,8 @@ import (
 	"gost/auth/identity"
 	"net/http"
 	"net/url"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 const (
@@ -31,7 +33,7 @@ const (
 type Request struct {
 	Header        http.Header
 	Form          url.Values
-	RouteValues   map[string]string
+	RouteValues   httprouter.Params
 	ContentLength int64
 	Body          []byte
 	Identity      *identity.Identity

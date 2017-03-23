@@ -20,8 +20,11 @@ var (
 	// HTTPServerAddress represents the address at which the HTTP server is started and listening
 	HTTPServerAddress string
 
-	// ServerType represents the type of the server: http or https
-	ServerType string
+	// HTTPServerPort represents the port on which the HTTP server is started and listening
+	HTTPServerPort string
+
+	// Protocol represents the type of protocol used: http or https
+	Protocol string
 
 	// AccountActivationEndpoint is the link where the account activation takes place (i.e. http://example.com?token=)
 	AccountActivationEndpoint string
@@ -36,7 +39,8 @@ type appConfigHolder struct {
 	ApplicationName           string `json:"applicationName"`
 	APIInstance               string `json:"apiInstance"`
 	HTTPServerAddress         string `json:"httpServerAddress"`
-	ServerType                string `json:"serverType"`
+	HTTPServerPort            string `json:"httpServerPort"`
+	Protocol                  string `json:"protocol"`
 	AccountActivationEndpoint string `json:"accountActivationEndpoint"`
 	PasswordResetEndpoint     string `json:"passwordResetEndpoint"`
 }
@@ -63,7 +67,8 @@ func InitApp(appConfigPath string) {
 	ApplicationName = configData.ApplicationName
 	APIInstance = configData.APIInstance
 	HTTPServerAddress = configData.HTTPServerAddress
-	ServerType = configData.ServerType
+	HTTPServerPort = configData.HTTPServerPort
+	Protocol = configData.Protocol
 	AccountActivationEndpoint = configData.AccountActivationEndpoint
 	PasswordResetEndpoint = configData.PasswordResetEndpoint
 }

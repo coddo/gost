@@ -38,7 +38,7 @@ func (req *Request) GetIDParameter(paramName string) (bson.ObjectId, error) {
 
 // GetIntRouteValue extracts an integer value from the url route, based on its name
 func (req *Request) GetIntRouteValue(valueName string) (int, error) {
-	if value, found := req.RouteValues[valueName]; found {
+	if value := req.RouteValues.ByName(valueName); len(value) > 0 {
 		if intVal, err := strconv.Atoi(value); err == nil {
 			return intVal, nil
 		}
@@ -49,7 +49,7 @@ func (req *Request) GetIntRouteValue(valueName string) (int, error) {
 
 // GetStringRouteValue extracts a string value from the url route, based on its name
 func (req *Request) GetStringRouteValue(valueName string) string {
-	if value, found := req.RouteValues[valueName]; found {
+	if value := req.RouteValues.ByName(valueName); len(value) > 0 {
 		return value
 	}
 
@@ -58,7 +58,7 @@ func (req *Request) GetStringRouteValue(valueName string) string {
 
 // GetIDRouteValue extracts a bson.ObjectID value from the url route, based on its name
 func (req *Request) GetIDRouteValue(valueName string) (bson.ObjectId, error) {
-	if value, found := req.RouteValues[valueName]; found {
+	if value := req.RouteValues.ByName(valueName); len(value) > 0 {
 		if bson.IsObjectIdHex(value) {
 			return bson.ObjectIdHex(value), nil
 		}

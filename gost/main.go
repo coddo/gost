@@ -27,13 +27,13 @@ func main() {
 	go listenForInterruptSignal()
 
 	// Start a http or and https server depending on the program arguments
-	switch config.ServerType {
+	switch config.Protocol {
 	case "http":
 		servers.StartHTTPServer()
 	case "https":
 		servers.StartHTTPSServer()
 	default:
-		log.Fatalf("Unkown server type: %s", config.ServerType)
+		log.Fatalf("Unkown server type: %s", config.Protocol)
 	}
 }
 

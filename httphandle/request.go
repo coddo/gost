@@ -8,7 +8,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/go-zoo/bone"
+	"github.com/julienschmidt/httprouter"
+
 	"xojoc.pw/useragent"
 )
 
@@ -20,7 +21,7 @@ var (
 	ErrInvalidFormFormat = errors.New("The request form has an invalid format")
 )
 
-func generateRequest(req *http.Request, rw http.ResponseWriter, userIdentity *identity.Identity) *api.Request {
+func generateRequest(req *http.Request, rw http.ResponseWriter, userIdentity *identity.Identity, params httprouter.Params) *api.Request {
 	statusCode, err := parseRequestContent(req)
 	if err != nil {
 		sendMessageResponse(statusCode, err.Error(), rw, req)
@@ -38,7 +39,7 @@ func generateRequest(req *http.Request, rw http.ResponseWriter, userIdentity *id
 	request := &api.Request{
 		Header:        req.Header,
 		Form:          req.Form,
-		RouteValues:   bone.GetAllValues(req),
+		RouteValues:   params,
 		ContentLength: req.ContentLength,
 		Body:          body,
 		Identity:      userIdentity,
