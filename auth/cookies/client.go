@@ -24,3 +24,23 @@ type Client struct {
 func UnknownClientDetails() *Client {
 	return unknownClientDetails
 }
+
+// Equal check if two client details are the same
+func (client *Client) Equal(other *Client) bool {
+	switch {
+	case client.Address != other.Address:
+		return false
+	case client.Type != other.Type:
+		return false
+	case client.Name != other.Name:
+		return false
+	case client.Version != other.Version:
+		return false
+	case client.OS != other.OS:
+		return false
+	case client.IsMobileDevice != other.IsMobileDevice:
+		return false
+	default:
+		return true
+	}
+}

@@ -9,8 +9,6 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
-
-	"xojoc.pw/useragent"
 )
 
 var (
@@ -21,7 +19,7 @@ var (
 	ErrInvalidFormFormat = errors.New("The request form has an invalid format")
 )
 
-func generateRequest(req *http.Request, rw http.ResponseWriter, userIdentity *identity.Identity, params httprouter.Params) *api.Request {
+func generateRequest(req *http.Request, rw http.ResponseWriter, userIdentity *identity.Identity, params httprouter.Params, clientDetails *cookies.Client) *api.Request {
 	statusCode, err := parseRequestContent(req)
 	if err != nil {
 		sendMessageResponse(statusCode, err.Error(), rw, req)
@@ -34,8 +32,6 @@ func generateRequest(req *http.Request, rw http.ResponseWriter, userIdentity *id
 		return nil
 	}
 
-	var clientDetails = parseClientDetails(req)
-
 	request := &api.Request{
 		Header:        req.Header,
 		Form:          req.Form,
@@ -47,25 +43,6 @@ func generateRequest(req *http.Request, rw http.ResponseWriter, userIdentity *id
 	}
 
 	return request
-}
-
-func parseClientDetails(req *http.Request) *cookies.Client {
-	var userAgent = useragent.Parse(req.UserAgent())
-
-	if userAgent == nil {
-		return cookies.UnknownClientDetails()
-	}
-
-	var client = cookies.Client{
-		Address:        req.RemoteAddr,
-		Type:           userAgent.Type.String(),
-		Name:           userAgent.Name,
-		Version:        userAgent.Version.String(),
-		OS:             userAgent.OS,
-		IsMobileDevice: userAgent.Mobile || userAgent.Tablet,
-	}
-
-	return &client
 }
 
 // parseRequestContent performs validity checks on a request based on the HTTP method used.
