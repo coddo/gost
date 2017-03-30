@@ -23,15 +23,15 @@ func CreateFrameworkRoutes() {
 	RegisterRoute("/values/get/anonymous", http.MethodGet, true, nil, valuesapi.RouteGetAnonymous)
 
 	// append the session api routes
-	RegisterRoute("/session", http.MethodPost, false, nil, sessionapi.RouteCreateSession)
+	RegisterRoute("/session", http.MethodPost, true, nil, sessionapi.RouteCreateSession)
 	RegisterRoute("/session/:userId", http.MethodGet, false, nil, sessionapi.RouteGetAllSessions)
 	RegisterRoute("/session/:token", http.MethodDelete, false, nil, sessionapi.RouteKillSession)
 
 	// append the authentication api routes
-	RegisterRoute("/auth/activate", http.MethodPatch, false, nil, authapi.RouteActivateAccount)
-	RegisterRoute("/auth/activate/:email/resendEmail", http.MethodGet, false, nil, authapi.RouteResendAccountActivationEmail)
-	RegisterRoute("/auth/password/:email/reset", http.MethodGet, false, nil, authapi.RouteRequestResetPassword)
-	RegisterRoute("/auth/password/reset", http.MethodPatch, false, nil, authapi.RouteResetPassword)
+	RegisterRoute("/auth/activate", http.MethodPatch, true, nil, authapi.RouteActivateAccount)
+	RegisterRoute("/auth/activate/:email/resendEmail", http.MethodGet, true, nil, authapi.RouteResendAccountActivationEmail)
+	RegisterRoute("/auth/password/:email/reset", http.MethodGet, true, nil, authapi.RouteRequestResetPassword)
+	RegisterRoute("/auth/password/reset", http.MethodPatch, true, nil, authapi.RouteResetPassword)
 	RegisterRoute("/auth/password/change", http.MethodPatch, false, nil, authapi.RouteChangePassword)
 }
 
