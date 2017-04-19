@@ -2,8 +2,8 @@ package transactionapi
 
 import (
 	"gost/api"
-	"gost/orm/models"
-	"gost/orm/service/transactionservice"
+	"gost/auth/identity"
+	"gost/dal/service/transactionservice"
 	"net/http"
 
 	"errors"
@@ -23,15 +23,16 @@ func getTransaction(transactionID bson.ObjectId) api.Response {
 		return api.NotFound(ErrTransactionNotFound)
 	}
 
-	transaction := &models.Transaction{}
-	transaction.Expand(dbTransaction)
+	payer, _ := identity.GetUser(dbTransaction.PayerID)
+	receiver, _ := identity.GetUser(dbTransaction.PayerID)
+	transaction := NewFrom(dbTransaction, payer, receiver)
 
 	return api.JSONResponse(http.StatusOK, transaction)
 }
 
 // createTransaction endpoint creates a new transaction with the valid transfer tokens and data
-func createTransaction(transaction *models.Transaction) api.Response {
-	var dbTransaction = transaction.Collapse()
+func createTransaction(transaction *Transaction) api.Response {
+	var dbTransaction = transaction.ToDalModel()
 
 	err := transactionservice.CreateTransaction(dbTransaction)
 	if err != nil {

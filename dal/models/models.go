@@ -1,4 +1,4 @@
-package dbmodels
+package models
 
 // Objecter is an interface for defining a method for comparing two entities
 type Objecter interface {

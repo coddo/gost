@@ -1,7 +1,7 @@
 package identity
 
 import (
-	"gost/orm/service"
+	"gost/dal/service"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"

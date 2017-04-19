@@ -1,4 +1,4 @@
-package dbmodels
+package models
 
 import (
 	"gost/util/dateutil"
@@ -7,20 +7,26 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// Constants representing the type of transaction
+const (
+	TransactionTypeCash = iota
+	TransactionTypeCard = iota
+)
+
 // Transaction is a struct representing transactions between users
 type Transaction struct {
-	ID bson.ObjectId `bson:"_id,omitempty" json:"id"`
+	ID bson.ObjectId `json:"id"`
 
-	PayerID    bson.ObjectId `bson:"payerId,omitempty" json:"payerId"`
-	ReceiverID bson.ObjectId `bson:"receiverId,omitempty" json:"receiverId"`
+	PayerID    bson.ObjectId `json:"payer"`
+	ReceiverID bson.ObjectId `json:"receiver"`
 
-	PaymentPortal string `bson:"paymentPortal,omitempty" json:"paymentPortal"`
-	PaymentToken  string `bson:"paymentToken,omitempty" json:"paymentToken"`
+	PaymentPortal string `json:"paymentPortal"`
+	PaymentToken  string `json:"paymentToken"`
 
-	Type     int       `bson:"type,omitempty" json:"type"`
-	Ammount  float32   `bson:"ammount,omitempty" json:"ammount"`
-	Currency string    `bson:"currency,omitempty" json:"currency"`
-	Date     time.Time `bson:"date,omitempty" json:"date"`
+	Type     int       `json:"type"`
+	Ammount  float32   `json:"ammount"`
+	Currency string    `json:"currency"`
+	Date     time.Time `json:"date"`
 }
 
 // Equal compares two Transaction objects. Implements the Objecter interface

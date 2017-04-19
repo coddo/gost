@@ -1,9 +1,8 @@
 package transactionservice
 
 import (
-	"gost/orm/dbmodels"
-	"gost/orm/models"
-	"gost/orm/service"
+	"gost/dal/models"
+	"gost/dal/service"
 	testconfig "gost/tests/config"
 	"testing"
 	"time"
@@ -12,7 +11,7 @@ import (
 )
 
 func TestTransactionCRUD(t *testing.T) {
-	transaction := &dbmodels.Transaction{}
+	transaction := &models.Transaction{}
 
 	setUpTransactionsTest(t)
 	defer tearDownTransactionsTest(t, transaction)
@@ -35,7 +34,7 @@ func setUpTransactionsTest(t *testing.T) {
 	}
 }
 
-func tearDownTransactionsTest(t *testing.T, transaction *dbmodels.Transaction) {
+func tearDownTransactionsTest(t *testing.T, transaction *models.Transaction) {
 	err := DeleteTransaction(transaction.ID)
 
 	if err != nil {
@@ -43,8 +42,8 @@ func tearDownTransactionsTest(t *testing.T, transaction *dbmodels.Transaction) {
 	}
 }
 
-func createTransaction(t *testing.T, transaction *dbmodels.Transaction) {
-	*transaction = dbmodels.Transaction{
+func createTransaction(t *testing.T, transaction *models.Transaction) {
+	*transaction = models.Transaction{
 		ID:         bson.NewObjectId(),
 		PayerID:    bson.NewObjectId(),
 		ReceiverID: bson.NewObjectId(),
@@ -61,7 +60,7 @@ func createTransaction(t *testing.T, transaction *dbmodels.Transaction) {
 	}
 }
 
-func changeAndUpdateTransaction(t *testing.T, transaction *dbmodels.Transaction) {
+func changeAndUpdateTransaction(t *testing.T, transaction *models.Transaction) {
 	transaction.PayerID = bson.NewObjectId()
 	transaction.ReceiverID = bson.NewObjectId()
 	transaction.Type = models.TransactionTypeCard
@@ -74,7 +73,7 @@ func changeAndUpdateTransaction(t *testing.T, transaction *dbmodels.Transaction)
 	}
 }
 
-func verifyTransactionCorresponds(t *testing.T, transaction *dbmodels.Transaction) {
+func verifyTransactionCorresponds(t *testing.T, transaction *models.Transaction) {
 	dbtransaction, err := GetTransaction(transaction.ID)
 
 	if err != nil || dbtransaction == nil {

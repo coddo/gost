@@ -2,7 +2,6 @@ package transactionapi
 
 import (
 	"gost/api"
-	"gost/orm/models"
 	"gost/util/jsonutil"
 )
 
@@ -22,7 +21,7 @@ func RouteGetTransaction(request *api.Request) api.Response {
 
 // RouteCreateTransaction performs data parsing and binding before calling the API
 func RouteCreateTransaction(request *api.Request) api.Response {
-	transaction := &models.Transaction{}
+	transaction := &Transaction{}
 
 	err := jsonutil.DeserializeJSON(request.Body, transaction)
 	if err != nil {

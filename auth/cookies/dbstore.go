@@ -1,7 +1,7 @@
 package cookies
 
 import (
-	"gost/orm/service"
+	"gost/dal/service"
 
 	"log"
 
