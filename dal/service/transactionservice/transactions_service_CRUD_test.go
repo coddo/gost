@@ -3,7 +3,7 @@ package transactionservice
 import (
 	"gost/dal/models"
 	"gost/dal/service"
-	testconfig "gost/tests/config"
+	"gost/tests/daltest"
 	"testing"
 	"time"
 
@@ -26,7 +26,7 @@ func TestTransactionCRUD(t *testing.T) {
 }
 
 func setUpTransactionsTest(t *testing.T) {
-	testconfig.InitTestsDatabase()
+	daltest.InitTestsDatabase()
 	service.InitDbService()
 
 	if recover() != nil {
