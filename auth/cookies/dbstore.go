@@ -59,7 +59,27 @@ func (store *DatabaseCookieStore) GetAllUserCookies(userID bson.ObjectId) ([]*Se
 	return userSessions, err
 }
 
-// Init initializes the cookie store
+// DeleteAllUserCookies deletes all the cookies that a user has
+func (store *DatabaseCookieStore) DeleteAllUserCookies(userID bson.ObjectId) error {
+	session, collection := service.Connect(store.location)
+	defer session.Close()
+
+	_, err := collection.RemoveAll(bson.M{"userID": userID})
+
+	return err
+}
+
+// ClearCookieStore clears the entire cookie store by deleting everything for all users
+func (store *DatabaseCookieStore) ClearCookieStore() error {
+	session, collection := service.Connect(store.location)
+	defer session.Close()
+
+	_, err := collection.RemoveAll(nil)
+
+	return err
+}
+
+// Init initializes the cookie store and makes sure it is empty
 func (store *DatabaseCookieStore) Init() {
 	session, collection := service.Connect(store.location)
 	defer session.Close()
@@ -72,6 +92,11 @@ func (store *DatabaseCookieStore) Init() {
 	err := collection.EnsureIndex(index)
 	if err != nil {
 		log.Fatalf("Database store indexes initialization error: %v\n", err)
+	}
+
+	err = store.ClearCookieStore()
+	if err != nil {
+		log.Fatalf("Database store initialization error for clearing previous cookies: %v\n", err)
 	}
 }
 

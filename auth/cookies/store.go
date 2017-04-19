@@ -17,23 +17,25 @@ const (
 	defaultCookieStoreLocation = "cookies"
 )
 
-// CookieStore is an interface used for describing entities that can manage
+// CookieStorer is an interface used for describing entities that can manage
 // the location of user sessions (cookies) and performs operations such as
 // reading or writing cookie from/to that location
-type CookieStore interface {
+type CookieStorer interface {
 	ReadCookie(key string) (*Session, error)
 	WriteCookie(cookie *Session) error
 	DeleteCookie(cookie *Session) error
 	GetAllUserCookies(userID bson.ObjectId) ([]*Session, error)
+	DeleteAllUserCookies(userID bson.ObjectId) error
+	ClearCookieStore() error
 	Init()
 }
 
 var defaultCookieStore = &DatabaseCookieStore{location: defaultCookieStoreLocation}
-var cookieStore CookieStore = defaultCookieStore
+var cookieStore CookieStorer = defaultCookieStore
 
 // SetCookieStore sets the cookie store that will be used by the system.
 // If this method is not called, the default cookie store will be used
-func SetCookieStore(store CookieStore) {
+func SetCookieStore(store CookieStorer) {
 	cookieStore = store
 }
 
