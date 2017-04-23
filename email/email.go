@@ -35,16 +35,31 @@ type Email struct {
 	header    map[string]string
 }
 
-// NewEmail creates a new email message
-func NewEmail() *Email {
+// New creates a new empty email object
+func New() *Email {
 	return &Email{
 		header: basicHeader,
 	}
 }
 
+// NewEmail creates a new email message with the provided details
+func NewEmail(emailAddress, subject, templateName string, templateParams ...interface{}) *Email {
+	var email = &Email{
+		header: basicHeader,
+	}
+
+	emailBody := ParseTemplate(activateAccountTemplate, templateParams)
+
+	email.SetRecipient(emailAddress)
+	email.SetSubject(activateAccountSubject)
+	email.SetBody(emailBody)
+
+	return email
+}
+
 // Send sends the email message
 func (email *Email) Send() error {
-	var content = createContent(email.header, email.body)
+	var content = email.createContent(email.header, email.body)
 
 	return smtp.SendMail(smtpServer,
 		authorization,
@@ -77,7 +92,7 @@ func (email *Email) SetBody(body string) {
 	email.body = body
 }
 
-func createContent(header map[string]string, body string) []byte {
+func (email *Email) createContent(header map[string]string, body string) []byte {
 	var message bytes.Buffer
 
 	// Header
