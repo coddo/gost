@@ -2,7 +2,10 @@ package httphandle
 
 import (
 	"gost/api"
+	"gost/auth/cookies"
 	"net/http"
+
+	"xojoc.pw/useragent"
 
 	"strings"
 
@@ -71,10 +74,38 @@ func RequestHandler(rw http.ResponseWriter, req *http.Request, method string, al
 		return
 	}
 
+	// Parse the client details of the requesting user
+	var clientDetails = parseClientDetails(req)
+
+	// Check if the client details defer from the token
+	if !identity.IsAnonymous() && !clientDetails.Equal(identity.Session.Client) {
+		sendMessageResponse(errorStatusCode, api.StatusText(errorStatusCode), rw, req)
+		return
+	}
+
 	// Create the request
-	request := generateRequest(req, rw, identity, params)
+	request := generateRequest(req, rw, identity, params, clientDetails)
 
 	// Call the endpoint
 	var response = action(request)
 	respond(&response, rw, req)
+}
+
+func parseClientDetails(req *http.Request) *cookies.Client {
+	var userAgent = useragent.Parse(req.UserAgent())
+
+	if userAgent == nil {
+		return cookies.UnknownClientDetails()
+	}
+
+	var client = cookies.Client{
+		Address:        req.RemoteAddr,
+		Type:           userAgent.Type.String(),
+		Name:           userAgent.Name,
+		Version:        userAgent.Version.String(),
+		OS:             userAgent.OS,
+		IsMobileDevice: userAgent.Mobile || userAgent.Tablet,
+	}
+
+	return &client
 }
