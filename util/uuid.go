@@ -7,10 +7,7 @@ import (
 	"regexp"
 )
 
-const hexPattern = "^(urn\\:uuid\\:)?\\{?([a-z0-9]{8})-([a-z0-9]{4})-" +
-	"([1-5][a-z0-9]{3})-([a-z0-9]{4})-([a-z0-9]{12})\\}?$"
-
-var re = regexp.MustCompile(hexPattern)
+const uuidRegexPattern = "^(urn\\:uuid\\:)?\\{?([a-z0-9]{8})-([a-z0-9]{4})-([1-5][a-z0-9]{3})-([a-z0-9]{4})-([a-z0-9]{12})\\}?$"
 
 // A UUID representation compliant with specification in
 // RFC 4122 document.
@@ -18,6 +15,8 @@ type UUID [16]byte
 
 // IsValidUUID tells if a given UUID string is valid
 func IsValidUUID(s string) bool {
+	var re = regexp.MustCompile(uuidRegexPattern)
+
 	md := re.FindStringSubmatch(s)
 	if md == nil {
 		return false

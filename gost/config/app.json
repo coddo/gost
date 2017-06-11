@@ -1,5 +1,9 @@
 {
 	"applicationName": "gost",
-	"apiInstance": "/gost/",
-	"httpServerAddress": "0.0.0.0:1234"
+	"apiInstance": "/gost",
+	"httpServerAddress": "0.0.0.0",
+	"httpServerPort": "1234",
+    "protocol": "http",
+	"accountActivationEndpoint": "http://localhost/gost/auth/activate/",
+	"passwordResetEndpoint": "http://localhost/gost/auth/password/reset/"
 }

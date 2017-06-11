@@ -2,10 +2,13 @@ package servers
 
 import (
 	"gost/config"
-	"gost/httphandle"
 	"log"
 	"net/http"
 	"time"
+
+	"fmt"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 const (
@@ -13,32 +16,37 @@ const (
 	httpsKeyFile  = "gost.key"
 )
 
+// Multiplexer represents the route handler used by the http server
+var Multiplexer = httprouter.New()
+
 // StartHTTPServer starts a HTTP server that listens for requests
 func StartHTTPServer() {
-	http.HandleFunc(config.APIInstance, httphandle.RequestHandler)
+	var serverAddress = fmt.Sprintf(":%s", config.HTTPServerPort)
 
 	server := &http.Server{
-		Addr:           config.HTTPServerAddress,
+		Addr:           serverAddress,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
+		Handler:        Multiplexer,
 	}
 
-	log.Println("HTTP Server STARTED! Listening at:", config.HTTPServerAddress+config.APIInstance)
+	log.Println("HTTP Server STARTED! Listening at:", serverAddress)
 	log.Fatal(server.ListenAndServe())
 }
 
 // StartHTTPSServer starts a HTTPS server that listens for requests
 func StartHTTPSServer() {
-	http.HandleFunc(config.APIInstance, httphandle.RequestHandler)
+	var serverAddress = fmt.Sprintf(":%s", config.HTTPServerPort)
 
 	server := &http.Server{
-		Addr:           config.HTTPServerAddress,
+		Addr:           serverAddress,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
+		Handler:        Multiplexer,
 	}
 
-	log.Println("HTTPS Server STARTED! Listening at:", config.HTTPServerAddress+config.APIInstance)
+	log.Println("HTTPS Server STARTED! Listening at:", serverAddress)
 	log.Fatal(server.ListenAndServeTLS(httpsCertFile, httpsKeyFile))
 }

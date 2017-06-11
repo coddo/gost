@@ -3,6 +3,7 @@ package email
 import (
 	"bytes"
 	"fmt"
+	"gost/util"
 	"net/mail"
 	"net/smtp"
 )
@@ -22,10 +23,9 @@ var (
 )
 
 var basicHeader = map[string]string{
-	"From":                      sender.String(),
-	"MIME-Version":              "1.0",
-	"Content-Type":              "text/html; charset=\"utf-8\"",
-	"Content-Transfer-Encoding": "base64",
+	"From":         sender.String(),
+	"MIME-Version": "1.0",
+	"Content-Type": "text/html; charset=\"utf-8\"",
 }
 
 // Email struct is used to send an email message
@@ -35,16 +35,31 @@ type Email struct {
 	header    map[string]string
 }
 
-// NewEmail creates a new email message
-func NewEmail() *Email {
+// New creates a new empty email object
+func New() *Email {
 	return &Email{
 		header: basicHeader,
 	}
 }
 
+// NewEmail creates a new email message with the provided details
+func NewEmail(emailAddress, subject, templateName string, templateParams ...interface{}) *Email {
+	var email = &Email{
+		header: basicHeader,
+	}
+
+	emailBody := ParseTemplate(activateAccountTemplate, templateParams)
+
+	email.SetRecipient(emailAddress)
+	email.SetSubject(activateAccountSubject)
+	email.SetBody(emailBody)
+
+	return email
+}
+
 // Send sends the email message
 func (email *Email) Send() error {
-	var content = createContent(email.header, email.body)
+	var content = email.createContent(email.header, email.body)
 
 	return smtp.SendMail(smtpServer,
 		authorization,
@@ -55,6 +70,10 @@ func (email *Email) Send() error {
 
 // SetRecipient sets the receiver of the email
 func (email *Email) SetRecipient(address string) {
+	if !util.IsValidEmail(address) {
+		return
+	}
+
 	var recipient = mail.Address{
 		Address: address,
 	}
@@ -73,7 +92,7 @@ func (email *Email) SetBody(body string) {
 	email.body = body
 }
 
-func createContent(header map[string]string, body string) []byte {
+func (email *Email) createContent(header map[string]string, body string) []byte {
 	var message bytes.Buffer
 
 	// Header

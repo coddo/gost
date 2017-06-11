@@ -46,13 +46,13 @@ func fetchAndDeserializeDbData(filePath string) DbConfig {
 	data, err := ioutil.ReadFile(filePath)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("[InitDatabase] %v\n", err)
 	}
 
 	err = json.Unmarshal(data, &configEntity)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("[InitDatabase] %v\n", err)
 	}
 
 	return configEntity
@@ -61,8 +61,10 @@ func fetchAndDeserializeDbData(filePath string) DbConfig {
 func createConnectionString(data DbConfig) string {
 	var buf bytes.Buffer
 
-	buf.WriteString(data.Driver)
-	buf.WriteString("://")
+	if len(data.Driver) > 0 {
+		buf.WriteString(data.Driver)
+		buf.WriteString("://")
+	}
 
 	if len(data.User) > 0 {
 		buf.WriteString(data.User)

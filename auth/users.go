@@ -4,8 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"gost/auth/identity"
+	"gost/config"
 	"gost/email"
 	"gost/util"
+	"gost/util/dateutil"
+	"gost/util/hashutil"
 	"log"
 	"time"
 
@@ -21,17 +24,18 @@ const (
 var (
 	ErrActivationTokenExpired    = errors.New("The activation token has expired")
 	ErrResetPasswordTokenExpired = errors.New("The reset password token has expired")
+	ErrAccountAlreadyActivated   = errors.New("The account is already activated")
 )
 
 // CreateAppUser creates a new ApplicationUser with the given data, generates an activation token
 // and sends an email containing a link used for activating the account
-func CreateAppUser(emailAddress, password string, accountType int, activationServiceLink string) (*identity.ApplicationUser, error) {
+func CreateAppUser(emailAddress, password string, roles []string) (*identity.ApplicationUser, error) {
 	var token, err = util.GenerateUUID()
 	if err != nil {
 		return nil, err
 	}
 
-	passwordHash, err := util.HashString(password)
+	passwordHash, err := hashutil.HashString(password)
 	if err != nil {
 		return nil, err
 	}
@@ -40,9 +44,10 @@ func CreateAppUser(emailAddress, password string, accountType int, activationSer
 		ID:                             bson.NewObjectId(),
 		Email:                          emailAddress,
 		Password:                       passwordHash,
-		AccountType:                    accountType,
+		Roles:                          roles,
 		ActivateAccountToken:           token,
-		ActivateAccountTokenExpireDate: util.NextDateFromNow(accountActivationTokenExpireTime),
+		ActivateAccountTokenExpireDate: dateutil.NextDateFromNow(accountActivationTokenExpireTime),
+		AccountStatus:                  identity.AccountStatusDeactivated,
 	}
 
 	err = identity.CreateUser(user)
@@ -50,7 +55,9 @@ func CreateAppUser(emailAddress, password string, accountType int, activationSer
 		return nil, err
 	}
 
-	go sendAccountActivationEmail(emailAddress, activationServiceLink, token)
+	var accountActivationLink = createLinkWithToken(config.AccountActivationEndpoint, token)
+
+	go sendAccountActivationEmail(emailAddress, accountActivationLink)
 
 	return user, nil
 }
@@ -62,7 +69,11 @@ func ActivateAppUser(token string) error {
 		return err
 	}
 
-	if util.IsDateExpiredFromNow(user.ActivateAccountTokenExpireDate) {
+	if user.AccountStatus == identity.AccountStatusActivated {
+		return ErrAccountAlreadyActivated
+	}
+
+	if dateutil.IsDateExpiredFromNow(user.ActivateAccountTokenExpireDate) {
 		return ErrActivationTokenExpired
 	}
 
@@ -78,11 +89,98 @@ func ResetPassword(token, password string) error {
 		return err
 	}
 
-	if util.IsDateExpiredFromNow(user.ResetPasswordTokenExpireDate) {
+	if dateutil.IsDateExpiredFromNow(user.ResetPasswordTokenExpireDate) {
 		return ErrResetPasswordTokenExpired
 	}
 
-	passwordHash, err := util.HashString(password)
+	return changeUserPassword(user, password)
+}
+
+// ChangePassword changes the current password that the user has
+func ChangePassword(userEmail, oldPassword, password string) error {
+	var user, err = identity.GetUserByEmail(userEmail)
+	if err != nil {
+		return err
+	}
+
+	if !hashutil.MatchHashString(user.Password, oldPassword) {
+		return ErrPasswordMismatch
+	}
+
+	return changeUserPassword(user, password)
+}
+
+// RequestResetPassword generates a reset token and sends an email with the link where to perform the change
+func RequestResetPassword(emailAddress string) (string, error) {
+	var user, err = identity.GetUserByEmail(emailAddress)
+	if err != nil {
+		return "", err
+	}
+
+	token, err := util.GenerateUUID()
+	if err != nil {
+		return "", err
+	}
+
+	user.ResetPasswordToken = token
+	user.ResetPasswordTokenExpireDate = dateutil.NextDateFromNow(passwordResetTokenExpireTime)
+
+	err = identity.UpdateUser(user)
+	if err != nil {
+		return "", err
+	}
+
+	var passwordResetLink = createLinkWithToken(config.PasswordResetEndpoint, token)
+	go sendPasswordResetEmail(emailAddress, passwordResetLink)
+
+	return passwordResetLink, nil
+}
+
+// ResendAccountActivationEmail resends the email with the details for activating their user account
+func ResendAccountActivationEmail(emailAddress string) (string, error) {
+	var user, err = identity.GetUserByEmail(emailAddress)
+	if err != nil {
+		return "", err
+	}
+
+	token, err := util.GenerateUUID()
+	if err != nil {
+		return "", err
+	}
+
+	user.ActivateAccountToken = token
+	user.ActivateAccountTokenExpireDate = dateutil.NextDateFromNow(accountActivationTokenExpireTime)
+
+	err = identity.UpdateUser(user)
+	if err != nil {
+		return "", err
+	}
+
+	var accountActivationLink = createLinkWithToken(config.AccountActivationEndpoint, token)
+
+	go sendAccountActivationEmail(emailAddress, accountActivationLink)
+
+	return accountActivationLink, nil
+}
+
+func sendAccountActivationEmail(userEmail, accountActivationLink string) {
+	err := email.SendAccountActivationEmail(userEmail, accountActivationLink)
+
+	if err != nil {
+		log.Printf(fmt.Sprintf("Error in sending account activation email to: %s", userEmail))
+	}
+}
+
+func sendPasswordResetEmail(userEmail, passwordResetLink string) {
+	err := email.SendPasswordResetEmail(userEmail, passwordResetLink)
+
+	if err != nil {
+		log.Printf(fmt.Sprintf("Error in sending password reset email to: %s", userEmail))
+	}
+}
+
+func changeUserPassword(user *identity.ApplicationUser, password string) error {
+	passwordHash, err := hashutil.HashString(password)
 	if err != nil {
 		return err
 	}
@@ -92,72 +190,6 @@ func ResetPassword(token, password string) error {
 	return identity.UpdateUser(user)
 }
 
-// RequestResetPassword generates a reset token and sends an email with the link where to perform the change
-func RequestResetPassword(emailAddress, passwordResetServiceLink string) error {
-	var user, err = identity.GetUserByEmail(emailAddress)
-	if err != nil {
-		return err
-	}
-
-	token, err := util.GenerateUUID()
-	if err != nil {
-		return err
-	}
-
-	user.ResetPasswordToken = token
-	user.ResetPasswordTokenExpireDate = util.NextDateFromNow(passwordResetTokenExpireTime)
-
-	err = identity.UpdateUser(user)
-	if err != nil {
-		return err
-	}
-
-	go sendPasswordResetEmail(emailAddress, passwordResetServiceLink, token)
-
-	return nil
-}
-
-// ResendAccountActivationEmail resends the email with the details for activating their user account
-func ResendAccountActivationEmail(emailAddress, activationServiceLink string) error {
-	var user, err = identity.GetUserByEmail(emailAddress)
-	if err != nil {
-		return err
-	}
-
-	token, err := util.GenerateUUID()
-	if err != nil {
-		return err
-	}
-
-	user.ActivateAccountToken = token
-	user.ActivateAccountTokenExpireDate = util.NextDateFromNow(accountActivationTokenExpireTime)
-
-	err = identity.UpdateUser(user)
-	if err != nil {
-		return err
-	}
-
-	go sendAccountActivationEmail(emailAddress, activationServiceLink, token)
-
-	return nil
-}
-
-func sendAccountActivationEmail(userEmail, activationServiceLink, token string) {
-	var accountActivationLink = fmt.Sprintf(activationServiceLink, token)
-
-	err := email.SendAccountActivationEmail(userEmail, accountActivationLink)
-
-	if err != nil {
-		log.Printf(fmt.Sprintf("Error in sending account activation email to: %s", userEmail))
-	}
-}
-
-func sendPasswordResetEmail(userEmail, passwordResetServiceLink, token string) {
-	var passwordResetLink = fmt.Sprintf(passwordResetServiceLink, token)
-
-	err := email.SendPasswordResetEmail(userEmail, passwordResetLink)
-
-	if err != nil {
-		log.Printf(fmt.Sprintf("Error in sending password reset email to: %s", userEmail))
-	}
+func createLinkWithToken(url, token string) string {
+	return fmt.Sprintf("%s%s", url, token)
 }

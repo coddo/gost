@@ -3,6 +3,7 @@ package cookies
 import (
 	"errors"
 	"gost/util"
+	"gost/util/dateutil"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
@@ -24,24 +25,11 @@ var (
 // Session is a struct representing the session that a user has.
 // Sessions are active since login until they expire or the user disconnects
 type Session struct {
-	ID          bson.ObjectId `bson:"_id" json:"-"`
-	UserID      bson.ObjectId `bson:"userID,omitempty" json:"userID"`
-	Token       string        `bson:"token,omitempty" json:"token"`
-	AccountType int           `bson:"accountType,omitempty" json:"accountType"`
-	ExpireTime  time.Time     `bson:"expireTime,omitempty" json:"-"`
-	Client      *Client       `bson:"client,omitempty" json:"client"`
-}
-
-// Client struct contains information regarding the client that has made the http request
-type Client struct {
-	IPAddress string  `bson:"ipAddress,omitempty" json:"ipAddress"`
-	Browser   string  `bson:"browser,omitempty" json:"browser"`
-	OS        string  `bson:"os,omitempty" json:"os"`
-	Country   string  `bson:"country,omitempty" json:"country"`
-	State     string  `bson:"state,omitempty" json:"state"`
-	City      string  `bson:"city,omitempty" json:"city"`
-	Latitude  float64 `bson:"latitude,omitempty" json:"latitude"`
-	Longitude float64 `bson:"longitude,omitempty" json:"longitude"`
+	ID         bson.ObjectId `bson:"_id" json:"-"`
+	UserID     bson.ObjectId `bson:"userID,omitempty" json:"userID"`
+	Token      string        `bson:"token,omitempty" json:"token"`
+	ExpireTime time.Time     `bson:"expireTime,omitempty" json:"-"`
+	Client     *Client       `bson:"client,omitempty" json:"client"`
 }
 
 // Save saves the session in the cookie store
@@ -56,37 +44,31 @@ func (session *Session) Delete() error {
 
 // IsExpired returns true if the session has expired
 func (session *Session) IsExpired() bool {
-	return util.IsDateExpiredFromNow(session.ExpireTime)
-}
-
-// IsUserInRole verifies if the user with the current session has a specific role
-func (session *Session) IsUserInRole(role int) bool {
-	return session.AccountType == role
+	return dateutil.IsDateExpiredFromNow(session.ExpireTime)
 }
 
 // ResetToken generates a new token and resets the expire time target of the session
 // This also triggers a Save() action, to update the cookie store
 func (session *Session) ResetToken() error {
-	session.ExpireTime = util.NextDateFromNow(tokenExpireTime)
+	session.ExpireTime = dateutil.NextDateFromNow(tokenExpireTime)
 
 	return session.Save()
 }
 
 // NewSession generates a new Session pointer that contains the given userID and
 // a unique token used as an identifier
-func NewSession(userID bson.ObjectId, accountType int, client *Client) (*Session, error) {
+func NewSession(userID bson.ObjectId, clientDetails *Client) (*Session, error) {
 	token, err := util.GenerateUUID()
 	if err != nil {
 		return nil, err
 	}
 
 	session := &Session{
-		ID:          bson.NewObjectId(),
-		UserID:      userID,
-		AccountType: accountType,
-		Token:       token,
-		ExpireTime:  util.NextDateFromNow(tokenExpireTime),
-		Client:      client,
+		ID:         bson.NewObjectId(),
+		UserID:     userID,
+		Token:      token,
+		ExpireTime: dateutil.NextDateFromNow(tokenExpireTime),
+		Client:     clientDetails,
 	}
 
 	return session, nil

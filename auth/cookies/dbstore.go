@@ -1,7 +1,9 @@
 package cookies
 
 import (
-	"gost/service"
+	"gost/dal/service"
+
+	"log"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -57,15 +59,31 @@ func (store *DatabaseCookieStore) GetAllUserCookies(userID bson.ObjectId) ([]*Se
 	return userSessions, err
 }
 
-// Init initializes the cookie store
+// DeleteAllUserCookies deletes all the cookies that a user has
+func (store *DatabaseCookieStore) DeleteAllUserCookies(userID bson.ObjectId) error {
+	session, collection := service.Connect(store.location)
+	defer session.Close()
+
+	_, err := collection.RemoveAll(bson.M{"userID": userID})
+
+	return err
+}
+
+// ClearCookieStore clears the entire cookie store by deleting everything for all users
+func (store *DatabaseCookieStore) ClearCookieStore() error {
+	session, collection := service.Connect(store.location)
+	defer session.Close()
+
+	_, err := collection.RemoveAll(nil)
+
+	return err
+}
+
+// Init initializes the cookie store and makes sure it is empty
 func (store *DatabaseCookieStore) Init() {
 	session, collection := service.Connect(store.location)
 	defer session.Close()
 	session.SetMode(mgo.Monotonic, true)
-
-	if store.hasTokenIndex(collection) {
-		return
-	}
 
 	index := mgo.Index{
 		Key: []string{"$text:token"},
@@ -73,26 +91,13 @@ func (store *DatabaseCookieStore) Init() {
 
 	err := collection.EnsureIndex(index)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Database store indexes initialization error: %v\n", err)
 	}
-}
 
-// hasTokenIndex verifies if there is already an index created for the token field of a collection
-func (store *DatabaseCookieStore) hasTokenIndex(collection *mgo.Collection) bool {
-	indexes, err := collection.Indexes()
+	err = store.ClearCookieStore()
 	if err != nil {
-		panic(ErrInitializationFailed)
+		log.Fatalf("Database store initialization error for clearing previous cookies: %v\n", err)
 	}
-
-	for _, index := range indexes {
-		for _, key := range index.Key {
-			if key == "token" {
-				return true
-			}
-		}
-	}
-
-	return false
 }
 
 // NewDatabaseCookieStore creates a new DatabaseCookieStore pointer entity

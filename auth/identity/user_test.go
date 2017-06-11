@@ -1,9 +1,9 @@
 package identity
 
 import (
-	"gost/service"
+	"gost/orm/service"
 	testconfig "gost/tests/config"
-	"gost/util"
+	"gost/util/dateutil"
 	"testing"
 	"time"
 
@@ -82,10 +82,10 @@ func verifyUserCorresponds(t *testing.T, user *ApplicationUser) {
 
 	if user.AccountStatus != dbuser.AccountStatus || user.AccountType != dbuser.AccountType ||
 		user.ActivateAccountToken != dbuser.ActivateAccountToken ||
-		!util.CompareDates(user.ActivateAccountTokenExpireDate, dbuser.ActivateAccountTokenExpireDate) ||
+		!dateutil.CompareDates(user.ActivateAccountTokenExpireDate, dbuser.ActivateAccountTokenExpireDate) ||
 		user.Email != dbuser.Email || user.Password != dbuser.Password ||
 		user.ResetPasswordToken != dbuser.ResetPasswordToken ||
-		!util.CompareDates(user.ResetPasswordTokenExpireDate, dbuser.ResetPasswordTokenExpireDate) {
+		!dateutil.CompareDates(user.ResetPasswordTokenExpireDate, dbuser.ResetPasswordTokenExpireDate) {
 
 		t.Error("The user document doesn't correspond with the document extracted from the database!")
 	}

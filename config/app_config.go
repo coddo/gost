@@ -19,14 +19,30 @@ var (
 
 	// HTTPServerAddress represents the address at which the HTTP server is started and listening
 	HTTPServerAddress string
+
+	// HTTPServerPort represents the port on which the HTTP server is started and listening
+	HTTPServerPort string
+
+	// Protocol represents the type of protocol used: http or https
+	Protocol string
+
+	// AccountActivationEndpoint is the link where the account activation takes place (i.e. http://example.com?token=)
+	AccountActivationEndpoint string
+
+	// PasswordResetEndpoint is the link where the password reset action takes place (i.e. http://example.com?token=)
+	PasswordResetEndpoint string
 )
 
 // Struct with the sole purpose of easier serialization
 // and deserialization of configuration data
 type appConfigHolder struct {
-	ApplicationName   string `json:"applicationName"`
-	APIInstance       string `json:"apiInstance"`
-	HTTPServerAddress string `json:"httpServerAddress"`
+	ApplicationName           string `json:"applicationName"`
+	APIInstance               string `json:"apiInstance"`
+	HTTPServerAddress         string `json:"httpServerAddress"`
+	HTTPServerPort            string `json:"httpServerPort"`
+	Protocol                  string `json:"protocol"`
+	AccountActivationEndpoint string `json:"accountActivationEndpoint"`
+	PasswordResetEndpoint     string `json:"passwordResetEndpoint"`
 }
 
 // InitApp initializes the application by reading the functional parameters
@@ -40,15 +56,19 @@ func InitApp(appConfigPath string) {
 
 	data, err := ioutil.ReadFile(appConfigFile)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("[InitApp] %v\n", err)
 	}
 
 	err = json.Unmarshal(data, &configData)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("[InitApp] %v\n", err)
 	}
 
 	ApplicationName = configData.ApplicationName
 	APIInstance = configData.APIInstance
 	HTTPServerAddress = configData.HTTPServerAddress
+	HTTPServerPort = configData.HTTPServerPort
+	Protocol = configData.Protocol
+	AccountActivationEndpoint = configData.AccountActivationEndpoint
+	PasswordResetEndpoint = configData.PasswordResetEndpoint
 }
