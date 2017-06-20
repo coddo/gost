@@ -116,6 +116,13 @@ func IsUserExistent(userID bson.ObjectId) (*ApplicationUser, bool) {
 	return user, err == nil && user != nil
 }
 
+// IsUserEmailExistent verifies if an user with the given email exists
+func IsUserEmailExistent(email string) (*ApplicationUser, bool) {
+	var user, err = GetUserByEmail(email)
+
+	return user, err == nil && user != nil
+}
+
 // IsUserActivated verifies if an user account is activated
 func IsUserActivated(userID bson.ObjectId) (*ApplicationUser, bool) {
 	user, exists := IsUserExistent(userID)

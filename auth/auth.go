@@ -10,8 +10,6 @@ import (
 	"gost/util/jsonutil"
 	"net/http"
 	"strings"
-
-	"gopkg.in/mgo.v2/bson"
 )
 
 // The keys that are used in the request header to authorize the user
@@ -34,11 +32,11 @@ var (
 )
 
 // GenerateUserAuth generates a new gost-token, saves it in the database and returns it to the client
-func GenerateUserAuth(userID bson.ObjectId, password string, clientDetails *cookies.Client) (string, error) {
+func GenerateUserAuth(email string, password string, clientDetails *cookies.Client) (string, error) {
 	var user *identity.ApplicationUser
 	var isUserExistent bool
 
-	if user, isUserExistent = identity.IsUserExistent(userID); !isUserExistent {
+	if user, isUserExistent = identity.IsUserEmailExistent(email); !isUserExistent {
 		return ErrInvalidUser.Error(), ErrInvalidUser
 	}
 
@@ -46,7 +44,7 @@ func GenerateUserAuth(userID bson.ObjectId, password string, clientDetails *cook
 		return ErrPasswordMismatch.Error(), ErrPasswordMismatch
 	}
 
-	session, err := cookies.NewSession(userID, clientDetails)
+	session, err := cookies.NewSession(user.ID, clientDetails)
 	if err != nil {
 		return err.Error(), err
 	}

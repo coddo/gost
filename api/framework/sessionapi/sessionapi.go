@@ -31,11 +31,7 @@ func getAllSessions(userID bson.ObjectId) api.Response {
 
 // createSession creates a new session for an existing user account
 func createSession(model *LoginModel, clientDetails *cookies.Client) api.Response {
-	if model.Password != model.PasswordConfirmation {
-		return api.BadRequest(ErrPasswordMatch)
-	}
-
-	token, err := auth.GenerateUserAuth(model.AppUserID, model.Password, clientDetails)
+	token, err := auth.GenerateUserAuth(model.Email, model.Password, clientDetails)
 	if err != nil {
 		return api.BadRequest(err)
 	}
